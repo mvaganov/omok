@@ -85,41 +85,63 @@ public class OmokBoard : MonoBehaviour {
 		}
 	}
 
-	public string DebugPrint() {
-		//string text = BlockLower + BlockUpper + BlockBoth;
-		List<OmokPiece> pieces = new List<OmokPiece>();
-		pieces.AddRange(map.Values);
-		Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue), max = new Vector2Int(int.MinValue, int.MinValue);
+	private static readonly Vector2Int MAX = new Vector2Int(int.MaxValue, int.MaxValue);
+	private static readonly Vector2Int MIN = new Vector2Int(int.MinValue, int.MinValue);
+
+	public static void CalculateCoordRange<T>(List<T> pieces, System.Func<T, Vector2Int> getCoord, out Vector2Int _min, out Vector2Int _max) {
+		Vector2Int min = MAX, max = MIN;
 		pieces.ForEach(a => {
-			Vector2Int coord = a.Coord;// GetCoord(a.transform.position);
+			Vector2Int coord = getCoord(a);
 			min.x = Mathf.Min(min.x, coord.x);
 			min.y = Mathf.Min(min.y, coord.y);
 			max.x = Mathf.Max(max.x, coord.x);
 			max.y = Mathf.Max(max.y, coord.y);
 		});
+		if (min == MAX && max == MIN) {
+			_min = _max = Vector2Int.zero;
+		} else {
+			_min = min;
+			_max = max;
+		}
+	}
+
+	public static void SortPieces<T>(List<T> pieces, System.Func<T, Vector2Int> getCoord) {
 		pieces.Sort((a, b) => {
-			Vector2Int coordA = a.Coord;// GetCoord(a.position);
-			Vector2Int coordB = b.Coord;// GetCoord(b.position);
+			Vector2Int coordA = getCoord(a), coordB = getCoord(b);
 			if (coordA.y < coordB.y) { return 1; } else if (coordA.y > coordB.y) { return -1; }
 			if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
 			return 0;
 		});
-		//Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t=> CoordOf(t.position)+":"+t.name)));
+	}
+
+	public static Vector2Int GetCoordFromPiece(OmokPiece piece) => piece.Coord;
+
+	public string DebugPrint() {
+		//string text = BlockLower + BlockUpper + BlockBoth;
+		List<OmokPiece> pieces = new List<OmokPiece>();
+		pieces.AddRange(map.Values);
+		CalculateCoordRange(pieces, GetCoordFromPiece, out Vector2Int min, out Vector2Int max);
+		SortPieces(pieces, GetCoordFromPiece);
+		Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t=> t.Coord+":"+t.name)));
 		StringBuilder sb = new StringBuilder();
-		sb.Append(min + "->" + max);
+		sb.Append(pieces.Count+", " + min + "," + max);
 		int i = 0;
-		Vector2Int nextPosition = pieces[i].Coord;// GetCoord(pieces[i].position);
-		for (int row = max.y; row >= min.y; --row) {
-			sb.Append("\n");
-			for (int col = min.x; col <= max.x; ++col) {
-				if (row == nextPosition.y && col == nextPosition.x) {
-					sb.Append("!");
-					if (i < pieces.Count - 1) {
-						nextPosition = pieces[++i].Coord;// GetCoord(pieces[++i].position);
-						//Debug.Log(nextPosition);
+		if (pieces.Count > 0) {
+			Vector2Int nextPosition = pieces[i].Coord;// GetCoord(pieces[i].position);
+			for (int row = max.y; row >= min.y; --row) {
+				sb.Append("\n");
+				for (int col = min.x; col <= max.x; ++col) {
+					if (row == nextPosition.y && col == nextPosition.x) {
+						sb.Append("!");
+						if (i < pieces.Count - 1) {
+							nextPosition = pieces[++i].Coord;
+							if (i >= pieces.Count) {
+								break;
+							}
+						}
+					} else {
+						sb.Append(".");
 					}
-				} else {
-					sb.Append(".");
 				}
 			}
 		}
