@@ -43,4 +43,6 @@ public class OmokGame : MonoBehaviour
 			WhosTurn++;
 		}
 	}
+
+	public int GetPlayerIndex(OmokPlayer player) => System.Array.IndexOf(players, player);
 }

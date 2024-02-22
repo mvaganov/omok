@@ -5,18 +5,91 @@ using UnityEngine;
 
 [System.Serializable]
 public class OmokState {
-	[System.Serializable]
-	public struct UnitState {
-		public byte player;
-		public byte unit;
+	public enum UnitState {
+		None,    // 00
+		Unknown, // 01
+		Player0, // 10
+		Player1, // 11
 	}
 
-	private Dictionary<Vector2Int, UnitState> map = new Dictionary<Vector2Int, UnitState>();
-
-	//protected BitArray serialized = new BitArray();
+	protected Vector2Int start, size;
+	protected BitArray serialized;
 
 	private static readonly Vector2Int MAX = new Vector2Int(int.MaxValue, int.MaxValue);
 	private static readonly Vector2Int MIN = new Vector2Int(int.MinValue, int.MinValue);
+	private const int ElementPlayer = 0;
+	private const int ElementPiece = 1;
+	private const int ElementBitCount = 2;
+
+	public OmokState(OmokState toCopy) {
+		start = toCopy.start;
+		size = toCopy.size;
+		serialized = new BitArray(toCopy.serialized);
+	}
+
+	public OmokState(Dictionary<Vector2Int, OmokPiece> map) {
+		List<OmokPiece> pieces = new List<OmokPiece>();
+		pieces.AddRange(map.Values);
+		OmokState.CalculateCoordRange(pieces, GetCoordFromPiece, out Vector2Int min, out Vector2Int max);
+		OmokState.SortPieces(pieces, GetCoordFromPiece);
+		start = min;
+		size = max - min + Vector2Int.one;
+		int i = 0;
+		serialized = new BitArray(size.x * size.y);
+		if (pieces.Count > 0) {
+			OmokGame game = null;
+			Vector2Int nextPosition = pieces[i].Coord;
+			for (int row = max.y; row >= min.y; --row) {
+				for (int col = min.x; col <= max.x; ++col) {
+					if (row == nextPosition.y && col == nextPosition.x) {
+						OmokPiece piece = pieces[i];
+						int playerIndex = -1;
+						OmokState.UnitState state = UnitState.None;
+						if (game == null) {
+							game = piece.Player.Game;
+						}
+						if (game == null || (playerIndex = game.GetPlayerIndex(piece.Player)) < 0) {
+							state = UnitState.Unknown;
+						}
+						switch(playerIndex) {
+							case 0: state = UnitState.Player0; break;
+							case 1: state = UnitState.Player1; break;
+						}
+						SetState(new Vector2Int(col, row), state);
+						if (i < pieces.Count - 1) {
+							nextPosition = pieces[++i].Coord;
+							if (i >= pieces.Count) {
+								break;
+							}
+						}
+					} else {
+						SetState(new Vector2Int(col, row), UnitState.None);
+					}
+				}
+			}
+		}
+	}
+
+	public UnitState GetState(Vector2Int coord) => GetLocalState(coord - start);
+
+	public void SetState(Vector2Int coord, UnitState unitState) => SetLocalState(coord - start, unitState);
+
+	private UnitState GetLocalState(Vector2Int localCoord) {
+		int index = localCoord.y * size.x + localCoord.x;
+		bool isPiece = serialized[index * ElementBitCount + ElementPiece];
+		bool isPlayer = serialized[index * ElementBitCount + ElementPlayer];
+		byte code = (byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
+		return (UnitState)code;
+	}
+
+	private void SetLocalState(Vector2Int localCoord, UnitState unitState) {
+		int index = localCoord.y * size.x + localCoord.x;
+		byte code = (byte)unitState;
+		bool isPiece = ((1 << ElementPiece) & code) != 0;
+		bool isPlayer = ((1 << ElementPlayer) & code) != 0;
+		serialized[index * ElementBitCount + ElementPiece] = isPiece;
+		serialized[index * ElementBitCount + ElementPlayer] = isPlayer;
+	}
 
 	public static void CalculateCoordRange<T>(List<T> pieces, System.Func<T, Vector2Int> getCoord, out Vector2Int _min, out Vector2Int _max) {
 		Vector2Int min = MAX, max = MIN;
