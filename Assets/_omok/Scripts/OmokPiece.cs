@@ -6,7 +6,8 @@ public class OmokPiece : MonoBehaviour {
 	[SerializeField]
 	protected OmokPlayer player;
 	[SerializeField]
-	protected Renderer[] renderers = new Renderer[1];
+	protected Renderer[] renderers = new Renderer[0];
+	public int Index { get; set; }
 	public OmokPlayer Player {
 		get => player;
 		set {
