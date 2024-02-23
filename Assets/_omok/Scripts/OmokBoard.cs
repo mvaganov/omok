@@ -5,9 +5,14 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class OmokBoard : MonoBehaviour {
+
 	[System.Serializable]
 	public class UnityEvent_Vector2Int : UnityEvent<Vector2Int> { }
 
+	[ContextMenuItem(nameof(SaveState),nameof(SaveState))]
+	[ContextMenuItem(nameof(LoadState), nameof(LoadState))]
+	[SerializeField]
+	protected OmokGame game;
 	[SerializeField]
 	protected Transform _gamePieces;
 	[SerializeField]
@@ -19,11 +24,15 @@ public class OmokBoard : MonoBehaviour {
 	[SerializeField]
 	protected Transform _boardArea;
 	[SerializeField]
+	protected Transform _offBoardArea;
+	[SerializeField]
 	protected float mouseDistance = 2.5f;
 	protected Vector2Int currentSelectedSpot;
 	protected Vector3 mousePosition;
 	[SerializeField]
 	protected UnityEvent_Vector2Int _onClick;
+
+	private OmokState _state = new OmokState();
 
 	private Dictionary<Vector2Int, OmokPiece> map = new Dictionary<Vector2Int, OmokPiece>();
 
@@ -45,12 +54,50 @@ public class OmokBoard : MonoBehaviour {
 		RefreshMap();
 	}
 
+	public void SaveState() {
+		RefreshMap();
+		_state.SetState(map);
+	}
+
+	public void LoadState() {
+		FreeCurrentPieces();
+		_state.ForEachPiece(CreatePiece);
+	}
+
+	public void CreatePiece(Vector2Int coord, OmokState.UnitState pieceType) {
+		OmokPiece piece = GetPiece(pieceType);
+		if (piece != null) {
+			SetPieceAt(coord, piece);
+		}
+	}
+
+	public OmokPiece GetPiece(OmokState.UnitState unitState) {
+		switch (unitState) {
+			case OmokState.UnitState.Player0:
+				return game.players[0].CreatePiece();
+			case OmokState.UnitState.Player1:
+				return game.players[0].CreatePiece();
+		}
+		return null;
+	}
+
+	public void FreeCurrentPieces() {
+		foreach (Transform t in _gamePieces.transform) {
+			OmokPiece piece = t.GetComponent<OmokPiece>();
+			if (piece == null || !piece.gameObject.activeSelf) { continue; }
+			piece.gameObject.SetActive(false);
+		}
+	}
+
 	public void RefreshMap() {
 		map.Clear();
 		foreach (Transform t in _gamePieces.transform) {
 			OmokPiece piece = t.GetComponent<OmokPiece>();
-			if (piece == null) { continue; }
+			if (piece == null || !piece.gameObject.activeSelf) { continue; }
 			SetPieceAt(piece.Coord, piece);
+			if (piece.Player.currentPieces.IndexOf(piece) < 0) {
+				piece.Player.currentPieces.Add(piece);
+			}
 		}
 	}
 

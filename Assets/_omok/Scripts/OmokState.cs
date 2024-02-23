@@ -21,21 +21,27 @@ public class OmokState {
 	private const int ElementPiece = 1;
 	private const int ElementBitCount = 2;
 
+	public OmokState() { }
+
 	public OmokState(OmokState toCopy) {
 		start = toCopy.start;
 		size = toCopy.size;
 		serialized = new BitArray(toCopy.serialized);
 	}
-
 	public OmokState(Dictionary<Vector2Int, OmokPiece> map) {
+		SetState(map);
+	}
+
+	public void SetState(Dictionary<Vector2Int, OmokPiece> map) {
 		List<OmokPiece> pieces = new List<OmokPiece>();
 		pieces.AddRange(map.Values);
 		OmokState.CalculateCoordRange(pieces, GetCoordFromPiece, out Vector2Int min, out Vector2Int max);
 		OmokState.SortPieces(pieces, GetCoordFromPiece);
+		Debug.Log(pieces.Count+" "+string.Join("\n", pieces));
 		start = min;
 		size = max - min + Vector2Int.one;
 		int i = 0;
-		serialized = new BitArray(size.x * size.y);
+		serialized = new BitArray(size.x * size.y * ElementBitCount);
 		if (pieces.Count > 0) {
 			OmokGame game = null;
 			Vector2Int nextPosition = pieces[i].Coord;
@@ -67,28 +73,70 @@ public class OmokState {
 					}
 				}
 			}
+			StringBuilder sb = new StringBuilder();
+			for (i = 0; i < serialized.Count; ++i) {
+				if (i % 2 == 0) { sb.Append(" "); }
+				sb.Append(serialized[i] ? '!' : '.');
+			}
+			Debug.Log(sb);
 		}
 	}
 
-	public UnitState GetState(Vector2Int coord) => GetLocalState(coord - start);
+	public UnitState GetState(Vector2Int coord) {
+		Debug.Log("get: " + coord + " start:" + start + "   local:" + (coord - start));
+		return GetLocalState(coord - start);
+	}
 
-	public void SetState(Vector2Int coord, UnitState unitState) => SetLocalState(coord - start, unitState);
+	public void SetState(Vector2Int coord, UnitState unitState) {
+		//Debug.Log("set: "+coord + " " +unitState +"   start:" + start + "   local:" + (coord - start)); 
+		SetLocalState(coord - start, unitState);
+	}
 
 	private UnitState GetLocalState(Vector2Int localCoord) {
 		int index = localCoord.y * size.x + localCoord.x;
-		bool isPiece = serialized[index * ElementBitCount + ElementPiece];
-		bool isPlayer = serialized[index * ElementBitCount + ElementPlayer];
-		byte code = (byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
-		return (UnitState)code;
+		return GetLocalState(index);
 	}
 
-	private void SetLocalState(Vector2Int localCoord, UnitState unitState) {
+	public UnitState GetLocalState(int index) {
+		int i = index * ElementBitCount;
+		bool isPiece = serialized[i + ElementPiece];
+		bool isPlayer = serialized[i + ElementPlayer];
+		UnitState state = (UnitState)(byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
+		if (state == UnitState.Player0 || state == UnitState.Player1) {
+			Debug.Log("index: " + i + "/" + serialized.Count + "   " + state);
+		}
+		return state;
+	}
+
+	private void SetLocalState(Vector2Int localCoord, UnitState state) {
 		int index = localCoord.y * size.x + localCoord.x;
-		byte code = (byte)unitState;
+		int i = index * ElementBitCount;
+		if (state == UnitState.Player0 || state == UnitState.Player1) {
+			Debug.Log("index: " + i + "/" + serialized.Count+"    "+state);
+		}
+		byte code = (byte)state;
 		bool isPiece = ((1 << ElementPiece) & code) != 0;
 		bool isPlayer = ((1 << ElementPlayer) & code) != 0;
-		serialized[index * ElementBitCount + ElementPiece] = isPiece;
-		serialized[index * ElementBitCount + ElementPlayer] = isPlayer;
+		serialized[i + ElementPiece] = isPiece;
+		serialized[i + ElementPlayer] = isPlayer;
+	}
+
+	public void ForEachPiece(System.Action<Vector2Int, UnitState> action) {
+		Vector2Int cursor = start;
+		int horizontalLimit = start.x + size.x + 1;
+		int boardSize = serialized.Count / ElementBitCount;
+		for(int i = 0; i < boardSize; ++i) {
+			Debug.Log(i);
+			UnitState state = GetLocalState(i);
+			if (state != UnitState.None) {
+				action.Invoke(cursor, state);
+			}
+			cursor.x++;
+			if (cursor.x >= horizontalLimit) {
+				cursor.y++;
+				cursor.x = start.x;
+			}
+		}
 	}
 
 	public static void CalculateCoordRange<T>(List<T> pieces, System.Func<T, Vector2Int> getCoord, out Vector2Int _min, out Vector2Int _max) {

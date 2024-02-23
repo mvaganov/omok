@@ -245,6 +245,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: omokPiece (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -292,7 +296,7 @@ PrefabInstance:
     - target: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 1025253776}
+      objectReference: {fileID: 1702291427}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
 --- !u!4 &477202147 stripped
@@ -806,6 +810,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: omokPiece (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -853,7 +861,7 @@ PrefabInstance:
     - target: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 1025253776}
+      objectReference: {fileID: 313887862}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
 --- !u!4 &1415242677 stripped
@@ -871,6 +879,10 @@ PrefabInstance:
     - target: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: m_Name
       value: omokPiece
+      objectReference: {fileID: 0}
+    - target: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: m_RootOrder
@@ -919,7 +931,7 @@ PrefabInstance:
     - target: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 1025253776}
+      objectReference: {fileID: 313887862}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
 --- !u!4 &1433592615 stripped
@@ -957,11 +969,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89b59415f56c4df44ac868265e53ea27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game: {fileID: 1466857983}
   _gamePieces: {fileID: 1069578489}
   click: 323
   _camera: {fileID: 963194227}
   _mouseMarker: {fileID: 297037295}
   _boardArea: {fileID: 1466857982}
+  _offBoardArea: {fileID: 0}
   mouseDistance: 2.5
   _onClick:
     m_PersistentCalls:
