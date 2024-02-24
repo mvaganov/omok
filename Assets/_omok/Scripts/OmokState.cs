@@ -37,7 +37,7 @@ public class OmokState {
 		pieces.AddRange(map.Values);
 		OmokState.CalculateCoordRange(pieces, GetCoordFromPiece, out Vector2Int min, out Vector2Int max);
 		OmokState.SortPieces(pieces, GetCoordFromPiece);
-		Debug.Log(pieces.Count+" "+string.Join("\n", pieces));
+		//Debug.Log(pieces.Count+" "+string.Join("\n", pieces));
 		start = min;
 		size = max - min + Vector2Int.one;
 		int i = 0;
@@ -73,13 +73,17 @@ public class OmokState {
 					}
 				}
 			}
-			StringBuilder sb = new StringBuilder();
-			for (i = 0; i < serialized.Count; ++i) {
-				if (i % 2 == 0) { sb.Append(" "); }
-				sb.Append(serialized[i] ? '!' : '.');
-			}
-			Debug.Log(sb);
+			//Debug.Log(DebugSerialized());
 		}
+	}
+
+	public string DebugSerialized() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < serialized.Count; ++i) {
+			if (i % 2 == 0) { sb.Append(" "); }
+			sb.Append(serialized[i] ? '!' : '.');
+		}
+		return sb.ToString();
 	}
 
 	public UnitState GetState(Vector2Int coord) {
@@ -102,18 +106,18 @@ public class OmokState {
 		bool isPiece = serialized[i + ElementPiece];
 		bool isPlayer = serialized[i + ElementPlayer];
 		UnitState state = (UnitState)(byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
-		if (state == UnitState.Player0 || state == UnitState.Player1) {
-			Debug.Log("index: " + i + "/" + serialized.Count + "   " + state);
-		}
+		//if (state == UnitState.Player0 || state == UnitState.Player1) {
+		//	Debug.Log("index: " + i + "/" + serialized.Count + "   " + state);
+		//}
 		return state;
 	}
 
 	private void SetLocalState(Vector2Int localCoord, UnitState state) {
 		int index = localCoord.y * size.x + localCoord.x;
 		int i = index * ElementBitCount;
-		if (state == UnitState.Player0 || state == UnitState.Player1) {
-			Debug.Log("index: " + i + "/" + serialized.Count+"    "+state);
-		}
+		//if (state == UnitState.Player0 || state == UnitState.Player1) {
+		//	Debug.Log($"index: {i}/{serialized.Count}    {state} {(localCoord+start)}");
+		//}
 		byte code = (byte)state;
 		bool isPiece = ((1 << ElementPiece) & code) != 0;
 		bool isPlayer = ((1 << ElementPlayer) & code) != 0;
@@ -123,11 +127,11 @@ public class OmokState {
 
 	public void ForEachPiece(System.Action<Vector2Int, UnitState> action) {
 		Vector2Int cursor = start;
-		int horizontalLimit = start.x + size.x + 1;
+		int horizontalLimit = start.x + size.x;
 		int boardSize = serialized.Count / ElementBitCount;
 		for(int i = 0; i < boardSize; ++i) {
-			Debug.Log(i);
 			UnitState state = GetLocalState(i);
+			//Debug.Log($"foreach: {i} {cursor}{state}");
 			if (state != UnitState.None) {
 				action.Invoke(cursor, state);
 			}

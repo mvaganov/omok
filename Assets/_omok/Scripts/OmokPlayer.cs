@@ -21,8 +21,10 @@ public class OmokPlayer : MonoBehaviour {
 
 	public OmokPiece CreatePiece() => GetPiece(0);
 
+	public int Index => game.GetPlayerIndex(this);
+
 	public OmokPiece GetPiece(int index) {
-		int freeIndex = currentPieces.FindIndex(op => op.gameObject.activeSelf == false);
+		int freeIndex = currentPieces.FindIndex(op => op != null && op.gameObject.activeSelf == false);
 		OmokPiece piece = null;
 		if (freeIndex < 0) {
 			piece = Instantiate(gamePieces[index].Piece.gameObject).GetComponent<OmokPiece>();

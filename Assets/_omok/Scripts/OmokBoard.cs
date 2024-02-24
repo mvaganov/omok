@@ -61,12 +61,15 @@ public class OmokBoard : MonoBehaviour {
 
 	public void LoadState() {
 		FreeCurrentPieces();
+		map.Clear();
+		//Debug.Log(_state.DebugSerialized());
 		_state.ForEachPiece(CreatePiece);
 	}
 
 	public void CreatePiece(Vector2Int coord, OmokState.UnitState pieceType) {
 		OmokPiece piece = GetPiece(pieceType);
 		if (piece != null) {
+			//Debug.Log($"SETPIECE {pieceType} {coord}    {piece.Player.name} {piece.Player.Index}");
 			SetPieceAt(coord, piece);
 		}
 	}
@@ -76,7 +79,7 @@ public class OmokBoard : MonoBehaviour {
 			case OmokState.UnitState.Player0:
 				return game.players[0].CreatePiece();
 			case OmokState.UnitState.Player1:
-				return game.players[0].CreatePiece();
+				return game.players[1].CreatePiece();
 		}
 		return null;
 	}
@@ -106,12 +109,17 @@ public class OmokBoard : MonoBehaviour {
 			map.Remove(coord);
 			return;
 		}
-		//Debug.Log(coord + " : " + t);
+		//Debug.Log($"SET {coord} : {piece.Player.name} {piece.Player.Index} {piece.Index} {piece}");
 		if (map.TryGetValue(coord, out OmokPiece found)) {
-			Debug.LogWarning($"multiple objects at {coord}: {found}, {piece}");
+			if (piece == found) {
+				Debug.LogWarning($"{found} already at {coord}");
+			} else {
+				Debug.LogWarning($"multiple objects at {coord}: {found}, {piece}");
+			}
 			return;
 		}
 		map[coord] = piece;
+		piece.transform.position = GetPosition(coord);
 	}
 
 	public Vector2Int GetCoord(Vector3 position) {

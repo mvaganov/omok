@@ -233,7 +233,15 @@ MonoBehaviour:
   gamePieces:
   - Character: '@'
     Piece: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
-  currentPieces: []
+  currentPieces:
+  - {fileID: 1433592616}
+  - {fileID: 1415242678}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &477202146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -304,6 +312,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
   m_PrefabInstance: {fileID: 477202146}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &477202148 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+  m_PrefabInstance: {fileID: 477202146}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,6 +417,84 @@ Transform:
   m_Father: {fileID: 1141293097}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!21 &876740810
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Stone (Instance) (Instance)
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 0.12549016, g: 0.12549016, b: 0.12549016, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -858,6 +955,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2546712816480691060, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 1873684532}
     - target: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: player
       value: 
@@ -869,6 +970,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
   m_PrefabInstance: {fileID: 1415242676}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1415242678 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+  m_PrefabInstance: {fileID: 1415242676}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1433592614
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -928,6 +1040,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2546712816480691060, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 876740810}
     - target: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
       propertyPath: player
       value: 
@@ -939,6 +1055,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2546712816347077465, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
   m_PrefabInstance: {fileID: 1433592614}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1433592616 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+  m_PrefabInstance: {fileID: 1433592614}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1466857980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,7 +1215,8 @@ MonoBehaviour:
   gamePieces:
   - Character: O
     Piece: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
-  currentPieces: []
+  currentPieces:
+  - {fileID: 477202148}
 --- !u!1 &1714202127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1183,3 +1311,81 @@ Transform:
   m_Father: {fileID: 1141293097}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &1873684532
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Stone (Instance) (Instance)
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 0.12549016, g: 0.12549016, b: 0.12549016, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
