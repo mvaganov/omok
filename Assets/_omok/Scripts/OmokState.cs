@@ -5,6 +5,10 @@ using UnityEngine;
 
 [System.Serializable]
 public class OmokState {
+	private const int ElementPlayer = 0;
+	private const int ElementPiece = 1;
+	private const int ElementBitCount = 2;
+
 	public enum UnitState {
 		None,    // 00
 		Unknown, // 01
@@ -15,11 +19,7 @@ public class OmokState {
 	protected Coord start, size;
 	protected BitArray serialized;
 
-	//private static readonly Coord MAX = new Coord(int.MaxValue, int.MaxValue);
-	//private static readonly Coord MIN = new Coord(int.MinValue, int.MinValue);
-	private const int ElementPlayer = 0;
-	private const int ElementPiece = 1;
-	private const int ElementBitCount = 2;
+	protected Coord Max => start + size - Coord.one;
 
 	public OmokState() { }
 
@@ -36,7 +36,7 @@ public class OmokState {
 		List<OmokPiece> pieces = new List<OmokPiece>();
 		pieces.AddRange(map.Values);
 		Coord.CalculateCoordRange(pieces, GetCoordFromPiece, out Coord min, out Coord max);
-		pieces.Sort(SortPiecesIntoArray);
+		pieces.Sort(SortPiecesInvertRow);
 		//OmokState.SortPieces(pieces, GetCoordFromPiece);
 		//Debug.Log(pieces.Count+" "+string.Join("\n", pieces));
 		start = min;
@@ -74,8 +74,40 @@ public class OmokState {
 					}
 				}
 			}
-			//Debug.Log(DebugSerialized());
+			Debug.Log(DebugSerialized());
+			Debug.Log(ToDebugString());
 		}
+	}
+
+	private static Dictionary<UnitState, char> textOutputTable = new Dictionary<UnitState, char>() {
+		[UnitState.Player0] = 'X',
+		[UnitState.Player1] = '0',
+		[UnitState.None] = '_',
+		[UnitState.Unknown] = '?',
+	};
+
+	public string ToDebugString() {
+		List<StringBuilder> lines = new List<StringBuilder>();
+		int count = 0;
+		for(int row = 0; row < size.y; ++row) {
+			lines.Add(new StringBuilder());
+			for(int col = 0; col < size.x; ++col) {
+				Coord coord = new Coord(col, row) + start;
+				UnitState state = GetState(coord);
+				char c = textOutputTable[state];
+				lines[row].Append(c);//.Append(' ').Append(coord).Append(' ');
+				if (state != UnitState.None) {
+					++count;
+				}
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.Append(count + "," + start + "," + size);
+		for (int row = lines.Count-1; row >= 0; --row) {
+			sb.Append("\n");
+			sb.Append(lines[row].ToString());
+		}
+		return sb.ToString();
 	}
 
 	public string DebugSerialized() {
@@ -87,9 +119,22 @@ public class OmokState {
 		return sb.ToString();
 	}
 
+	public bool TryGetState(Coord coord, out UnitState state) {
+		//Debug.Log("get: " + coord + " start:" + start + "   local:" + (coord - start));
+		Coord local = coord - start;
+		Coord max = Max;
+		if (local.x < 0 || local.y < 0 || local.x >= size.x || local.y >= size.y) {
+			state = UnitState.None;
+			Debug.Log($"{coord} ({local}) is bad");
+			return false;
+		}
+		state = GetLocalState(local);
+		return true;
+	}
+
 	public UnitState GetState(Coord coord) {
-		Debug.Log("get: " + coord + " start:" + start + "   local:" + (coord - start));
-		return GetLocalState(coord - start);
+		TryGetState(coord, out UnitState state);
+		return state;
 	}
 
 	public void SetState(Coord coord, UnitState unitState) {
@@ -144,7 +189,7 @@ public class OmokState {
 		}
 	}
 
-	private static int SortPiecesIntoArray(OmokPiece a, OmokPiece b) {
+	private static int SortPiecesInvertRow(OmokPiece a, OmokPiece b) {
 		Coord coordA = GetCoordFromPiece(a), coordB = GetCoordFromPiece(b);
 		if (coordA.y < coordB.y) { return 1; } else if (coordA.y > coordB.y) { return -1; }
 		if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
@@ -153,18 +198,19 @@ public class OmokState {
 
 	public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
 
-	public static string ToString(Dictionary<Coord, OmokPiece> map, char empty = '.') {
+	public static string ToString(Dictionary<Coord, OmokPiece> map, char empty = '_') {
 		List<OmokPiece> pieces = new List<OmokPiece>();
 		pieces.AddRange(map.Values);
 		Coord.CalculateCoordRange(pieces, GetCoordFromPiece, out Coord min, out Coord max);
-		pieces.Sort(SortPiecesIntoArray);
+		pieces.Sort(SortPiecesInvertRow);
 		//SortPieces(pieces, GetCoordFromPiece);
 		Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t => t.Coord + ":" + t.name)));
+		Coord size = max - min + Coord.one;
 		StringBuilder sb = new StringBuilder();
-		sb.Append(pieces.Count + ", " + min + "," + max);
+		sb.Append(pieces.Count + "," + min + "," + size);
 		int i = 0;
 		if (pieces.Count > 0) {
-			Coord nextPosition = pieces[i].Coord;// GetCoord(pieces[i].position);
+			Coord nextPosition = pieces[i].Coord;
 			for (int row = max.y; row >= min.y; --row) {
 				sb.Append("\n");
 				for (int col = min.x; col <= max.x; ++col) {
@@ -185,5 +231,48 @@ public class OmokState {
 			}
 		}
 		return sb.ToString();
+		//return ToString(pieces, min, size, empty);
 	}
+	//public static string ToString(IEnumerable<OmokPiece> pieces, Coord min, Coord size, char empty = '_') {
+	//	Coord max = min + size - Coord.one;
+	//	List<StringBuilder> lines = new List<StringBuilder>();
+	//	int count = 0;
+	//	IEnumerator<OmokPiece> pieceEnumerator = pieces.GetEnumerator();
+	//	if (pieceEnumerator.MoveNext()) {
+	//		Debug.Log("PIECE "+pieceEnumerator.Current);
+	//		Coord nextPosition = pieceEnumerator.Current.Coord;
+	//		for (int row = min.y; row <= max.y; ++row) {
+	//			lines.Add(new StringBuilder());
+	//			int currentLine = lines.Count - 1;
+	//			for (int col = min.x; col <= max.x; ++col) {
+	//				if (row == nextPosition.y && col == nextPosition.x) {
+	//					OmokPiece piece = pieceEnumerator.Current;
+	//					char c = piece.Player != null ? piece.Player.gamePieces[piece.Index].Character[0] : empty;
+	//					lines[currentLine].Append(c);
+	//					++count;
+	//					if (!pieceEnumerator.MoveNext()) {
+	//						break;
+	//					}
+	//					Debug.Log("PIECE " + pieceEnumerator.Current);
+	//					//if (i < pieces.Count - 1) {
+	//					//	nextPosition = pieces[++i].Coord;
+	//					//	if (i >= pieces.Count) {
+	//					//		break;
+	//					//	}
+	//					//}
+	//				} else {
+	//					lines[currentLine].Append(empty);
+	//				}
+	//			}
+	//		}
+	//	}
+	//	StringBuilder sb = new StringBuilder();
+	//	sb.Append(count + "," + min + "," + size);
+	//	//for (int row = lines.Count - 1; row >= 0; --row) {
+	//	for (int row = 0; row < lines.Count; ++row) {
+	//		sb.Append("\n");
+	//		sb.Append(lines[row]);
+	//	}
+	//	return sb.ToString();
+	//}
 }

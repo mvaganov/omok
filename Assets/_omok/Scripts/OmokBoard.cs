@@ -62,7 +62,8 @@ public class OmokBoard : MonoBehaviour {
 	public void LoadState() {
 		FreeCurrentPieces();
 		map.Clear();
-		//Debug.Log(_state.DebugSerialized());
+		Debug.Log(_state.DebugSerialized());
+		Debug.Log(_state.ToDebugString());
 		_state.ForEachPiece(CreatePiece);
 	}
 
