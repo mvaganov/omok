@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class OmokBoard : MonoBehaviour {
 
 	[System.Serializable]
-	public class UnityEvent_Vector2Int : UnityEvent<Vector2Int> { }
+	public class UnityEvent_Coord : UnityEvent<Coord> { }
 
 	[ContextMenuItem(nameof(SaveState),nameof(SaveState))]
 	[ContextMenuItem(nameof(LoadState), nameof(LoadState))]
@@ -27,20 +27,20 @@ public class OmokBoard : MonoBehaviour {
 	protected Transform _offBoardArea;
 	[SerializeField]
 	protected float mouseDistance = 2.5f;
-	protected Vector2Int currentSelectedSpot;
+	protected Coord currentSelectedSpot;
 	protected Vector3 mousePosition;
 	[SerializeField]
-	protected UnityEvent_Vector2Int _onClick;
+	protected UnityEvent_Coord _onClick;
 
 	private OmokState _state = new OmokState();
 
-	private Dictionary<Vector2Int, OmokPiece> map = new Dictionary<Vector2Int, OmokPiece>();
+	private Dictionary<Coord, OmokPiece> map = new Dictionary<Coord, OmokPiece>();
 
 	[ContextMenuItem(nameof(RefreshDebug), nameof(RefreshDebug))]
 	[TextArea(5,10)]
 	public string _debug;
 
-	public Vector2Int CurrentSelectedSpot => currentSelectedSpot;
+	public Coord CurrentSelectedSpot => currentSelectedSpot;
 	public Vector3 MousePosition => mousePosition;
 
 	public Vector3 MouseLookOffsetPosition => MousePosition - transform.forward * mouseDistance;
@@ -66,7 +66,7 @@ public class OmokBoard : MonoBehaviour {
 		_state.ForEachPiece(CreatePiece);
 	}
 
-	public void CreatePiece(Vector2Int coord, OmokState.UnitState pieceType) {
+	public void CreatePiece(Coord coord, OmokState.UnitState pieceType) {
 		OmokPiece piece = GetPiece(pieceType);
 		if (piece != null) {
 			//Debug.Log($"SETPIECE {pieceType} {coord}    {piece.Player.name} {piece.Player.Index}");
@@ -104,7 +104,7 @@ public class OmokBoard : MonoBehaviour {
 		}
 	}
 
-	public void SetPieceAt(Vector2Int coord, OmokPiece piece) {
+	public void SetPieceAt(Coord coord, OmokPiece piece) {
 		if (piece == null) {
 			map.Remove(coord);
 			return;
@@ -122,9 +122,9 @@ public class OmokBoard : MonoBehaviour {
 		piece.transform.position = GetPosition(coord);
 	}
 
-	public Vector2Int GetCoord(Vector3 position) {
+	public Coord GetCoord(Vector3 position) {
 		Vector3 local = _boardArea.InverseTransformPoint(position);
-		return new Vector2Int((int)Mathf.Round(local.x), (int)Mathf.Round(local.y));
+		return new Coord((int)Mathf.Round(local.x), (int)Mathf.Round(local.y));
 	}
 
 	void Update() {
@@ -141,7 +141,7 @@ public class OmokBoard : MonoBehaviour {
 	}
 
 
-	public static Vector2Int GetCoordFromPiece(OmokPiece piece) => piece.Coord;
+	public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
 
 	public string DebugPrint() {
 		return OmokState.ToString(map);
@@ -154,12 +154,12 @@ public class OmokBoard : MonoBehaviour {
 		Debug.Log(_debug);
 	}
 
-	public Vector3 GetPosition(Vector2Int coord) {
+	public Vector3 GetPosition(Coord coord) {
 		Vector3 v = new Vector3(coord.x, coord.y);
 		return _boardArea.TransformPoint(v);
 	}
 
-	public OmokPiece PieceAt(Vector2Int coord) {
+	public OmokPiece PieceAt(Coord coord) {
 		if (map.TryGetValue(coord, out OmokPiece piece)) {
 			return piece;
 		}

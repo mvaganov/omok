@@ -32,10 +32,10 @@ public class OmokGame : MonoBehaviour
 	}
 
 	public void PlacePieceForCurrentPlayer() {
-		Vector2Int coord = board.CurrentSelectedSpot;
+		Coord coord = board.CurrentSelectedSpot;
 		PlacePieceForCurrentPlayerAt(coord);
 	}
-	public void PlacePieceForCurrentPlayerAt(Vector2Int coord) {
+	public void PlacePieceForCurrentPlayerAt(Coord coord) {
 		OmokPiece piece = board.PieceAt(coord);
 		if (piece == null) {
 			piece = players[WhosTurn].CreatePiece();

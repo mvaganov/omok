@@ -26,7 +26,7 @@ public class OmokPiece : MonoBehaviour {
 		}
 	}
 
-	public Vector2Int Coord {
+	public Coord Coord {
 		get {
 			return Board.GetCoord(transform.position);
 		}

@@ -36,6 +36,15 @@ public class OmokPlayer : MonoBehaviour {
 		piece.Index = index;
 		piece.Player = this;
 		piece.transform.SetParent(game.pieceArea, false);
+		CleanUpEmptyPieceSlots();
 		return piece;
+	}
+	private void CleanUpEmptyPieceSlots() {
+		for (int i = currentPieces.Count - 1; i >= 0; i--) {
+			OmokPiece piece = currentPieces[i];
+			if (piece == null) {
+				currentPieces.RemoveAt(i);
+			}
+		}
 	}
 }
