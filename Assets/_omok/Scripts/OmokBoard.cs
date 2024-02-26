@@ -32,7 +32,8 @@ public class OmokBoard : MonoBehaviour {
 	[SerializeField]
 	protected UnityEvent_Coord _onClick;
 
-	private OmokState _state = new OmokState();
+	[SerializeField]
+	protected OmokState _state = new OmokState();
 
 	private Dictionary<Coord, OmokPiece> map = new Dictionary<Coord, OmokPiece>();
 
@@ -42,8 +43,9 @@ public class OmokBoard : MonoBehaviour {
 
 	public Coord CurrentSelectedSpot => currentSelectedSpot;
 	public Vector3 MousePosition => mousePosition;
-
-	public Vector3 MouseLookOffsetPosition => MousePosition - transform.forward * mouseDistance;
+	public OmokState State => _state;
+	public Vector3 Up => -transform.forward;
+	public Vector3 MouseLookOffsetPosition => MousePosition + Up * mouseDistance;
 	private void Awake() {
 		if (_boardArea == null) {
 			_boardArea = transform;

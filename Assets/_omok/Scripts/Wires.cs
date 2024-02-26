@@ -33,7 +33,7 @@ namespace NonStandard {
 		[Tooltip("automatically puts new Wires into this global Wires object")]
 		public bool autoParentWiresToGlobalObject = true;
 		[Tooltip("a line constantly being reassigned the same color will gently pulse instead (as a performance warning")]
-		public bool pulseConstantlyReassignedColor = true;
+		public bool pulseConstantlyReassignedColor = false;
 		[Tooltip("Used to draw lines. Ideally a white Sprites/Default shader."), SerializeField]
 		private Material _wireMaterial;
 
@@ -227,10 +227,10 @@ namespace NonStandard {
 		/// performance issue. if <see cref="pulseConstantlyReassignedColor"/> is true, that is noticable.
 		/// </summary>
 		public static void SetColor(LineRenderer lineRenderer, Color color) {
-			bool needsMaterial = lineRenderer.material == null || lineRenderer.material.name.StartsWith("Default-Material");
-			if (needsMaterial) { lineRenderer.material = WireMaterial; }
+			bool needsMaterial = lineRenderer.sharedMaterial == null || lineRenderer.sharedMaterial.name.StartsWith("Default-Material");
+			if (needsMaterial) { lineRenderer.sharedMaterial = WireMaterial; }
 			if (color == default) { color = Color.magenta; }
-			if (lineRenderer.material.color == color && (_instance == null || _instance.pulseConstantlyReassignedColor)) {
+			if (lineRenderer.sharedMaterial.color == color && (_instance == null || _instance.pulseConstantlyReassignedColor)) {
 				long t = Math.Abs(Environment.TickCount);
 				const long duration = 500;
 				long secComponent = t % duration;
@@ -238,7 +238,13 @@ namespace NonStandard {
 				Color.RGBToHSV(color, out float h, out float s, out float v);
 				color = Color.HSVToRGB(h, s + (a * .25f), v + (a * .25f));
 			}
-			lineRenderer.material.color = color;
+			if (!Application.isPlaying) {
+				Material m = new Material(lineRenderer.sharedMaterial);
+				m.color = color;
+				lineRenderer.sharedMaterial = m;
+			} else {
+				lineRenderer.material.color = color;
+			}
 		}
 
 		/// <summary>Makes a circle with a <see cref="LineRenderer"/></summary>

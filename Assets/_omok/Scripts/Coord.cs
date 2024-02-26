@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public struct Coord
 {
 	public static Coord zero = new Coord();
 	public static Coord one = new Coord(1,1);
 	public static Coord MIN = new Coord(short.MinValue, short.MinValue);
 	public static Coord MAX = new Coord(short.MaxValue, short.MaxValue);
+	[SerializeField]
 	private short _x, _y;
 	public int x { get => _x; set => _x = (short)value; }
 	public int y { get => _y; set => _y = (short)value; }

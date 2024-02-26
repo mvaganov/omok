@@ -5,9 +5,9 @@ using UnityEngine;
 public class OmokGame : MonoBehaviour
 {
 	[SerializeField]
-  protected OmokBoard board;
-  public Transform pieceArea;
-  public OmokPlayer[] players = new OmokPlayer[2];
+	protected OmokBoard board;
+	public Transform pieceArea;
+	public OmokPlayer[] players = new OmokPlayer[2];
 	[SerializeField]
 	protected int whosTurn = 0;
 

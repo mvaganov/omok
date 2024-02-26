@@ -16,7 +16,9 @@ public class OmokState {
 		Player1, // 11
 	}
 
+	[SerializeField]
 	protected Coord start, size;
+	[SerializeField]
 	protected BitArray serialized;
 
 	protected Coord Max => start + size - Coord.one;
@@ -125,7 +127,7 @@ public class OmokState {
 		Coord max = Max;
 		if (local.x < 0 || local.y < 0 || local.x >= size.x || local.y >= size.y) {
 			state = UnitState.None;
-			Debug.Log($"{coord} ({local}) is bad");
+			//Debug.Log($"{coord} ({local}) is bad");
 			return false;
 		}
 		state = GetLocalState(local);

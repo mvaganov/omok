@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public struct OmokLine
 {
 	public Coord start;
@@ -9,6 +10,8 @@ public struct OmokLine
 	public byte length;
 	public byte player;
 	public byte count;
+
+	public Coord Last => start + (direction * (length-1));
 
 	public OmokLine(Coord start, Coord direction, byte length, byte player) {
 		this.start = start; this.direction = direction; this.length = length; this.player = player; this.count = 0;
@@ -20,7 +23,7 @@ public struct OmokLine
 	public bool Update(OmokState state) {
 		count = 0;
 		OmokState.UnitState compliant, opposing;
-		switch(player){
+		switch(player) {
 			case 0:
 				compliant = OmokState.UnitState.Player0;
 				opposing = OmokState.UnitState.Player1;
@@ -33,23 +36,35 @@ public struct OmokLine
 				throw new System.Exception("unacceptable player");
 		}
 		bool valid = true;
-		int lineCount = 0;
-		ForEachTest(c => {
-			OmokState.UnitState unitState = state.GetState(c);
+		int countPiecesInLine = 0;
+		//ForEachTest(c => {
+		//	OmokState.UnitState unitState = state.GetState(c);
+		//	if (unitState == opposing) {
+		//		valid = false;
+		//	} else if (unitState == compliant) {
+		//		++countPiecesInLine;
+		//	}
+		//	return false;
+		//});
+
+		Coord cursor = start;
+		for (int i = 0; i < length; i++) {
+			OmokState.UnitState unitState = state.GetState(cursor);
+			//Debug.Log(state.TryGetState(cursor, out OmokState.UnitState found) + $" {cursor} {found}");
 			if (unitState == opposing) {
 				valid = false;
+			} else if (unitState == compliant) {
+				++countPiecesInLine;
 			}
-			if (unitState == compliant) {
-				++lineCount;
-			}
-			return false;
-		});
-		count = (byte)lineCount;
+			cursor += direction;
+		}
+
+		count = (byte)countPiecesInLine;
 		return valid;
 	}
 
 	private void Invert() {
-		start = start + (direction * length);
+		start = Last;
 		direction = -direction;
 	}
 
@@ -63,10 +78,10 @@ public struct OmokLine
 	public bool ForEachTest(System.Func<Coord, bool> action) {
 		Coord cursor = start;
 		for (int i = 0; i < length; i++) {
-			cursor += direction;
 			if (action.Invoke(cursor)) {
 				return true;
 			}
+			cursor += direction;
 		}
 		return false;
 	}
@@ -85,4 +100,10 @@ public struct OmokLine
 		}
 		return false;
 	}
+
+	public override string ToString() => $"[{start}:{direction}*{count}/{length})";
+	public override int GetHashCode() => start.GetHashCode() ^ direction.GetHashCode() ^ length ^ player;
+	public override bool Equals(object obj) => obj is OmokLine line && Equals(line);
+	public static bool operator ==(OmokLine a, OmokLine b) => a.Equals(b);
+	public static bool operator !=(OmokLine a, OmokLine b) => !a.Equals(b);
 }
