@@ -58,7 +58,7 @@ public class OmokBoard : MonoBehaviour {
 
 	public void SaveState() {
 		RefreshMap();
-		_state.SetState(map);
+		_state.SetStateSerialized(map);
 	}
 
 	public void LoadState() {

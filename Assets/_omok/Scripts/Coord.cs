@@ -26,7 +26,7 @@ public struct Coord
 	public static Coord operator *(Coord coord, float scalar) => new Coord((short)(coord._x*scalar), (short)(coord._y*scalar));
 	public static void CalculateCoordRange<T>(IEnumerable<T> list, System.Func<T, Coord> getCoord,
 		out Coord _min, out Coord _max) {
-		Coord min = Coord.MAX, max = Coord.MIN;
+		Coord min = MAX, max = MIN;
 		short count = 0;
 		foreach(T item in list) {
 			Coord coord = getCoord(item);
