@@ -49,10 +49,11 @@ public class OmokState {
 	}
 
 	public void Archive() {
-		if (stateMap != null) {
-			ConvertDictionaryToSerializedState();
-			stateMap = null;
+		if (stateMap == null) {
+			return;
 		}
+		ConvertDictionaryToSerializedState();
+		stateMap = null;
 	}
 
 	public OmokState(Dictionary<Coord, OmokPiece> map) {

@@ -8,6 +8,14 @@ public class OmokStateAnalysis {
 	public Dictionary<Coord,List<OmokLine>> lineMap = new Dictionary<Coord, List<OmokLine>> ();
 	public const byte LineLength = 5;
 
+	public void ForEachLine(System.Action<OmokLine> action) {
+		foreach (var kvp in lineMap) {
+			for (int i = 0; i < kvp.Value.Count; i++) {
+				action(kvp.Value[i]);
+			}
+		}
+	}
+
 	public void Analyze(OmokState state) {
 		this.state = state;
 		lineMap.Clear();
