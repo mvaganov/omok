@@ -44,19 +44,11 @@ namespace Omok {
 			return state;
 		}
 
-		public static int SortPiecesInvertRow(OmokPiece a, OmokPiece b) {
-			Coord coordA = GetCoordFromPiece(a), coordB = GetCoordFromPiece(b);
-			if (coordA.y < coordB.y) { return 1; } else if (coordA.y > coordB.y) { return -1; }
-			if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
-			return 0;
-		}
+		public static int SortPiecesInvertRow(OmokPiece a, OmokPiece b) => 
+			Coord.ComparerInverseY.compare(GetCoordFromPiece(a), GetCoordFromPiece(b));
 
-		public static int SortUnitsInvertRow(Unit a, Unit b) {
-			Coord coordA = GetCoordFromUnit(a), coordB = GetCoordFromUnit(b);
-			if (coordA.y < coordB.y) { return 1; } else if (coordA.y > coordB.y) { return -1; }
-			if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
-			return 0;
-		}
+		public static int SortUnitsInvertRow(Unit a, Unit b) =>
+			Coord.ComparerInverseY.compare(GetCoordFromUnit(a), GetCoordFromUnit(b));
 
 		public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
 		public static Coord GetCoordFromUnit(Unit unit) => unit.coord;
@@ -97,6 +89,10 @@ namespace Omok {
 				sb.Append(lines[row].ToString());
 			}
 			return sb.ToString();
+		}
+
+		public static bool TrySetState(this IOmokState self, OmokMove move) {
+			return self.TrySetState(move.coord, move.UnitState);
 		}
 	}
 

@@ -8,7 +8,11 @@ namespace Omok {
 	public class OmokHistoryNode {
 		public struct MovePath {
 			public OmokMove move;
-			public OmokHistoryNode nextState;
+			public OmokHistoryNode nextNode;
+			public MovePath(OmokMove move, OmokHistoryNode nextState) {
+				this.move = move;
+				this.nextNode = nextState;
+			}
 			public bool Equals(MovePath other) {
 				return other.move == move;
 			}
@@ -30,7 +34,7 @@ namespace Omok {
 		public OmokHistoryNode parentNode;
 		public OmokState state;
 		public OmokStateAnalysis analysis;
-		public MovePath[] moves = Array.Empty<MovePath>();
+		public MovePath[] movePaths = Array.Empty<MovePath>();
 
 		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, OmokStateAnalysis analysis) {
 			this.state = state;
@@ -41,24 +45,35 @@ namespace Omok {
 			this.parentNode = parentNode;
 		}
 
-		public bool AddMove(OmokMove move, Action whatToDoWhenMoveCalculationFinishes) {
-			/// TODO if the move is already here, AddCallBackOnFinish, return false
+		// TODO test this method
+		public bool AddMove(OmokMove move, Action whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
+			/// if the move is already here, AddCallBackOnFinish, return false
+			int found = GetMoveIndex(move);
+			if (found >= 0) {
+				movePaths[found].nextNode.analysis.AddCallBackOnFinish(whatToDoWhenMoveCalculationFinishes);
+				return false;
+			}
 			/// create a new <see cref="MovePath">, start doing analysis of the move, AddCallBackOnFinish
+			OmokState nextState = new OmokState(state);
+			nextState.TrySetState(move);
+			OmokHistoryNode nextNode = new OmokHistoryNode(nextState, this, null);
+			MovePath nextPath = new MovePath(move, nextNode);
+			coroutineRunner.StartCoroutine(nextPath.nextNode.analysis.AnalyzeCoroutine(nextState, whatToDoWhenMoveCalculationFinishes);
 			return true;
 		}
 
 		private void AddMove(MovePath move) {
-			InsertMove(moves.Length, move);
+			InsertMove(movePaths.Length, move);
 		}
 
 		public void InsertMove(int index, MovePath move) {
-			Array.Resize(ref moves, moves.Length + 1);
-			for (int i = moves.Length - 1; i > index; --i) {
-				moves[i] = moves[i - 1];
+			Array.Resize(ref movePaths, movePaths.Length + 1);
+			for (int i = movePaths.Length - 1; i > index; --i) {
+				movePaths[i] = movePaths[i - 1];
 			}
-			moves[index] = move;
+			movePaths[index] = move;
 		}
 
-		public int GetMoveIndex(OmokMove move) => Array.IndexOf(moves, move);
+		public int GetMoveIndex(OmokMove move) => Array.IndexOf(movePaths, move);
 	}
 }

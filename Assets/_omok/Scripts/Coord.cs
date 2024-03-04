@@ -43,4 +43,22 @@ public struct Coord
 			_max = max;
 		}
 	}
+	public class Comparer : IComparer<Coord> {
+		public static int compare(Coord coordA, Coord coordB) {
+			if (coordA.y < coordB.y) { return -1; } else if (coordA.y > coordB.y) { return 1; }
+			if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
+			return 0;
+		}
+		public int Compare(Coord x, Coord y) => compare(x, y);
+		public static Comparer Instance => new Comparer();
+	}
+	public class ComparerInverseY : IComparer<Coord> {
+		public static int compare(Coord coordA, Coord coordB) {
+			if (coordA.y < coordB.y) { return 1; } else if (coordA.y > coordB.y) { return -1; }
+			if (coordA.x < coordB.x) { return -1; } else if (coordA.x > coordB.x) { return 1; }
+			return 0;
+		}
+		public int Compare(Coord x, Coord y) => compare(x, y);
+		public static ComparerInverseY Instance => new ComparerInverseY();
+	}
 }
