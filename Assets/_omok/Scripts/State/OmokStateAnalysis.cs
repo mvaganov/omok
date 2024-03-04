@@ -6,25 +6,76 @@ using System;
 namespace Omok {
 	[System.Serializable]
 	public class OmokStateAnalysis {
-		public OmokState state;
+		private OmokState state;
 		public Dictionary<Coord, List<OmokLine>> lineMap = new Dictionary<Coord, List<OmokLine>>();
 		public const byte LineLength = 5;
+		public Action onAnalysisFinished;
 
-		public void ForEachLine(System.Action<OmokLine> action) {
+		private bool _doingAnalysis = false;
+		public OmokState State => state;
+
+		public bool DoingAnalysis => _doingAnalysis;
+
+		public OmokStateAnalysis(OmokState state) {
+			this.state = state;
+			lineMap = new Dictionary<Coord, List<OmokLine>>();
+		}
+
+		public void ForEachLine(Action<OmokLine> action) {
+			if (this == null) {
+				Debug.LogError("missing this");
+			}
+			if (lineMap == null) {
+				Debug.LogError("missing lineMap");
+			}
 			foreach (var kvp in lineMap) {
+				if (kvp.Value == null) {
+					Debug.LogError($"missing lineMap[{kvp.Key}]");
+				}
 				for (int i = 0; i < kvp.Value.Count; i++) {
+					if (kvp.Value[i] == null) {
+						Debug.LogError($"missing lineMap[{kvp.Key}][{i}]");
+					}
 					action(kvp.Value[i]);
 				}
 			}
 		}
 
-		public IEnumerator Analyze(OmokState state, Action onAnalysisComplete) {
+		public IEnumerator ForEachLine(Action<OmokLine> action, Action onForLoopComplete) {
+			List<List<OmokLine>> omokLinesPerCoord = new List<List<OmokLine>>(lineMap.Values);
+			for(int c = 0; c < omokLinesPerCoord.Count; ++c) {
+				for(int i = 0; i < omokLinesPerCoord[c].Count; ++i) {
+					action(omokLinesPerCoord[c][i]);
+				}
+				yield return null;
+			}
+			onForLoopComplete?.Invoke();
+		}
+
+		public IEnumerator AnalyzeCoroutine(OmokState state, Action onAnalysisComplete) {
 			this.state = state;
 			lineMap.Clear();
-			yield return this.state.ForEachPiece(PieceAnalysis, onAnalysisComplete);
+			_doingAnalysis = true;
+			AddCallBackOnFinish(onAnalysisComplete);
+			yield return this.state.ForEachPiece(PieceAnalysis, null);
+			_doingAnalysis = false;
+			onAnalysisFinished?.Invoke();
+		}
+
+		public void AddCallBackOnFinish(Action onAnalysisComplete) {
+			if (onAnalysisComplete == null) {
+				return;
+			}
+			if (onAnalysisFinished != null) {
+				onAnalysisFinished -= onAnalysisComplete;
+				onAnalysisFinished += onAnalysisComplete;
+			} else {
+				onAnalysisFinished = onAnalysisComplete;
+			}
 		}
 
 		public void Analyze(OmokState state) {
+			Debug.Log($"###### lineMap [{lineMap}]");
 			this.state = state;
 			lineMap.Clear();
 			this.state.ForEachPiece(PieceAnalysis);
@@ -63,6 +114,10 @@ namespace Omok {
 		new Coord( 1, 1),
 		new Coord( 0, 1),
 		new Coord(-1, 1),
+		new Coord(-1, 0),
+		new Coord(-1,-1),
+		new Coord( 0,-1),
+		new Coord( 1,-1),
 	};
 
 		public void PieceAnalysis(Coord coord, UnitState unitState) {

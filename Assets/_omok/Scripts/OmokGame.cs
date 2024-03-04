@@ -10,6 +10,7 @@ namespace Omok {
 		public OmokPlayer[] players = new OmokPlayer[2];
 		[SerializeField]
 		protected int whosTurn = 0;
+		public OmokStateAnalysisDraw analysisVisual;
 
 		public int WhosTurn {
 			get => whosTurn;

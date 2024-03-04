@@ -10,8 +10,8 @@ namespace Omok {
 		[System.Serializable]
 		public class UnityEvent_Coord : UnityEvent<Coord> { }
 
-		[ContextMenuItem(nameof(SaveState), nameof(SaveState))]
-		[ContextMenuItem(nameof(LoadState), nameof(LoadState))]
+		[ContextMenuItem(nameof(ReadFromBoardIntoState), nameof(ReadFromBoardIntoState))]
+		[ContextMenuItem(nameof(LoadFromStateIntoBoard), nameof(LoadFromStateIntoBoard))]
 		[SerializeField]
 		protected OmokGame game;
 		[SerializeField]
@@ -57,17 +57,26 @@ namespace Omok {
 			RefreshMap();
 		}
 
-		public void SaveState() {
-			RefreshMap();
-			_state.SetState(map);
+		public void ReadFromBoardIntoState() {
+			_state = ReadStateFromBoard();
 		}
 
-		public void LoadState() {
+		public OmokState ReadStateFromBoard() {
+			RefreshMap();
+			_state.SetState(map);
+			return _state;
+		}
+
+		public void LoadFromStateIntoBoard() {
+			LoadState(_state);
+		}
+
+		public void LoadState(OmokState state) {
 			FreeCurrentPieces();
 			map.Clear();
-			Debug.Log(_state.DebugSerialized());
-			Debug.Log(_state.ToDebugString());
-			_state.ForEachPiece(CreatePiece);
+			Debug.Log(state.DebugSerialized());
+			Debug.Log(state.ToDebugString());
+			state.ForEachPiece(CreatePiece);
 		}
 
 		public void CreatePiece(Coord coord, UnitState pieceType) {

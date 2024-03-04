@@ -38,8 +38,9 @@ namespace Omok {
 		}
 
 		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) {
-			foreach (KeyValuePair<Coord, UnitState> kvp in stateMap) {
-				action(kvp.Key, kvp.Value);
+			List<Coord> keys = new List<Coord>(stateMap.Keys);
+			for (int i = 0; i < keys.Count; ++i) {
+				action(keys[i], stateMap[keys[i]]);
 				yield return null;
 			}
 			onForLoopComplete?.Invoke();

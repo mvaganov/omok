@@ -82,7 +82,9 @@ namespace Omok {
 				ForEachPieceSerializedIterate(i, ref cursor, horizontalLimit, action);
 				yield return null;
 			}
-			onForLoopComplete?.Invoke();
+			if (onForLoopComplete != null) {
+				onForLoopComplete.Invoke();
+			}
 		}
 
 		public bool TrySetState(Coord coord, UnitState unitState) {

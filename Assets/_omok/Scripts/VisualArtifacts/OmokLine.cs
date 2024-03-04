@@ -75,7 +75,7 @@ namespace Omok {
 			return ForEachTest(c => c == point);
 		}
 
-		public bool ForEachTest(System.Func<Coord, bool> action) {
+		private bool ForEachTest(System.Func<Coord, bool> action) {
 			Coord cursor = start;
 			for (int i = 0; i < length; i++) {
 				if (action.Invoke(cursor)) {

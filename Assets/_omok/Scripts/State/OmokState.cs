@@ -119,8 +119,9 @@ namespace Omok {
 
 		public void ForEachPiece(Action<Coord, UnitState> action) => dataBackstop.ForEachPiece(action);
 
-		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) =>
-			dataBackstop.ForEachPiece(action, onForLoopComplete);
+		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) {
+			yield return dataBackstop.ForEachPiece(action, onForLoopComplete);
+		}
 
 		public OmokState() {
 			dataBackstop = new OmokState_Archived();

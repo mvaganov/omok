@@ -7,7 +7,7 @@ namespace Omok {
 	public class OmokStateAnalysisDraw : MonoBehaviour {
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;
-		public float _lineDistance = 1;
+		public float _lineDistance = 1f/128;
 		public OmokState _state;
 		public OmokStateAnalysis _analysis;
 		public List<Wire> wires = new List<Wire>();
@@ -32,29 +32,32 @@ namespace Omok {
 			board = GetComponent<OmokBoard>();
 		}
 
-		void Update() {
-			if (_analysis.state != _state) {
-				ForceUpdate();
-			}
+		public void ForceUpdate() {
+			RenderAnalysis(board.ReadStateFromBoard());
 		}
 
-		public void ForceUpdate() {
-			board.SaveState();
-			_state = board.State;
+		public void RenderAnalysis(OmokState state) {
+			_state = state;
 			ClearWires();
 			_analysis.Analyze(_state);
 			RenderAllLines();
 		}
 
 		public IEnumerator ForceUpdateCoroutine() {
-			board.SaveState();
+			board.ReadFromBoardIntoState();
 			_state = board.State;
 			ClearWires();
-			yield return _analysis.Analyze(_state, RenderAllLines);
+			yield return _analysis.AnalyzeCoroutine(_state, RenderAllLines);
 		}
 
 		private void RenderAllLines() {
-			foreach (var kvp in _analysis.lineMap) {
+			RenderAnalysis(_analysis);
+		}
+
+		public void RenderAnalysis(OmokStateAnalysis analysis) {
+			_state = analysis.State;
+			_analysis = analysis;
+			foreach (var kvp in analysis.lineMap) {
 				RenderLines(kvp.Value);
 			}
 		}
