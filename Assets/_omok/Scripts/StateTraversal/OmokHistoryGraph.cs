@@ -24,13 +24,13 @@ namespace Omok {
 			OmokState state = game.Board.ReadStateFromBoard();
 			currentNode = new OmokHistoryNode(state, null, null);
 			historyNodes.Add(currentNode);
-			StartCoroutine(currentNode.analysis.AnalyzeCoroutine(game.Board.State, RefreshStateVisuals));
+			StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, game.Board.State, RefreshStateVisuals));
 			//currentNode.analysis.Analyze(state);
 			//Debug.Log($"%%%% [{currentNode.analysis.lineMap}]");
 			//RefreshStateVisuals();
 		}
 
-		private void RefreshStateVisuals() {
+		private void RefreshStateVisuals(OmokMove move) {
 			UpdateDebugText();
 			game.analysisVisual.RenderAnalysis(currentNode.analysis);
 		}
@@ -62,6 +62,22 @@ namespace Omok {
 			}
 			debugOutput.text = debugText.ToString();
 			Debug.Log(debugOutput.text);
+		}
+
+
+		public void CalculateCurrentMove(Coord coord) {
+			OmokMove move = new OmokMove(coord, (byte)game.WhosTurn);
+			if (currentNode.AddMove(move, OnMoveCalcFinish, this)) {
+				OnMoveCalcStart(coord);
+			}
+		}
+
+		public void OnMoveCalcStart(Coord coord) {
+			Debug.Log($"Started Calculating {coord}");
+		}
+
+		public void OnMoveCalcFinish(OmokMove move) {
+			Debug.Log($"Finished calculating {move.coord}");
 		}
 	}
 }

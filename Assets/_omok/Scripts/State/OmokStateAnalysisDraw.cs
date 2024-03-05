@@ -40,17 +40,17 @@ namespace Omok {
 			_state = state;
 			ClearWires();
 			_analysis.Analyze(_state);
-			RenderAllLines();
+			RenderAllLines(null);
 		}
 
 		public IEnumerator ForceUpdateCoroutine() {
 			board.ReadFromBoardIntoState();
 			_state = board.State;
 			ClearWires();
-			yield return _analysis.AnalyzeCoroutine(_state, RenderAllLines);
+			yield return _analysis.AnalyzeCoroutine(OmokMove.InvalidMove, _state, RenderAllLines);
 		}
 
-		private void RenderAllLines() {
+		private void RenderAllLines(OmokMove move) {
 			RenderAnalysis(_analysis);
 		}
 

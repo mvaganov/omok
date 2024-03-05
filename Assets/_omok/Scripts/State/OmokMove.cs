@@ -14,6 +14,8 @@ namespace Omok {
 			_ => UnitState.Unknown
 		};
 
+		public static readonly OmokMove InvalidMove = new OmokMove(Coord.MIN, 255);
+
 		public OmokMove(Coord coord, byte player) {
 			this.coord = coord; this.player = player;
 		}

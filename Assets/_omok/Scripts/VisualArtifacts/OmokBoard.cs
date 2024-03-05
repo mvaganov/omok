@@ -32,6 +32,8 @@ namespace Omok {
 		protected Vector3 mousePosition;
 		[SerializeField]
 		protected UnityEvent_Coord _onClick;
+		[SerializeField]
+		protected UnityEvent_Coord _onHover;
 
 		[SerializeField]
 		protected OmokState _state = new OmokState();
@@ -147,6 +149,7 @@ namespace Omok {
 				currentSelectedSpot = GetCoord(mousePosition);
 				_mouseMarker.position = hit.point;
 				_mouseMarker.rotation = Quaternion.LookRotation(hit.normal);
+				_onHover.Invoke(currentSelectedSpot);
 			}
 			if (Input.GetKey(click)) {
 				_onClick.Invoke(currentSelectedSpot);

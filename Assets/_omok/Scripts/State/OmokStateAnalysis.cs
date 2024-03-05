@@ -9,7 +9,7 @@ namespace Omok {
 		private OmokState state;
 		public Dictionary<Coord, List<OmokLine>> lineMap = new Dictionary<Coord, List<OmokLine>>();
 		public const byte LineLength = 5;
-		public Action onAnalysisFinished;
+		public Action<OmokMove> onAnalysisFinished;
 
 		private bool _doingAnalysis = false;
 		public OmokState State => state;
@@ -52,17 +52,17 @@ namespace Omok {
 			onForLoopComplete?.Invoke();
 		}
 
-		public IEnumerator AnalyzeCoroutine(OmokState state, Action onAnalysisComplete) {
+		public IEnumerator AnalyzeCoroutine(OmokMove move, OmokState state, Action<OmokMove> onAnalysisComplete) {
 			this.state = state;
 			lineMap.Clear();
 			_doingAnalysis = true;
 			AddCallBackOnFinish(onAnalysisComplete);
 			yield return this.state.ForEachPiece(PieceAnalysis, null);
 			_doingAnalysis = false;
-			onAnalysisFinished?.Invoke();
+			onAnalysisFinished?.Invoke(move);
 		}
 
-		public void AddCallBackOnFinish(Action onAnalysisComplete) {
+		public void AddCallBackOnFinish(Action<OmokMove> onAnalysisComplete) {
 			if (onAnalysisComplete == null) {
 				return;
 			}

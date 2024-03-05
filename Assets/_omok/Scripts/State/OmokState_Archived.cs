@@ -30,11 +30,13 @@ namespace Omok {
 		public void Copy(IOmokState source) {
 			_start = source.start;
 			_size = source.size;
-			serialized = new BitArray(size.x * size.y);
+			serialized = new BitArray(size.x * size.y * ElementBitCount);
 			Coord max = _start + _size;
+			//Debug.Log($"copying {_start}:{_size}");
 			for (int row = _start.y; row < max.y; ++row) {
 				for (int col = _start.x; col < max.x; ++col) {
 					Coord coord = new Coord(col, row);
+					//Debug.Log($"{coord}");
 					source.TryGetState(coord, out UnitState state);
 					TrySetState(coord, state);
 				}

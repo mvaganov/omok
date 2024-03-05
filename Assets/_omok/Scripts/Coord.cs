@@ -1,9 +1,9 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public struct Coord
+public struct Coord : IComparable<Coord>
 {
 	public static Coord zero = new Coord();
 	public static Coord one = new Coord(1,1);
@@ -43,6 +43,9 @@ public struct Coord
 			_max = max;
 		}
 	}
+
+	public int CompareTo(Coord other) => Comparer.compare(this, other);
+
 	public class Comparer : IComparer<Coord> {
 		public static int compare(Coord coordA, Coord coordB) {
 			if (coordA.y < coordB.y) { return -1; } else if (coordA.y > coordB.y) { return 1; }
