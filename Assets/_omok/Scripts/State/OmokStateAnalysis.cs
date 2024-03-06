@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Text;
 
 namespace Omok {
 	[System.Serializable]
@@ -14,7 +15,7 @@ namespace Omok {
 		private bool _doingAnalysis = false;
 		public OmokState State => state;
 
-		public bool DoingAnalysis => _doingAnalysis;
+		public bool IsDoingAnalysis => _doingAnalysis;
 
 		public OmokStateAnalysis(OmokState state) {
 			this.state = state;
@@ -156,6 +157,39 @@ namespace Omok {
 				lineMap[line.start] = lines = new List<OmokLine>(1);
 			}
 			lines.Add(line);
+		}
+
+		public string DebugText() {
+			StringBuilder debugText = new StringBuilder();
+			Dictionary<byte, Dictionary<int, int>> lineCountPerPlayer = new Dictionary<byte, Dictionary<int, int>>();
+			ForEachLine(line => {
+				if (!lineCountPerPlayer.TryGetValue(line.player, out Dictionary<int, int> map)) {
+					lineCountPerPlayer[line.player] = map = new Dictionary<int, int>();
+				}
+				if (!map.TryGetValue(line.count, out int count)) {
+					map[line.count] = 1;
+				} else {
+					map[line.count] = count + 1;
+				}
+			});
+			List<byte> players = new List<byte>(lineCountPerPlayer.Keys);
+			players.Sort();
+			string[] colorText = { "#000", "#fff" };
+			for (int p = 0; p < players.Count; ++p) {
+				if (p > 0) {
+					debugText.Append("\n");
+				}
+				debugText.Append($"<{colorText[players[p]]}>");
+				Dictionary<int, int> map = lineCountPerPlayer[players[p]];
+				List<int> lineLengths = new List<int>(map.Keys);
+				lineLengths.Sort();
+				for (int l = 0; l < lineLengths.Count; ++l) {
+					int lineCount = map[lineLengths[l]];
+					debugText.Append($"{lineLengths[l]}:{lineCount},");
+				}
+				debugText.Append("</color>");
+			}
+			return debugText.ToString();
 		}
 	}
 }

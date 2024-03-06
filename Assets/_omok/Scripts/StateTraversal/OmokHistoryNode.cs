@@ -60,7 +60,9 @@ namespace Omok {
 			int index = Array.BinarySearch(movePaths, nextPath, MovePath.Comparer.Instance);
 			//int found = GetMoveIndex(move);
 			if (index >= 0) {
-				movePaths[index].nextNode.analysis.AddCallBackOnFinish(whatToDoWhenMoveCalculationFinishes);
+				if (movePaths[index].nextNode.analysis.IsDoingAnalysis) {
+					movePaths[index].nextNode.analysis.AddCallBackOnFinish(whatToDoWhenMoveCalculationFinishes);
+				}
 				return false;
 			}
 			/// create a new <see cref="MovePath">, start doing analysis of the move, AddCallBackOnFinish
@@ -73,8 +75,6 @@ namespace Omok {
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
 				return false;
-			} else {
-				Debug.LogWarning($"{nextPath.move.coord} @ {~index}");
 			}
 			InsertMove(~index, nextPath);
 			return true;
@@ -93,5 +93,17 @@ namespace Omok {
 		}
 
 		public int GetMoveIndex(OmokMove move) => Array.IndexOf(movePaths, move);
+
+		public OmokHistoryNode GetMove(OmokMove move) {
+			int index = GetMoveIndex(move);
+			if (index < 0) {
+				return null;
+			}
+			return GetMove(index);
+		}
+
+		public OmokHistoryNode GetMove(int index) {
+			return movePaths[index].nextNode;
+		}
 	}
 }
