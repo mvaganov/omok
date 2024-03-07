@@ -84,10 +84,13 @@ namespace Omok {
 		}
 
 		public void OnMoveCalcFinish(OmokMove move) {
-			Debug.Log($"Finished calculating {move.coord}");
+			//Debug.Log($"Finished calculating {move.coord}");
 			OmokHistoryNode node = currentNode.GetMove(move);
 			string text = node.analysis.DebugText();
 			GameObject token = GetPredictionToken();
+			// TODO score the new state with analysis
+			// TODO compare that score to the score of the current state
+			// TODO the token should have the delta, identifying who gains/loses, and by how much
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
