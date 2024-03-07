@@ -11,6 +11,7 @@ namespace Omok {
 		public Dictionary<Coord, List<OmokLine>> lineMap = new Dictionary<Coord, List<OmokLine>>();
 		public const byte LineLength = 5;
 		public Action<OmokMove> onAnalysisFinished;
+		public float[] scoring;
 
 		private bool _doingAnalysis = false;
 		public OmokState State => state;
@@ -59,6 +60,7 @@ namespace Omok {
 			_doingAnalysis = true;
 			AddCallBackOnFinish(onAnalysisComplete);
 			yield return this.state.ForEachPiece(PieceAnalysis, null);
+			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
 			onAnalysisFinished?.Invoke(move);
 		}
@@ -159,8 +161,7 @@ namespace Omok {
 			lines.Add(line);
 		}
 
-		public string DebugText() {
-			StringBuilder debugText = new StringBuilder();
+		public Dictionary<byte, Dictionary<int, int>> GetLineCountPerPlayer() {
 			Dictionary<byte, Dictionary<int, int>> lineCountPerPlayer = new Dictionary<byte, Dictionary<int, int>>();
 			ForEachLine(line => {
 				if (!lineCountPerPlayer.TryGetValue(line.player, out Dictionary<int, int> map)) {
@@ -172,6 +173,33 @@ namespace Omok {
 					map[line.count] = count + 1;
 				}
 			});
+			return lineCountPerPlayer;
+		}
+
+		public static float[] DefaultScorePerLineFill = { 0, 1, 2, 4, 8, 16 };
+		public float[] GetPlayerScoresFromLines(float[] scorePerLineFill = null) {
+			if (scorePerLineFill == null) {
+				scorePerLineFill = DefaultScorePerLineFill;
+			}
+			Dictionary<byte, Dictionary<int, int>> lineCountPerPlayer = GetLineCountPerPlayer();
+			int maxPlayerIndex = 0;
+			foreach (var kvp in lineCountPerPlayer) {
+				if (kvp.Key > maxPlayerIndex) {
+					maxPlayerIndex = kvp.Key;
+				}
+			}
+			float[] scores = new float[maxPlayerIndex+1];
+			foreach (var kvp in lineCountPerPlayer) {
+				foreach (var lineCount in kvp.Value) {
+					scores[kvp.Key] += scorePerLineFill[lineCount.Key] * lineCount.Value;
+				}
+			}
+			return scores;
+		}
+
+		public string DebugText() {
+			StringBuilder debugText = new StringBuilder();
+			Dictionary<byte, Dictionary<int, int>> lineCountPerPlayer = GetLineCountPerPlayer();
 			List<byte> players = new List<byte>(lineCountPerPlayer.Keys);
 			players.Sort();
 			string[] colorText = { "#000", "#fff" };

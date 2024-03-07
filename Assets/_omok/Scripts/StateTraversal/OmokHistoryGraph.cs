@@ -83,15 +83,23 @@ namespace Omok {
 			Debug.Log($"Started Calculating {coord}");
 		}
 
+		// TODO automatically call this in a spiral pattern around the mouse if the graph is not doing any calculations
 		public void OnMoveCalcFinish(OmokMove move) {
 			//Debug.Log($"Finished calculating {move.coord}");
 			OmokHistoryNode node = currentNode.GetMove(move);
-			string text = node.analysis.DebugText();
 			GameObject token = GetPredictionToken();
-			// TODO score the new state with analysis
-			// TODO compare that score to the score of the current state
-			// TODO the token should have the delta, identifying who gains/loses, and by how much
+			float[] comparison = (float[])node.analysis.scoring.Clone();
+			for (int i = 0; i < comparison.Length; i++) {
+				if (currentNode.analysis.scoring.Length >= i) {
+					comparison[i] -= currentNode.analysis.scoring[i];
+				}
+			}
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
+			//string text = node.analysis.DebugText();
+			float netScore = comparison[game.WhosTurn] - comparison[(game.WhosTurn + 1) % 2];
+			// TODO color the netscore based on how good this move is compared to the other calculated moves
+			// TODO after a move is made and the board state changes, set the currentNode to the new state, FreeAllPredictionTokens()
+			string text = $"<#000>{comparison[0]}</color>\n<#0f0>{netScore}</color>\n<#fff>{comparison[1]}</color>";
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
 		}
