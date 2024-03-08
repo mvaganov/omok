@@ -119,7 +119,7 @@ namespace Omok {
 
 		public void RefreshAllPredictionTokens(byte player) {
 			float[] minmax = CalculateOptionRange(player);
-			Debug.Log($"{minmax[0]}:{minmax[1]}");
+			//Debug.Log($"{minmax[0]}:{minmax[1]}");
 			FreeAllPredictionTokens();
 			for (int i = 0; i < currentNode.movePaths.Length; ++i) {
 				CreatePredictionToken(currentNode.movePaths[i].move, minmax);
@@ -132,25 +132,36 @@ namespace Omok {
 			if (node.analysis.IsDoingAnalysis) {
 				return;
 			}
-			// TODO figure out this math when I'm less sleepy...
-			float[] comparison = (float[])node.analysis.scoring.Clone();
 			float[] currentScore = currentNode.analysis.scoring;
-			float currentScoreSummary = currentScore[game.WhosTurn] - currentScore[(game.WhosTurn + 1) % 2];
-			for (int i = 0; i < comparison.Length; i++) {
-				if (currentNode.analysis.scoring.Length >= i) {
-					comparison[i] -= currentScore[i];
-				}
-			}
+			float[] nextStateScores = Sub(node.analysis.scoring, currentScore);
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			//string text = node.analysis.DebugText();
-			float netScore = comparison[game.WhosTurn] - comparison[(game.WhosTurn + 1) % 2];
-			float p = (netScore-minmax[0]) / (minmax[1] - minmax[0]);
+			float netScore = SummarizeScore(game.WhosTurn, nextStateScores);
+			float denominator = (minmax[1] - minmax[0]);
+			float p = denominator == 0 ? 0.5f : (netScore-minmax[0]) / (minmax[1] - minmax[0]);
 			Color color = optionColors.Evaluate(p);
-			string text = $"<#000>{comparison[0]}</color>\n" +
-				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{netScore}</color>\n" +
-				$"<#fff>{comparison[1]}</color>";
+			string bStart = p == 0 || p == 1 ? "<b>" : "";
+			string bEnd = p == 0 || p == 1 ? "</b>" : "";
+			string text = $"<#000>{nextStateScores[0]}</color>\n" +
+				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
+				$"<#fff>{nextStateScores[1]}</color>";
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
+		}
+
+		private float[] Sub(float[] a, float[] b) {
+			float[] answer = (float[])a.Clone();
+			if (b != null) {
+				for (int i = 0; i < a.Length; i++) {
+					if (i >= b.Length) { break; }
+					answer[i] = a[i] - b[i];
+				}
+			}
+			return answer;
+		}
+
+		private float SummarizeScore(int player, float[] score) {
+			return score[player] - score[(player + 1) % 2];
 		}
 
 		public float[] CalculateOptionRange(byte player) {
@@ -159,15 +170,11 @@ namespace Omok {
 				OmokHistoryNode.MovePath movepath = currentNode.movePaths[i];
 				float[] scoring = movepath.nextNode.analysis.scoring;
 				if (movepath.nextNode.analysis.IsDoingAnalysis) {
-					Debug.Log($"skipping {movepath.move.coord}");
+					//Debug.Log($"skipping {movepath.move.coord}");
 					continue;
 				}
-				float score = 0;
-				switch (player) {
-					case 0: score = scoring[0] - scoring[1]; break;
-					case 1: score = scoring[1] - scoring[0]; break;
-				}
-				Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
+				float score = SummarizeScore(player, scoring);
+				//Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
 				if (score < minmax[0]) { minmax[0] = score; }
 				if (score > minmax[1]) { minmax[1] = score; }
 			}

@@ -12,6 +12,7 @@ namespace Omok {
 		public const byte LineLength = 5;
 		public Action<OmokMove> onAnalysisFinished;
 		public float[] scoring;
+		public static float[] DefaultScorePerLineFill = { 0, 1, 2, 4, 8, 16 };
 
 		private bool _doingAnalysis = false;
 		public OmokState State => state;
@@ -176,7 +177,6 @@ namespace Omok {
 			return lineCountPerPlayer;
 		}
 
-		public static float[] DefaultScorePerLineFill = { 0, 1, 2, 4, 8, 16 };
 		public float[] GetPlayerScoresFromLines(float[] scorePerLineFill = null) {
 			if (scorePerLineFill == null) {
 				scorePerLineFill = DefaultScorePerLineFill;
