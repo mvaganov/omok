@@ -11,6 +11,13 @@ namespace Omok {
 		public TMPro.TMP_Text debugOutput;
 		public GameObject predictionPrefab;
 		public List<GameObject> predictionTokenPool = new List<GameObject>();
+		public Gradient optionColors = new Gradient() {
+			colorKeys = new GradientColorKey[] {
+				new GradientColorKey(Color.red, 0),
+				new GradientColorKey(Color.yellow, 0.5f),
+				new GradientColorKey(Color.green, 1),
+			}
+		};
 
 		public void Start() {
 
@@ -63,7 +70,7 @@ namespace Omok {
 			//	}
 			//}
 			debugOutput.text = currentNode.analysis.DebugText();// debugText.ToString();
-			Debug.Log(debugOutput.text);
+			//Debug.Log(debugOutput.text);
 		}
 
 
@@ -80,28 +87,91 @@ namespace Omok {
 		}
 
 		public void OnMoveCalcStart(Coord coord) {
-			Debug.Log($"Started Calculating {coord}");
+			//Debug.Log($"Started Calculating {coord}");
 		}
 
 		// TODO automatically call this in a spiral pattern around the mouse if the graph is not doing any calculations
 		public void OnMoveCalcFinish(OmokMove move) {
+			if (currentNode.analysis.IsDoingAnalysis) {
+				Debug.Log($"still doing analysis...");
+				return;
+			}
 			//Debug.Log($"Finished calculating {move.coord}");
-			OmokHistoryNode node = currentNode.GetMove(move);
+			//OmokHistoryNode node = currentNode.GetMove(move);
+			//GameObject token = GetPredictionToken();
+			//float[] comparison = (float[])node.analysis.scoring.Clone();
+			//for (int i = 0; i < comparison.Length; i++) {
+			//	if (currentNode.analysis.scoring.Length >= i) {
+			//		comparison[i] -= currentNode.analysis.scoring[i];
+			//	}
+			//}
+			//TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
+			////string text = node.analysis.DebugText();
+			//float netScore = comparison[game.WhosTurn] - comparison[(game.WhosTurn + 1) % 2];
+			//// TODO color the netscore based on how good this move is compared to the other calculated moves
+			//// TODO after a move is made and the board state changes, set the currentNode to the new state, FreeAllPredictionTokens()
+			//Color color = optionColors.Evaluate(netScore/);
+			//string text = $"<#000>{comparison[0]}</color>\n<#{color}>{netScore}</color>\n<#fff>{comparison[1]}</color>";
+			//tmpText.text = text;
+			//token.transform.position = game.Board.GetPosition(move.coord);
+			RefreshAllPredictionTokens((byte)game.WhosTurn);
+		}
+
+		public void RefreshAllPredictionTokens(byte player) {
+			float[] minmax = CalculateOptionRange(player);
+			Debug.Log($"{minmax[0]}:{minmax[1]}");
+			FreeAllPredictionTokens();
+			for (int i = 0; i < currentNode.movePaths.Length; ++i) {
+				CreatePredictionToken(currentNode.movePaths[i].move, minmax);
+			}
+		}
+
+		private void CreatePredictionToken(OmokMove move, float[] minmax) {
 			GameObject token = GetPredictionToken();
+			OmokHistoryNode node = currentNode.GetMove(move);
+			if (node.analysis.IsDoingAnalysis) {
+				return;
+			}
+			// TODO figure out this math when I'm less sleepy...
 			float[] comparison = (float[])node.analysis.scoring.Clone();
+			float[] currentScore = currentNode.analysis.scoring;
+			float currentScoreSummary = currentScore[game.WhosTurn] - currentScore[(game.WhosTurn + 1) % 2];
 			for (int i = 0; i < comparison.Length; i++) {
 				if (currentNode.analysis.scoring.Length >= i) {
-					comparison[i] -= currentNode.analysis.scoring[i];
+					comparison[i] -= currentScore[i];
 				}
 			}
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			//string text = node.analysis.DebugText();
 			float netScore = comparison[game.WhosTurn] - comparison[(game.WhosTurn + 1) % 2];
-			// TODO color the netscore based on how good this move is compared to the other calculated moves
-			// TODO after a move is made and the board state changes, set the currentNode to the new state, FreeAllPredictionTokens()
-			string text = $"<#000>{comparison[0]}</color>\n<#0f0>{netScore}</color>\n<#fff>{comparison[1]}</color>";
+			float p = (netScore-minmax[0]) / (minmax[1] - minmax[0]);
+			Color color = optionColors.Evaluate(p);
+			string text = $"<#000>{comparison[0]}</color>\n" +
+				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{netScore}</color>\n" +
+				$"<#fff>{comparison[1]}</color>";
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
+		}
+
+		public float[] CalculateOptionRange(byte player) {
+			float[] minmax = new float[] { float.MaxValue, float.MinValue };
+			for(int i = 0; i < currentNode.movePaths.Length; ++i) {
+				OmokHistoryNode.MovePath movepath = currentNode.movePaths[i];
+				float[] scoring = movepath.nextNode.analysis.scoring;
+				if (movepath.nextNode.analysis.IsDoingAnalysis) {
+					Debug.Log($"skipping {movepath.move.coord}");
+					continue;
+				}
+				float score = 0;
+				switch (player) {
+					case 0: score = scoring[0] - scoring[1]; break;
+					case 1: score = scoring[1] - scoring[0]; break;
+				}
+				Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
+				if (score < minmax[0]) { minmax[0] = score; }
+				if (score > minmax[1]) { minmax[1] = score; }
+			}
+			return minmax;
 		}
 
 		public GameObject GetPredictionToken() {

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-  public class OmokState_Dictionary : IOmokState {
-    [SerializeField]
-    protected Coord _min, _max;
-    protected Dictionary<Coord, UnitState> stateMap = new Dictionary<Coord, UnitState>();
+	public class OmokState_Dictionary : IOmokState {
+		[SerializeField]
+		protected Coord _min, _max;
+		protected Dictionary<Coord, UnitState> stateMap = new Dictionary<Coord, UnitState>();
 
 		public Coord size {
 			get {
