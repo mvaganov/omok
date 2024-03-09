@@ -45,7 +45,7 @@ public struct Coord : IComparable<Coord>
 	}
 
 	public int CompareTo(Coord other) => Comparer.compare(this, other);
-
+	public static implicit operator Vector3(Coord c) => new Vector3(c.x, c.y, 0);
 	public class Comparer : IComparer<Coord> {
 		public static int compare(Coord coordA, Coord coordB) {
 			if (coordA.y < coordB.y) { return -1; } else if (coordA.y > coordB.y) { return 1; }

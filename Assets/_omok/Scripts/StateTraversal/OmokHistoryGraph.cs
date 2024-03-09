@@ -86,35 +86,79 @@ namespace Omok {
 			}
 		}
 
+		public GameObject test;
 		public void OnMoveCalcStart(Coord coord) {
-			//Debug.Log($"Started Calculating {coord}");
+			//Debug.Log(string.Join(", ", spiral));
+			//if (test == null) {
+			//	test = new GameObject();
+			//	for (int i = 0; i < spiral.Count; i++) {
+			//		GameObject go = new GameObject("i"+i);
+			//		go.transform.SetParent(test.transform, false);
+			//		go.transform.localPosition = spiral[i];
+			//	}
+			//}
+		}
+
+		private List<Coord> nextMovesToTry = new List<Coord>();
+
+		public static List<Coord> SquareSpiral(Coord center, int count) {
+			List<Coord> list = new List<Coord>();
+			Coord cursor = center;
+			int stride = 1;
+			Coord[] directions = new Coord[] {
+				new Coord( 0,-1),
+				new Coord( 1, 0),
+				new Coord( 0, 1),
+				new Coord(-1, 0),
+			};
+			Coord direction;
+			int directionIndex = 0;
+			list.Add(cursor);
+			for(int i = 0; i < count; ++i) {
+				direction = directions[directionIndex];
+				if (i != 0 && i % 2 == 0) {
+					stride++;
+				}
+				for (int s = 0; s < stride; ++s) {
+					cursor += direction;
+					list.Add(cursor);
+				}
+				directionIndex = (directionIndex + 1) % directions.Length;
+			}
+			return list;
 		}
 
 		// TODO automatically call this in a spiral pattern around the mouse if the graph is not doing any calculations
 		public void OnMoveCalcFinish(OmokMove move) {
-			if (currentNode.analysis.IsDoingAnalysis) {
-				Debug.Log($"still doing analysis...");
-				return;
-			}
-			//Debug.Log($"Finished calculating {move.coord}");
-			//OmokHistoryNode node = currentNode.GetMove(move);
-			//GameObject token = GetPredictionToken();
-			//float[] comparison = (float[])node.analysis.scoring.Clone();
-			//for (int i = 0; i < comparison.Length; i++) {
-			//	if (currentNode.analysis.scoring.Length >= i) {
-			//		comparison[i] -= currentNode.analysis.scoring[i];
+			//if (currentNode.analysis.IsDoingAnalysis) {
+			//	Debug.Log($"still doing analysis...");
+			//	return;
+			//}
+			RefreshAllPredictionTokens((byte)game.WhosTurn);
+
+			// TODO after calculating one move, calculate the next move
+			//if (nextMovesToTry.Count == 0) {
+			//	nextMovesToTry = SquareSpiral(move.coord, 8);
+			//}
+			//while (nextMovesToTry.Count > 0) {
+			//	Coord next = nextMovesToTry[0];
+			//	nextMovesToTry.RemoveAt(0);
+			//	if (nextMovesToTry.Count == 0) {
+			//		Debug.Log("really? nothing?");
+			//	}
+			//	bool haveBoardState = currentNode != null && currentNode.state != null;
+			//	bool validMove = haveBoardState &&
+			//		currentNode.state.TryGetState(next, out UnitState coordState) && coordState == UnitState.None &&
+			//		currentNode.GetMove(new OmokMove(next, (byte)game.WhosTurn)) == null;
+			//	if (validMove) {
+			//		Debug.Log("I should try " + next);
+			//		nextMovesToTry.Clear();
+			//		CalculateCurrentMove(next);
+			//		break;
+			//	} else {
+			//		//Debug.Log("skip " + next);
 			//	}
 			//}
-			//TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
-			////string text = node.analysis.DebugText();
-			//float netScore = comparison[game.WhosTurn] - comparison[(game.WhosTurn + 1) % 2];
-			//// TODO color the netscore based on how good this move is compared to the other calculated moves
-			//// TODO after a move is made and the board state changes, set the currentNode to the new state, FreeAllPredictionTokens()
-			//Color color = optionColors.Evaluate(netScore/);
-			//string text = $"<#000>{comparison[0]}</color>\n<#{color}>{netScore}</color>\n<#fff>{comparison[1]}</color>";
-			//tmpText.text = text;
-			//token.transform.position = game.Board.GetPosition(move.coord);
-			RefreshAllPredictionTokens((byte)game.WhosTurn);
 		}
 
 		public void RefreshAllPredictionTokens(byte player) {
