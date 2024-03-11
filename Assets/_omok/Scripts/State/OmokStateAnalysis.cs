@@ -24,6 +24,8 @@ namespace Omok {
 			lineMap = new Dictionary<Coord, List<OmokLine>>();
 		}
 
+		public void MarkDoingAnalysis(bool doingAnalysis) => _doingAnalysis = doingAnalysis;
+
 		public void ForEachLine(Action<OmokLine> action) {
 			if (this == null) {
 				Debug.LogError("missing this");

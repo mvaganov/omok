@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
 	[System.Serializable]
-	public struct OmokLine {
+	public struct OmokLine : IComparable<OmokLine> {
 		public Coord start;
 		public Coord direction;
 		public byte length;
@@ -86,6 +87,14 @@ namespace Omok {
 			return false;
 		}
 
+		public void ForEachCoord(System.Action<Coord> action) {
+			Coord cursor = start;
+			for (int i = 0; i < length; i++) {
+				action.Invoke(cursor);
+				cursor += direction;
+			}
+		}
+
 		public bool Equals(OmokLine other) {
 			if (length != other.length) { return false; }
 			if (start == other.start && direction == other.direction) {
@@ -101,6 +110,10 @@ namespace Omok {
 			return false;
 		}
 
+		/// <summary>
+		/// highest count should be first
+		/// </summary>
+		public int CompareTo(OmokLine other) => -count.CompareTo(other.count);
 		public override string ToString() => $"[{start}:{direction}*{count}/{length})";
 		public override int GetHashCode() => start.GetHashCode() ^ direction.GetHashCode() ^ length ^ player;
 		public override bool Equals(object obj) => obj is OmokLine line && Equals(line);

@@ -44,6 +44,14 @@ public struct Coord : IComparable<Coord>
 		}
 	}
 
+	public static void ForEach(Coord startInclusive, Coord endInclusive, Action<Coord> action) {
+		for (int row = startInclusive.y; row <= endInclusive.y; ++row) {
+			for(int col = startInclusive.x; col <= endInclusive.x; ++col) {
+				action(new Coord(col,row));
+			}
+		}
+	}
+
 	public int CompareTo(Coord other) => Comparer.compare(this, other);
 	public static implicit operator Vector3(Coord c) => new Vector3(c.x, c.y, 0);
 	public class Comparer : IComparer<Coord> {

@@ -11,6 +11,7 @@ namespace Omok {
 		public TMPro.TMP_Text debugOutput;
 		public GameObject predictionPrefab;
 		public List<GameObject> predictionTokenPool = new List<GameObject>();
+		public Transform predictionTokens;
 		public Gradient optionColors = new Gradient() {
 			colorKeys = new GradientColorKey[] {
 				new GradientColorKey(Color.red, 0),
@@ -42,6 +43,45 @@ namespace Omok {
 		private void RefreshStateVisuals(OmokMove move) {
 			UpdateDebugText();
 			game.analysisVisual.RenderAnalysis(currentNode.analysis);
+			// TODO use analysis to get every square crossing a line, prioritized by line strength, with hashset to avoid dups
+			// and then every square within 2 squares of the ones in lines
+			List<OmokLine> allLines = new List<OmokLine>();
+			currentNode.analysis.ForEachLine(coordLine => {
+				allLines.Add(coordLine);
+			});
+			allLines.Sort();
+			nextMovesToTry.Clear();
+
+			List<Coord> coordListLine = new List<Coord>();
+			HashSet<Coord> coordSet = new HashSet<Coord>();
+			allLines.ForEach(coordLine => {
+				coordLine.ForEachCoord(coord => {
+					if (!coordSet.Contains(coord)) {
+						coordSet.Add(coord);
+						coordListLine.Add(coord);
+					}
+				});
+			});
+			nextMovesToTry.AddRange(coordListLine);
+			indexToTry = 0;
+			Debug.Log($"moves: {string.Join(", ", nextMovesToTry)}");
+
+			//List<Coord> coordListNearLine = new List<Coord>();
+			//for (int i = 0; i < coordListLine.Count; i++) {
+			//	Coord min = coordListLine[i] - Coord.one;
+			//	Coord max = coordListLine[i] + Coord.one;
+			//	Coord.ForEach(min, max, coord => {
+			//		if (!coordSet.Contains(coord)) {
+			//			coordSet.Add(coord);
+			//			coordListNearLine.Add(coord);
+			//		}
+			//	});
+			//}
+			//nextMovesToTry.AddRange(coordListNearLine);
+
+			GenerateTestingTransformsForNextMovesToTry();
+			ContinueIndividualMoveAnalysis();
+
 		}
 
 		private void UpdateDebugText() {
@@ -75,31 +115,48 @@ namespace Omok {
 
 
 		public void CalculateCurrentMove(Coord coord) {
+			//if (nextMovesToTry.Count == 0) {
+			//	nextMovesToTry = SquareSpiral(coord, 8);
+			//	indexToTry = 0;
+			//	//Debug.Log(string.Join(", ", nextMovesToTry));
+			//	GenerateTestingTransformsForNextMovesToTry();
+			//}
+			DoMoveCalculation(coord);
+		}
+
+		private void GenerateTestingTransformsForNextMovesToTry() {
+			if (test == null) {
+				test = new GameObject();
+			}
+			for (int i = test.transform.childCount - 1; i >= 0; --i) {
+				Destroy(test.transform.GetChild(i).gameObject);
+			}
+			for (int i = 0; i < nextMovesToTry.Count; i++) {
+				GameObject go = new GameObject("i" + i);
+				go.transform.SetParent(test.transform, false);
+				go.transform.position = game.Board.GetPosition(nextMovesToTry[i]);
+			}
+		}
+
+		public bool DoMoveCalculation(Coord coord) {
 			bool validMove = currentNode != null && currentNode.state != null &&
 				currentNode.state.GetState(coord) == UnitState.None;
 			if (!validMove) {
-				return;
+				return false;
 			}
+
 			OmokMove move = new OmokMove(coord, (byte)game.WhosTurn);
 			if (currentNode.AddMove(move, OnMoveCalcFinish, this)) {
 				OnMoveCalcStart(coord);
+				return true;
 			}
+			return false;
 		}
 
 		public GameObject test;
 		public void OnMoveCalcStart(Coord coord) {
 			//Debug.Log(string.Join(", ", spiral));
-			//if (test == null) {
-			//	test = new GameObject();
-			//	for (int i = 0; i < spiral.Count; i++) {
-			//		GameObject go = new GameObject("i"+i);
-			//		go.transform.SetParent(test.transform, false);
-			//		go.transform.localPosition = spiral[i];
-			//	}
-			//}
 		}
-
-		private List<Coord> nextMovesToTry = new List<Coord>();
 
 		public static List<Coord> SquareSpiral(Coord center, int count) {
 			List<Coord> list = new List<Coord>();
@@ -128,42 +185,43 @@ namespace Omok {
 			return list;
 		}
 
+
+
+		private List<Coord> nextMovesToTry = new List<Coord>();
+		private int indexToTry = 0;
+
 		// TODO automatically call this in a spiral pattern around the mouse if the graph is not doing any calculations
 		public void OnMoveCalcFinish(OmokMove move) {
-			//if (currentNode.analysis.IsDoingAnalysis) {
-			//	Debug.Log($"still doing analysis...");
-			//	return;
-			//}
 			RefreshAllPredictionTokens((byte)game.WhosTurn);
+			ContinueIndividualMoveAnalysis(3);
+		}
 
-			// TODO after calculating one move, calculate the next move
-			//if (nextMovesToTry.Count == 0) {
-			//	nextMovesToTry = SquareSpiral(move.coord, 8);
-			//}
-			//while (nextMovesToTry.Count > 0) {
-			//	Coord next = nextMovesToTry[0];
-			//	nextMovesToTry.RemoveAt(0);
-			//	if (nextMovesToTry.Count == 0) {
-			//		Debug.Log("really? nothing?");
-			//	}
-			//	bool haveBoardState = currentNode != null && currentNode.state != null;
-			//	bool validMove = haveBoardState &&
-			//		currentNode.state.TryGetState(next, out UnitState coordState) && coordState == UnitState.None &&
-			//		currentNode.GetMove(new OmokMove(next, (byte)game.WhosTurn)) == null;
-			//	if (validMove) {
-			//		Debug.Log("I should try " + next);
-			//		nextMovesToTry.Clear();
-			//		CalculateCurrentMove(next);
-			//		break;
-			//	} else {
-			//		//Debug.Log("skip " + next);
-			//	}
-			//}
+		private void ContinueIndividualMoveAnalysis(int checksPerBatch = 5) {
+			int checks = 0;
+			while (indexToTry < nextMovesToTry.Count) {
+				Coord next = nextMovesToTry[indexToTry];
+				//Debug.Log($"... {indexToTry}/{nextMovesToTry.Count}   {next}");
+				currentNode.state.TryGetState(next, out UnitState coordState);
+				bool validMove = coordState == UnitState.None &&
+					currentNode.GetMove(new OmokMove(next, (byte)game.WhosTurn)) == null;
+				Transform t = test.transform.GetChild(indexToTry);
+				t.name += coordState;
+				++indexToTry;
+				if (validMove) {
+					if (DoMoveCalculation(next)) {
+						++checks;
+						if (checks >= checksPerBatch) {
+							break;
+						}
+					}
+				} else {
+					t.gameObject.SetActive(false);
+				}
+			}
 		}
 
 		public void RefreshAllPredictionTokens(byte player) {
 			float[] minmax = CalculateOptionRange(player);
-			//Debug.Log($"{minmax[0]}:{minmax[1]}");
 			FreeAllPredictionTokens();
 			for (int i = 0; i < currentNode.movePaths.Length; ++i) {
 				CreatePredictionToken(currentNode.movePaths[i].move, minmax);
@@ -234,6 +292,7 @@ namespace Omok {
 				}
 			}
 			GameObject foundFree = Instantiate(predictionPrefab);
+			foundFree.transform.SetParent(predictionTokens, true);
 			predictionTokenPool.Add(foundFree);
 			return foundFree;
 		}

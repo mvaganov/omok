@@ -70,13 +70,14 @@ namespace Omok {
 			nextState.TrySetState(move);
 			OmokHistoryNode nextNode = new OmokHistoryNode(nextState, this, null);
 			nextPath.nextNode = nextNode;
+			nextPath.nextNode.analysis.MarkDoingAnalysis(true);
+			InsertMove(~index, nextPath);
 			coroutineRunner.StartCoroutine(nextPath.nextNode.analysis.AnalyzeCoroutine(
 				move, nextState, whatToDoWhenMoveCalculationFinishes));
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
 				return false;
 			}
-			InsertMove(~index, nextPath);
 			return true;
 		}
 
