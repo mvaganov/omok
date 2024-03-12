@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 
 namespace Omok {
+	// TODO move the graph to a non-Unity.Object, and make this MonoBehaviour render the results
 	public class OmokHistoryGraph : MonoBehaviour {
 		public OmokGame game;
 		private List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
@@ -35,16 +36,12 @@ namespace Omok {
 			currentNode = new OmokHistoryNode(state, null, null);
 			historyNodes.Add(currentNode);
 			StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, game.Board.State, RefreshStateVisuals));
-			//currentNode.analysis.Analyze(state);
-			//Debug.Log($"%%%% [{currentNode.analysis.lineMap}]");
-			//RefreshStateVisuals();
 		}
 
 		private void RefreshStateVisuals(OmokMove move) {
 			UpdateDebugText();
 			game.analysisVisual.RenderAnalysis(currentNode.analysis);
 			// TODO use analysis to get every square crossing a line, prioritized by line strength, with hashset to avoid dups
-			// and then every square within 2 squares of the ones in lines
 			List<OmokLine> allLines = new List<OmokLine>();
 			currentNode.analysis.ForEachLine(coordLine => {
 				allLines.Add(coordLine);
@@ -66,6 +63,7 @@ namespace Omok {
 			indexToTry = 0;
 			Debug.Log($"moves: {string.Join(", ", nextMovesToTry)}");
 
+			// and then every square within 2 squares of the ones in lines
 			//List<Coord> coordListNearLine = new List<Coord>();
 			//for (int i = 0; i < coordListLine.Count; i++) {
 			//	Coord min = coordListLine[i] - Coord.one;

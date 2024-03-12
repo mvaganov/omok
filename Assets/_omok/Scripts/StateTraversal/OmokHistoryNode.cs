@@ -6,6 +6,9 @@ using System;
 namespace Omok {
 	[Serializable]
 	public class OmokHistoryNode {
+		/// <summary>
+		/// the Edge structure of this graph
+		/// </summary>
 		public struct MovePath {
 			public OmokMove move;
 			public OmokHistoryNode nextNode;
