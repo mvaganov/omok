@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
+	// TODO as the analysis populates, find all of the OmokGoogles,
+	// TODO populate a list of neighbor cells with net score weighting,
+	// TODO make the googles randomly look at different neightbor cells with probability based on score weight
 	public class OmokStateAnalysisDraw : MonoBehaviour {
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;

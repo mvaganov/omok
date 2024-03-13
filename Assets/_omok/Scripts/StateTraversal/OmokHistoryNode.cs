@@ -56,7 +56,6 @@ namespace Omok {
 			this.parentNode = parentNode;
 		}
 
-		// TODO test this method
 		public bool AddMove(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			MovePath nextPath = new MovePath(move);
@@ -108,6 +107,23 @@ namespace Omok {
 
 		public OmokHistoryNode GetMove(int index) {
 			return movePaths[index].nextNode;
+		}
+
+		public float[] CalculateScoreRangeForPaths(byte player) {
+			float[] minmax = new float[] { float.MaxValue, float.MinValue };
+			for (int i = 0; i < movePaths.Length; ++i) {
+				OmokHistoryNode.MovePath movepath = movePaths[i];
+				float[] scoring = movepath.nextNode.analysis.scoring;
+				if (movepath.nextNode.analysis.IsDoingAnalysis) {
+					//Debug.Log($"skipping {movepath.move.coord}");
+					continue;
+				}
+				float score = OmokStateAnalysis.SummarizeScore(player, scoring);
+				//Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
+				if (score < minmax[0]) { minmax[0] = score; }
+				if (score > minmax[1]) { minmax[1] = score; }
+			}
+			return minmax;
 		}
 	}
 }

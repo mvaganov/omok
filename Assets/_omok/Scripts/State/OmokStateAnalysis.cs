@@ -223,5 +223,9 @@ namespace Omok {
 			}
 			return debugText.ToString();
 		}
+
+		public static float SummarizeScore(int player, float[] score) {
+			return score[player] - score[(player + 1) % 2];
+		}
 	}
 }

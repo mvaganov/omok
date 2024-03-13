@@ -1659,6 +1659,7 @@ Transform:
   - {fileID: 313887861}
   - {fileID: 1702291426}
   - {fileID: 1069578489}
+  - {fileID: 1924769188}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
@@ -1827,6 +1828,7 @@ MonoBehaviour:
   debugOutput: {fileID: 1861816102}
   predictionPrefab: {fileID: 6963683579955810971, guid: 88fccaf656d99294e9be921f17b4f440, type: 3}
   predictionTokenPool: []
+  predictionTokens: {fileID: 1924769188}
   optionColors:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}
@@ -1856,6 +1858,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
+  test: {fileID: 0}
 --- !u!21 &1620233621
 Material:
   serializedVersion: 8
@@ -2326,6 +2329,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1861816100}
   m_CullTransparentMesh: 1
+--- !u!1 &1924769187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1924769188}
+  m_Layer: 0
+  m_Name: PredictionTokens
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1924769188
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924769187}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1466857982}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!21 &2022688081
 Material:
   serializedVersion: 8
