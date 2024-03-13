@@ -29,7 +29,6 @@ namespace Omok {
 
 		void Update() {
 			if (graph.currentNode == null) {
-				//CreateNewRoot();
 				OmokState state = game.Board.ReadStateFromBoard();
 				graph.CreateNewRoot(state, this, RefreshStateVisuals);
 			}
@@ -58,25 +57,9 @@ namespace Omok {
 			});
 			nextMovesToTry.AddRange(coordListLine);
 			indexToTry = 0;
-			
-			//Debug.Log($"moves: {string.Join(", ", nextMovesToTry)}");
-			// and then every square within 2 squares of the ones in lines
-			//List<Coord> coordListNearLine = new List<Coord>();
-			//for (int i = 0; i < coordListLine.Count; i++) {
-			//	Coord min = coordListLine[i] - Coord.one;
-			//	Coord max = coordListLine[i] + Coord.one;
-			//	Coord.ForEach(min, max, coord => {
-			//		if (!coordSet.Contains(coord)) {
-			//			coordSet.Add(coord);
-			//			coordListNearLine.Add(coord);
-			//		}
-			//	});
-			//}
-			//nextMovesToTry.AddRange(coordListNearLine);
 
 			GenerateTestingTransformsForNextMovesToTry();
 			ContinueIndividualMoveAnalysis();
-
 		}
 
 		private void UpdateDebugText() {
@@ -104,19 +87,6 @@ namespace Omok {
 
 		public bool DoMoveCalculation(Coord coord) {
 			return graph.DoMoveCalculation(coord, this, OnMoveCalcFinish, (byte)game.WhosTurn);
-			//OmokHistoryNode currentNode = graph.currentNode;
-			//bool validMove = currentNode != null && currentNode.state != null &&
-			//	currentNode.state.GetState(coord) == UnitState.None;
-			//if (!validMove) {
-			//	return false;
-			//}
-
-			//OmokMove move = new OmokMove(coord, (byte)game.WhosTurn);
-			//if (currentNode.AddMove(move, OnMoveCalcFinish, this)) {
-			//	OnMoveCalcStart(coord);
-			//	return true;
-			//}
-			//return false;
 		}
 
 		public GameObject test;
@@ -150,8 +120,6 @@ namespace Omok {
 			}
 			return list;
 		}
-
-
 
 		public void OnMoveCalcFinish(OmokMove move) {
 			RefreshAllPredictionTokens((byte)game.WhosTurn);
@@ -188,22 +156,15 @@ namespace Omok {
 			FreeAllPredictionTokens();
 			OmokHistoryNode currentNode = graph.currentNode;
 			for (int i = 0; i < currentNode.movePaths.Length; ++i) {
-				CreatePredictionToken(currentNode.movePaths[i].move, minmax);
+				CreatePredictionTokenIfDataAvailable(currentNode.movePaths[i].move, minmax);
 			}
 		}
 
-		private void CreatePredictionToken(OmokMove move, float[] minmax) {
-			GameObject token = GetPredictionToken();
-			OmokHistoryNode currentNode = graph.currentNode;
-			OmokHistoryNode node = currentNode.GetMove(move);
-			if (node.analysis.IsDoingAnalysis) {
-				return;
+		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, float[] minmax) {
+			float[] nextStateScores = GetMoveScoringSummary(move, out float netScore);
+			if (nextStateScores == null) {
+				return false;
 			}
-			float[] currentScore = currentNode.analysis.scoring;
-			float[] nextStateScores = Sub(node.analysis.scoring, currentScore);
-			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
-			//string text = node.analysis.DebugText();
-			float netScore = OmokStateAnalysis.SummarizeScore(game.WhosTurn, nextStateScores);
 			float denominator = (minmax[1] - minmax[0]);
 			float p = denominator == 0 ? 0.5f : (netScore-minmax[0]) / (minmax[1] - minmax[0]);
 			Color color = optionColors.Evaluate(p);
@@ -212,19 +173,15 @@ namespace Omok {
 			string text = $"<#000>{nextStateScores[0]}</color>\n" +
 				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
 				$"<#fff>{nextStateScores[1]}</color>";
+			GameObject token = GetPredictionToken();
+			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
+			return true;
 		}
 
-		private float[] Sub(float[] a, float[] b) {
-			float[] answer = (float[])a.Clone();
-			if (b != null) {
-				for (int i = 0; i < a.Length; i++) {
-					if (i >= b.Length) { break; }
-					answer[i] = a[i] - b[i];
-				}
-			}
-			return answer;
+		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
+			return graph.GetMoveScoringSummary((byte)game.WhosTurn, move, out netScore);
 		}
 
 		public GameObject GetPredictionToken() {

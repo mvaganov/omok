@@ -26,5 +26,28 @@ namespace Omok {
 			}
 			return false;
 		}
+
+		public float[] GetMoveScoringSummary(byte player, OmokMove move, out float netScore) {
+			OmokHistoryNode node = currentNode.GetMove(move);
+			if (node.analysis.IsDoingAnalysis) {
+				netScore = 0;
+				return null;
+			}
+			float[] currentScore = currentNode.analysis.scoring;
+			float[] nextStateScores = Sub(node.analysis.scoring, currentScore);
+			netScore = OmokStateAnalysis.SummarizeScore(player, nextStateScores);
+			return nextStateScores;
+		}
+
+		private static float[] Sub(float[] a, float[] b) {
+			float[] answer = (float[])a.Clone();
+			if (b != null) {
+				for (int i = 0; i < a.Length; i++) {
+					if (i >= b.Length) { break; }
+					answer[i] = a[i] - b[i];
+				}
+			}
+			return answer;
+		}
 	}
 }

@@ -10,8 +10,6 @@ namespace Omok {
 		private OmokState state;
 		// TODO use a sorted list instead of a Dictionary, for better memory use and serialization. sort by line start Coord.
 		public Dictionary<Coord, List<OmokLine>> lineMap = new Dictionary<Coord, List<OmokLine>>();
-		// TODO make this a part of the using class rather than a part of this class. this data is not needed long term.
-		public Action<OmokMove> onAnalysisFinished;
 		public const byte LineLength = 5;
 		public static readonly float[] DefaultScorePerLineFill = { 0, 1, 2, 4, 8, 16 };
 		public float[] scoring;
@@ -63,23 +61,10 @@ namespace Omok {
 			this.state = state;
 			lineMap.Clear();
 			_doingAnalysis = true;
-			AddCallBackOnFinish(onAnalysisComplete);
 			yield return this.state.ForEachPiece(PieceAnalysis, null);
 			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
-			onAnalysisFinished?.Invoke(move);
-		}
-
-		public void AddCallBackOnFinish(Action<OmokMove> onAnalysisComplete) {
-			if (onAnalysisComplete == null) {
-				return;
-			}
-			if (onAnalysisFinished != null) {
-				onAnalysisFinished -= onAnalysisComplete;
-				onAnalysisFinished += onAnalysisComplete;
-			} else {
-				onAnalysisFinished = onAnalysisComplete;
-			}
+			onAnalysisComplete.Invoke(move);
 		}
 
 		public void Analyze(OmokState state) {
