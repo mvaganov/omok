@@ -7,50 +7,51 @@ namespace Omok {
 	// TODO as the analysis populates, find all of the OmokGoogles,
 	// TODO populate a list of neighbor cells with net score weighting,
 	// TODO make the googles randomly look at different neightbor cells with probability based on score weight
-	public class OmokStateAnalysisDraw : MonoBehaviour {
+	public class OmokStateAnalysisDraw : MonoBehaviour, IBelongsToOmokGame {
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;
 		public float _lineDistance = 1f/128;
-		public OmokState _state;
 		public OmokStateAnalysis _analysis;
 		public List<Wire> wires = new List<Wire>();
 		public List<Wire> extraWires = new List<Wire>();
 
 		public Gradient[] _lineGradients = new Gradient[] {
-		new Gradient() {
-			colorKeys = new GradientColorKey[] {
-				new GradientColorKey(Color.black,0),
-				new GradientColorKey(Color.magenta,1),
+			new Gradient() {
+				colorKeys = new GradientColorKey[] {
+					new GradientColorKey(Color.black,0),
+					new GradientColorKey(Color.magenta,1),
+				},
 			},
-		},
-		new Gradient() {
-			colorKeys = new GradientColorKey[] {
-				new GradientColorKey(Color.white,0),
-				new GradientColorKey(Color.green,1),
-			},
-		}
-	};
+			new Gradient() {
+				colorKeys = new GradientColorKey[] {
+					new GradientColorKey(Color.white,0),
+					new GradientColorKey(Color.green,1),
+				},
+			}
+		};
+
+		public OmokGame omokGame => board.omokGame;
 
 		private void Reset() {
 			board = GetComponent<OmokBoard>();
 		}
 
 		public void ForceUpdate() {
-			RenderAnalysis(board.ReadStateFromBoard());
+			RenderAnalysis();
 		}
 
-		public void RenderAnalysis(OmokState state) {
-			_state = state;
+		public void RenderAnalysis() {
 			ClearWires();
-			_analysis.Analyze(_state);
+			string printed = omokGame.State.ToDebugString();
+			Debug.Log(printed);
+			_analysis.Analyze(omokGame.State);
 			RenderAllLines(null);
 		}
 
 		public IEnumerator ForceUpdateCoroutine() {
 			board.ReadFromBoardIntoState();
-			_state = board.State;
 			ClearWires();
-			yield return _analysis.AnalyzeCoroutine(OmokMove.InvalidMove, _state, RenderAllLines);
+			yield return _analysis.AnalyzeCoroutine(OmokMove.InvalidMove, omokGame.State, RenderAllLines);
 		}
 
 		private void RenderAllLines(OmokMove move) {
@@ -58,7 +59,6 @@ namespace Omok {
 		}
 
 		public void RenderAnalysis(OmokStateAnalysis analysis) {
-			_state = analysis.State;
 			_analysis = analysis;
 			foreach (var kvp in analysis.lineMap) {
 				RenderLines(kvp.Value);

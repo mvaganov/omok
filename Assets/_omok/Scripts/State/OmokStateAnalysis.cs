@@ -68,17 +68,20 @@ namespace Omok {
 		}
 
 		public void Analyze(OmokState state) {
+			if (lineMap == null) {
+				lineMap = new Dictionary<Coord, List<OmokLine>>();
+			}
 			Debug.Log($"###### lineMap [{lineMap}]");
 			this.state = state;
 			lineMap.Clear();
 			this.state.ForEachPiece(PieceAnalysis);
 		}
 
-		public void AnalyzeTest(OmokState state) {
-			this.state = state;
-			lineMap.Clear();
-			this.state.ForEachPiece(PieceAnalysisTest);
-		}
+		//public void AnalyzeTest(OmokState state) {
+		//	this.state = state;
+		//	lineMap.Clear();
+		//	this.state.ForEachPiece(PieceAnalysisTest);
+		//}
 		public void PieceAnalysisTest(Coord coord, UnitState unitState) {
 			bool isPlayerPiece = false;
 			byte player = 0;

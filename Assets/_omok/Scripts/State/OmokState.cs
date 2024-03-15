@@ -33,7 +33,7 @@ namespace Omok {
 		public static UnitState GetStateFrom(OmokPiece piece) {
 			int playerIndex = -1;
 			UnitState state = UnitState.None;
-			OmokGame game = piece.Player.Game;
+			OmokGame game = piece.Player.omokGame;
 			if (game == null || (playerIndex = game.GetPlayerIndex(piece.Player)) < 0) {
 				state = UnitState.Unknown;
 			}

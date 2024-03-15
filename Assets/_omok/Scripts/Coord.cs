@@ -43,6 +43,12 @@ public struct Coord : IComparable<Coord>
 			_max = max;
 		}
 	}
+	public static int DistanceManhattan(Coord a, Coord b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+	public static int DistanceOneDimensional(Coord a, Coord b) {
+		int dx = Math.Abs(a.x - b.x);
+		int dy = Math.Abs(a.y - b.y);
+		return Math.Max(dx, dy);
+	}
 
 	public static void ForEach(Coord startInclusive, Coord endInclusive, Action<Coord> action) {
 		for (int row = startInclusive.y; row <= endInclusive.y; ++row) {

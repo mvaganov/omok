@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-	public class OmokPiece : MonoBehaviour {
+	public class OmokPiece : MonoBehaviour, IBelongsToOmokGame {
 		[SerializeField]
 		protected OmokPlayer player;
 		[SerializeField]
 		protected Renderer[] renderers = new Renderer[0];
+		public OmokGame omokGame => player.omokGame;
 		public int Index { get; set; }
 		public OmokPlayer Player {
 			get => player;
@@ -19,7 +20,7 @@ namespace Omok {
 
 		public OmokBoard Board {
 			get {
-				if (Player != null) { return Player.Game.Board; }
+				if (Player != null) { return Player.omokGame.Board; }
 				OmokGame game = GetComponentInParent<OmokGame>();
 				if (game != null) {
 					return game.Board;

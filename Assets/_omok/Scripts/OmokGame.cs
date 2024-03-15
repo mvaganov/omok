@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-	public class OmokGame : MonoBehaviour {
+	public class OmokGame : MonoBehaviour, IBelongsToOmokGame {
 		[SerializeField]
 		protected OmokBoard board;
 		public Transform pieceArea;
@@ -11,6 +9,8 @@ namespace Omok {
 		[SerializeField]
 		protected int whosTurn = 0;
 		public OmokStateAnalysisDraw analysisVisual;
+		public OmokHistoryGraphBehaviour graphBehaviour;
+		private OmokHistoryGraph graph;
 
 		public int WhosTurn {
 			get => whosTurn;
@@ -27,6 +27,19 @@ namespace Omok {
 		}
 
 		public OmokBoard Board => board;
+
+		public OmokGame omokGame => this;
+
+		public OmokHistoryGraph Graph => graph != null ? graph : graph = graphBehaviour.graph;
+
+		public OmokState State {
+			get {
+				if (Graph.currentNode == null) {
+					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, null);
+				}
+				return Graph.currentNode.state;
+			}
+		}
 
 		void Update() {
 

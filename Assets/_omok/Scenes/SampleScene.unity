@@ -208,6 +208,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &118526113 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
+  m_PrefabInstance: {fileID: 1433592614}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &239467725
 GameObject:
   m_ObjectHideFlags: 0
@@ -1557,12 +1562,26 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
   m_PrefabInstance: {fileID: 1433592614}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 118526113}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1433592620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118526113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f95694654f72c34d91914f5d67bdbcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  a: 0
+  targets: []
 --- !u!1 &1466857980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1682,6 +1701,7 @@ MonoBehaviour:
   - {fileID: 1702291427}
   whosTurn: 0
   analysisVisual: {fileID: 1466857984}
+  graphBehaviour: {fileID: 1466857985}
 --- !u!114 &1466857984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1698,62 +1718,7 @@ MonoBehaviour:
   _lineDistance: 0.0078125
   _analysis:
     scoring: []
-  wires:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  wires: []
   extraWires: []
   _lineGradients:
   - serializedVersion: 2

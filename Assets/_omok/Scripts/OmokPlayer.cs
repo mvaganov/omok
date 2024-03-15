@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-	public class OmokPlayer : MonoBehaviour {
+	public class OmokPlayer : MonoBehaviour, IBelongsToOmokGame {
 		[System.Serializable]
 		public class PieceElement {
 			public string Character;
@@ -16,7 +16,7 @@ namespace Omok {
 		public List<PieceElement> gamePieces = new List<PieceElement>();
 		public List<OmokPiece> currentPieces = new List<OmokPiece>();
 
-		public OmokGame Game => game;
+		public OmokGame omokGame => game;
 
 		public Color Color => material.color;
 

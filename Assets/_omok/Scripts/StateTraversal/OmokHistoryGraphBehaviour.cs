@@ -23,6 +23,8 @@ namespace Omok {
 			}
 		};
 
+		public OmokHistoryNode CurrentNode => graph.currentNode;
+
 		public void Start() {
 
 		}

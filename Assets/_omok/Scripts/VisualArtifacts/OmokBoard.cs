@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Omok {
-	public class OmokBoard : MonoBehaviour {
+	public class OmokBoard : MonoBehaviour, IBelongsToOmokGame {
 
 		[System.Serializable]
 		public class UnityEvent_Coord : UnityEvent<Coord> { }
@@ -44,6 +44,7 @@ namespace Omok {
 		[TextArea(5, 10)]
 		public string _debug;
 
+		public OmokGame omokGame => game;
 		public Coord CurrentSelectedSpot => currentSelectedSpot;
 		public Vector3 MousePosition => mousePosition;
 		public OmokState State => _state;
@@ -65,8 +66,9 @@ namespace Omok {
 
 		public OmokState ReadStateFromBoard() {
 			RefreshMap();
-			_state.SetState(map);
-			return _state;
+			OmokState state = new OmokState();
+			state.SetState(map);
+			return state;
 		}
 
 		public void LoadFromStateIntoBoard() {
