@@ -60,9 +60,10 @@ namespace Omok {
 
 		public void RenderAnalysis(OmokStateAnalysis analysis) {
 			_analysis = analysis;
-			foreach (var kvp in analysis.lineMap) {
-				RenderLines(kvp.Value);
-			}
+			//foreach (var kvp in analysis.lineMap) {
+			//	RenderLines(kvp.Value);
+			//}
+			RenderLines(analysis.lines);
 		}
 
 		public void RenderLines(List<OmokLine> lines) {

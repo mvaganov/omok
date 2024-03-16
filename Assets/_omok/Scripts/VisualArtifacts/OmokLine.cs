@@ -23,45 +23,26 @@ namespace Omok {
 
 		public bool Update(OmokState state) {
 			count = 0;
-			UnitState compliant, opposing;
+			UnitState mySate;
 			switch (player) {
-				case 0:
-					compliant = UnitState.Player0;
-					opposing = UnitState.Player1;
-					break;
-				case 1:
-					compliant = UnitState.Player1;
-					opposing = UnitState.Player0;
-					break;
-				default:
-					throw new System.Exception("unacceptable player");
+				case 0: mySate = UnitState.Player0; break;
+				case 1: mySate = UnitState.Player1; break;
+				default: throw new Exception("unacceptable player");
 			}
-			bool valid = true;
 			int countPiecesInLine = 0;
-			//ForEachTest(c => {
-			//	OmokState.UnitState unitState = state.GetState(c);
-			//	if (unitState == opposing) {
-			//		valid = false;
-			//	} else if (unitState == compliant) {
-			//		++countPiecesInLine;
-			//	}
-			//	return false;
-			//});
-
 			Coord cursor = start;
 			for (int i = 0; i < length; i++) {
 				UnitState unitState = state.GetState(cursor);
-				//Debug.Log(state.TryGetState(cursor, out OmokState.UnitState found) + $" {cursor} {found}");
-				if (unitState == opposing) {
-					valid = false;
-				} else if (unitState == compliant) {
-					++countPiecesInLine;
-				}
 				cursor += direction;
+				if (unitState == UnitState.None) {
+					continue;
+				} else if (unitState != mySate) {
+					return false;
+				}
+				++countPiecesInLine;
 			}
-
 			count = (byte)countPiecesInLine;
-			return valid;
+			return true;
 		}
 
 		private void Invert() {
@@ -95,20 +76,32 @@ namespace Omok {
 			}
 		}
 
-		public bool Equals(OmokLine other) {
-			if (length != other.length) { return false; }
-			if (start == other.start && direction == other.direction) {
+		public static bool Equals(OmokLine a, OmokLine b) {
+			if (a.length != b.length) { return false; }
+			if (a.start == b.start && a.direction == b.direction) {
 				return true;
 			}
-			Coord invertedDir = -direction;
-			if (invertedDir == other.direction) {
-				Coord switchedPoint = start + (direction * length);
-				if (switchedPoint == other.start) {
-					return true;
-				}
+			Coord invertedDir = -a.direction;
+			if (invertedDir == b.direction) {
+				Coord switchedPoint = a.start + (a.direction * a.length);
+				return switchedPoint == b.start;
 			}
 			return false;
 		}
+
+		public bool Equals(OmokLine other) => Equals(this, other);
+
+		public static int PositionCompareTo(OmokLine a, OmokLine b) {
+			int v = a.start.CompareTo(b.start);
+			if (v != 0) {
+				return v;
+			}
+			return a.direction.CompareTo(b.direction);
+		}
+
+		public static bool PositionLessThan(OmokLine a, OmokLine b) => PositionCompareTo(a, b) < 0;
+
+		public int PositionCompareTo(OmokLine other) => PositionCompareTo(this, other);
 
 		/// <summary>
 		/// highest count should be first
