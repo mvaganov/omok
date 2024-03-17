@@ -27,7 +27,7 @@ namespace Omok {
 			return false;
 		}
 
-		public float[] GetMoveScoringSummary(byte player, OmokMove move, out float netScore) {
+		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
 			OmokHistoryNode node = currentNode.GetMove(move);
 			if (node.analysis.IsDoingAnalysis) {
 				netScore = 0;
@@ -35,7 +35,7 @@ namespace Omok {
 			}
 			float[] currentScore = currentNode.analysis.scoring;
 			float[] nextStateScores = Sub(node.analysis.scoring, currentScore);
-			netScore = OmokStateAnalysis.SummarizeScore(player, nextStateScores);
+			netScore = OmokStateAnalysis.SummarizeScore(move.player, nextStateScores);
 			return nextStateScores;
 		}
 

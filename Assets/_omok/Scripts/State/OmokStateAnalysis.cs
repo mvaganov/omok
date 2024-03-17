@@ -20,7 +20,11 @@ namespace Omok {
 			new Coord( 1,-1),
 		};
 
+		/// <summary>
+		/// Reference to a state
+		/// </summary>
 		private OmokState state;
+
 		/// <summary>
 		/// using sorted list instead of dictionary for tighter memory footprint
 		/// </summary>
@@ -32,8 +36,6 @@ namespace Omok {
 		public float[] scoring;
 
 		private bool _doingAnalysis = false;
-
-		public OmokState State => state;
 
 		public bool IsDoingAnalysis => _doingAnalysis;
 

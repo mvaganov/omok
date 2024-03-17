@@ -14,6 +14,15 @@ namespace Omok {
 		public OmokStateAnalysis _analysis;
 		public List<Wire> wires = new List<Wire>();
 		public List<Wire> extraWires = new List<Wire>();
+		[SerializeField] protected bool _showLines = true;
+
+		public bool ShowLines {
+			get => _showLines;
+			set {
+				_showLines = value;
+				SetLinesVisible(_showLines);
+			}
+		}
 
 		public Gradient[] _lineGradients = new Gradient[] {
 			new Gradient() {
@@ -31,6 +40,8 @@ namespace Omok {
 		};
 
 		public OmokGame omokGame => board.omokGame;
+
+		public IBelongsToOmokGame reference => board;
 
 		private void Reset() {
 			board = GetComponent<OmokBoard>();
@@ -76,6 +87,7 @@ namespace Omok {
 				Wire w = GetWire();
 				Color c = _lineGradients[line.player].Evaluate(progress);
 				w.Line(start, end, c);
+				SetLineVisible(w, _showLines);
 				wires.Add(w);
 			}
 		}
@@ -107,6 +119,17 @@ namespace Omok {
 				w = Wires.MakeWire();
 			}
 			return w;
+		}
+
+		private void SetLinesVisible(bool visible) {
+			for(int i = 0; i < wires.Count; ++i) {
+				SetLineVisible(wires[i], visible);
+			}
+		}
+
+		private void SetLineVisible(Wire w, bool visible) {
+			Renderer[] renderers = w.GetComponentsInChildren<Renderer>();
+			System.Array.ForEach(renderers, r => r.enabled = visible);
 		}
 	}
 }

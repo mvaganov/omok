@@ -208,11 +208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &118526113 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2546712816347077464, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
-  m_PrefabInstance: {fileID: 1433592614}
-  m_PrefabAsset: {fileID: 0}
 --- !u!21 &216894082
 Material:
   serializedVersion: 8
@@ -1719,26 +1714,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9031372836351263035, guid: 30cc1800f18f522459973e84a00cd2f6, type: 3}
   m_PrefabInstance: {fileID: 1433592614}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 118526113}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 219a9b6ff81b5ce45820b5468b3e242f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1433592620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 118526113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f95694654f72c34d91914f5d67bdbcf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  a: 0
-  targets: []
 --- !u!1 &1466857980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,6 +1733,7 @@ GameObject:
   - component: {fileID: 1466857983}
   - component: {fileID: 1466857981}
   - component: {fileID: 1466857985}
+  - component: {fileID: 1466857986}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -1778,7 +1760,7 @@ MonoBehaviour:
   _mouseMarker: {fileID: 297037295}
   _boardArea: {fileID: 1466857982}
   _offBoardArea: {fileID: 0}
-  mouseDistance: 2.5
+  mouseDistance: 2
   _onClick:
     m_PersistentCalls:
       m_Calls:
@@ -2620,6 +2602,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   extraWires: []
+  _showLines: 0
   _lineGradients:
   - serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}
@@ -2694,6 +2677,7 @@ MonoBehaviour:
   predictionPrefab: {fileID: 6963683579955810971, guid: 88fccaf656d99294e9be921f17b4f440, type: 3}
   predictionTokenPool: []
   predictionTokens: {fileID: 1924769188}
+  _showPredictionToken: 0
   optionColors:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}
@@ -2723,7 +2707,35 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
+  onMoveDiscoveryFinish:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1466857986}
+        m_TargetAssemblyTypeName: Omok.OmokGoogleTargetListener, Assembly-CSharp
+        m_MethodName: ValidMoveCalculated
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   test: {fileID: 0}
+--- !u!114 &1466857986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466857980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3d70d377cbfa5f4093709f3d9e950f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  board: {fileID: 1466857981}
 --- !u!21 &1513603106
 Material:
   serializedVersion: 8

@@ -12,8 +12,8 @@ namespace Omok {
 		public OmokHistoryGraphBehaviour graphBehaviour;
 		private OmokHistoryGraph graph;
 
-		public int WhosTurn {
-			get => whosTurn;
+		public byte WhosTurn {
+			get => (byte)whosTurn;
 			set {
 				whosTurn = value;
 				if (players.Length == 0) { return; }
@@ -29,6 +29,8 @@ namespace Omok {
 		public OmokBoard Board => board;
 
 		public OmokGame omokGame => this;
+
+		public IBelongsToOmokGame reference => null;
 
 		public OmokHistoryGraph Graph => graph != null ? graph : graph = graphBehaviour.graph;
 

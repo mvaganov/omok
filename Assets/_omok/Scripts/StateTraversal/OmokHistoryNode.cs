@@ -43,6 +43,9 @@ namespace Omok {
 		}
 
 		public OmokHistoryNode parentNode;
+		/// <summary>
+		/// Managed state
+		/// </summary>
 		public OmokState state;
 		public OmokStateAnalysis analysis;
 		public MovePath[] movePaths = Array.Empty<MovePath>();

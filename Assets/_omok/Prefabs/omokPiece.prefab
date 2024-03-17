@@ -101,6 +101,23 @@ MonoBehaviour:
   behavior: 0
   eyeSpeed: 360
   gazeTarget: {x: 0, y: 0, z: 0}
+--- !u!114 &5905339413972495588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2546712816347077464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f95694654f72c34d91914f5d67bdbcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  google: {fileID: 2581734252659929218}
+  gazeTimer: 1
+  timerWiggleRoom: 0.25
+  targets: []
+  minChanceToLookAtBest: 0.9375
 --- !u!114 &9031372836351263035
 MonoBehaviour:
   m_ObjectHideFlags: 0

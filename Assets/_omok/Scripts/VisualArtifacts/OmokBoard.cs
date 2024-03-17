@@ -35,6 +35,9 @@ namespace Omok {
 		[SerializeField]
 		protected UnityEvent_Coord _onHover;
 
+		/// <summary>
+		/// Managed state
+		/// </summary>
 		[SerializeField]
 		protected OmokState _state = new OmokState();
 
@@ -45,11 +48,15 @@ namespace Omok {
 		public string _debug;
 
 		public OmokGame omokGame => game;
+		public IBelongsToOmokGame reference => null;
+
 		public Coord CurrentSelectedSpot => currentSelectedSpot;
 		public Vector3 MousePosition => mousePosition;
 		public OmokState State => _state;
 		public Vector3 Up => -transform.forward;
-		public Vector3 MouseLookOffsetPosition => MousePosition + Up * mouseDistance;
+		public Vector3 LookOffsetPosition => Up * mouseDistance;
+		public Vector3 MouseLookOffsetPosition => MousePosition + LookOffsetPosition;
+
 		private void Awake() {
 			if (_boardArea == null) {
 				_boardArea = transform;

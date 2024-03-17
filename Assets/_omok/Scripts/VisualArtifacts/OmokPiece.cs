@@ -9,6 +9,7 @@ namespace Omok {
 		[SerializeField]
 		protected Renderer[] renderers = new Renderer[0];
 		public OmokGame omokGame => player.omokGame;
+		public IBelongsToOmokGame reference => player;
 		public int Index { get; set; }
 		public OmokPlayer Player {
 			get => player;

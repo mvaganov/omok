@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Omok {
 	public class OmokHistoryGraphBehaviour : MonoBehaviour {
+		[System.Serializable] public class UnityEvent_Move : UnityEvent<OmokMove> { }
 		public OmokGame game;
 		public OmokHistoryGraph graph = new OmokHistoryGraph();
 
@@ -14,6 +16,7 @@ namespace Omok {
 		public Transform predictionTokens;
 		private List<Coord> nextMovesToTry = new List<Coord>();
 		private int indexToTry = 0;
+		[SerializeField] protected bool _showPredictionToken = true;
 
 		public Gradient optionColors = new Gradient() {
 			colorKeys = new GradientColorKey[] {
@@ -22,8 +25,17 @@ namespace Omok {
 				new GradientColorKey(Color.green, 1),
 			}
 		};
+		public UnityEvent_Move onMoveDiscoveryFinish;
 
 		public OmokHistoryNode CurrentNode => graph.currentNode;
+
+		public bool ShowPredictionToken {
+			get => _showPredictionToken;
+			set {
+				_showPredictionToken = value;
+				SetPredictionTokenVisibility(_showPredictionToken);
+			}
+		}
 
 		public void Start() {
 
@@ -126,6 +138,7 @@ namespace Omok {
 		public void OnMoveCalcFinish(OmokMove move) {
 			RefreshAllPredictionTokens((byte)game.WhosTurn);
 			ContinueIndividualMoveAnalysis(3);
+			onMoveDiscoveryFinish.Invoke(move);
 		}
 
 		private void ContinueIndividualMoveAnalysis(int checksPerBatch = 5) {
@@ -179,11 +192,12 @@ namespace Omok {
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
+			SetPredictionTokenVisibility(token, _showPredictionToken);
 			return true;
 		}
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
-			return graph.GetMoveScoringSummary((byte)game.WhosTurn, move, out netScore);
+			return graph.GetMoveScoringSummary(move, out netScore);
 		}
 
 		public GameObject GetPredictionToken() {
@@ -202,6 +216,20 @@ namespace Omok {
 
 		public void FreeAllPredictionTokens() {
 			predictionTokenPool.ForEach(t => t.SetActive(false));
+		}
+
+		private void SetPredictionTokenVisibility(bool visible) {
+			for (int i = 0; i < predictionTokenPool.Count; i++) {
+				GameObject go = predictionTokenPool[i];
+				if (go.activeInHierarchy) {
+					SetPredictionTokenVisibility(go, visible);
+				}
+			}
+		}
+
+		private void SetPredictionTokenVisibility(GameObject go, bool visible) {
+			Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
+			System.Array.ForEach(renderers, r => r.enabled = visible);
 		}
 	}
 }

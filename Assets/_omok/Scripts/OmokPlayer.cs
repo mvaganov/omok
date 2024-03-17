@@ -17,6 +17,8 @@ namespace Omok {
 		public List<OmokPiece> currentPieces = new List<OmokPiece>();
 
 		public OmokGame omokGame => game;
+		public IBelongsToOmokGame reference => null;
+
 
 		public Color Color => material.color;
 
