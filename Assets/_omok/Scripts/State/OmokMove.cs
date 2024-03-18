@@ -21,9 +21,9 @@ namespace Omok {
 		}
 
 		public bool Equals(OmokMove other) => coord == other.coord && player == other.player;
-
 		public override bool Equals(object obj) => obj is OmokMove omok && Equals(omok);
-
-		override public int GetHashCode() => coord.GetHashCode() ^ player;
+		public override int GetHashCode() => coord.GetHashCode() ^ player;
+		public static bool operator==(OmokMove a, OmokMove b) => a.Equals(b);
+		public static bool operator!=(OmokMove a, OmokMove b) => !a.Equals(b);
 	}
 }

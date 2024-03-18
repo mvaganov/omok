@@ -8,7 +8,7 @@ namespace Omok {
 		public OmokPlayer[] players = new OmokPlayer[2];
 		[SerializeField]
 		protected int whosTurn = 0;
-		public OmokStateAnalysisDraw analysisVisual;
+		public OmokStateLineAnalysisDraw analysisVisual;
 		public OmokHistoryGraphBehaviour graphBehaviour;
 		private OmokHistoryGraph graph;
 
@@ -47,17 +47,32 @@ namespace Omok {
 
 		}
 
-		public void PlacePieceForCurrentPlayer() {
-			Coord coord = board.CurrentSelectedSpot;
-			PlacePieceForCurrentPlayerAt(coord);
+		//public void PlacePieceForCurrentPlayer() {
+		//	Coord coord = board.CurrentSelectedSpot;
+		//	PlacePieceForCurrentPlayerAt(coord);
+		//	graphBehaviour.graph.DoMoveCalculation(coord, this, NotifyNextMove, WhosTurn);
+		//}
+
+		private void NotifyNextMove(OmokMove move) {
+			++WhosTurn;
+			// TODO clear old visuals?
 		}
+
+		/// <summary>
+		/// Callback used when mouse is clicked
+		/// </summary>
 		public void PlacePieceForCurrentPlayerAt(Coord coord) {
 			OmokPiece piece = board.PieceAt(coord);
 			if (piece == null) {
-				piece = players[WhosTurn].CreatePiece();
-				piece.Coord = coord;
-				WhosTurn++;
+				piece = players[WhosTurn].CreatePiece(coord);
 			}
+			graphBehaviour.graph.DoMoveCalculation(coord, this, NotifyNextMove, WhosTurn);
+			graphBehaviour.RefreshAllPredictionTokens();
+			graphBehaviour.NewState = true;
+			// TODO find out why the next currentState.State is not different...
+			Debug.Log("NEXT TURN PLZ");
+			Board.State.Copy(State);
+			Board.RefreshDebug();
 		}
 
 		public int GetPlayerIndex(OmokPlayer player) => System.Array.IndexOf(players, player);

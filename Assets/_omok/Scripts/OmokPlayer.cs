@@ -22,23 +22,29 @@ namespace Omok {
 
 		public Color Color => material.color;
 
-		public OmokPiece CreatePiece() => GetPiece(0);
+		public OmokPiece CreatePiece(Coord targetCoord) => GetPiece(0, targetCoord);
 
 		public int Index => game.GetPlayerIndex(this);
 
-		public OmokPiece GetPiece(int index) {
-			int freeIndex = currentPieces.FindIndex(op => op != null && op.gameObject.activeSelf == false);
+		private bool FindFreePiece(OmokPiece op, int id) => op != null && op.gameObject.activeSelf == false && op.Index == id;
+
+		public OmokPiece GetPiece(int index, Coord targetCoord) {
+			int freeIndex = currentPieces.FindIndex(op => FindFreePiece(op, index) && op.Coord == targetCoord);
+			if (freeIndex < 0) {
+				freeIndex = currentPieces.FindIndex(op => FindFreePiece(op, index));
+			}
 			OmokPiece piece = null;
 			if (freeIndex < 0) {
 				piece = Instantiate(gamePieces[index].Piece.gameObject).GetComponent<OmokPiece>();
+				piece.Index = index;
+				piece.Player = this;
+				piece.transform.SetParent(game.pieceArea, false);
 				currentPieces.Add(piece);
 			} else {
 				piece = currentPieces[freeIndex];
-				piece.gameObject.SetActive(true);
 			}
-			piece.Index = index;
-			piece.Player = this;
-			piece.transform.SetParent(game.pieceArea, false);
+			piece.Coord = targetCoord;
+			piece.gameObject.SetActive(true);
 			CleanUpEmptyPieceSlots();
 			return piece;
 		}

@@ -1,16 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace Omok {
   public class OmokHistoryGraph {
+		public enum NextStateMovementResult {
+			Success, StillCalculating
+		}
+
 		public List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
 
-		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, System.Action<OmokMove> onComplete) {
+		private Dictionary<OmokMove, List<Action<OmokMove>>> actionToDoWhenCalculationFinishes
+			= new Dictionary<OmokMove, List<Action<OmokMove>>>();
+
+		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			currentNode = new OmokHistoryNode(state, null, null);
 			historyNodes.Add(currentNode);
-			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, onComplete));// RefreshStateVisuals));
+			AddActionWhenMoveAnalysisFinishes(OmokMove.InvalidMove, onComplete);
+			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, FinishedAnalysis));
+		}
+
+		private void FinishedAnalysis(OmokMove move) {
+			if (!actionToDoWhenCalculationFinishes.TryGetValue(move, out List<Action<OmokMove>> actions)) {
+				return;
+			}
+			actionToDoWhenCalculationFinishes.Remove(move);
+			actions.ForEach(a => a.Invoke(move));
+			actions.Clear();
+		}
+
+		private bool AddActionWhenMoveAnalysisFinishes(OmokMove move, Action<OmokMove> action) {
+			if (action == null) { return false; }
+			if (!actionToDoWhenCalculationFinishes.TryGetValue(move, out List<Action<OmokMove>> actions)) {
+				actions = new List<Action<OmokMove>>();
+			}
+			if (actions.IndexOf(action) < 0) {
+				actions.Add(action);
+			} else {
+				return false;
+			}
+			actionToDoWhenCalculationFinishes[move] = actions;
+			return true;
 		}
 
 		public bool DoMoveCalculation(Coord coord, MonoBehaviour coroutineRunner, System.Action<OmokMove> onComplete, byte currentPlayer) {
@@ -19,9 +51,9 @@ namespace Omok {
 			if (!validMove) {
 				return false;
 			}
-
 			OmokMove move = new OmokMove(coord, currentPlayer);
-			if (currentNode.AddMove(move, onComplete, coroutineRunner)) {
+			AddActionWhenMoveAnalysisFinishes(move, onComplete);
+			if (currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner)) {
 				return true;
 			}
 			return false;
@@ -48,6 +80,21 @@ namespace Omok {
 				}
 			}
 			return answer;
+		}
+
+		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete, byte player) {
+			OmokHistoryNode nextNode = currentNode.GetMove(move);
+			if (nextNode != null) {
+				if (!nextNode.analysis.IsDoingAnalysis) {
+					currentNode = nextNode;
+					onComplete?.Invoke(move);
+					return NextStateMovementResult.Success;
+				}
+				AddActionWhenMoveAnalysisFinishes(move, onComplete);
+				return NextStateMovementResult.StillCalculating;
+			}
+			DoMoveCalculation(move.coord, coroutineRunner, onComplete, player);
+			return NextStateMovementResult.StillCalculating;
 		}
 	}
 }

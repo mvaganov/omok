@@ -91,19 +91,19 @@ namespace Omok {
 		}
 
 		public void CreatePiece(Coord coord, UnitState pieceType) {
-			OmokPiece piece = GetPiece(pieceType);
+			OmokPiece piece = GetPiece(pieceType, coord);
 			if (piece != null) {
 				//Debug.Log($"SETPIECE {pieceType} {coord}    {piece.Player.name} {piece.Player.Index}");
 				SetPieceAt(coord, piece);
 			}
 		}
 
-		public OmokPiece GetPiece(UnitState unitState) {
+		public OmokPiece GetPiece(UnitState unitState, Coord targetCoord) {
 			switch (unitState) {
 				case UnitState.Player0:
-					return game.players[0].CreatePiece();
+					return game.players[0].CreatePiece(targetCoord);
 				case UnitState.Player1:
-					return game.players[1].CreatePiece();
+					return game.players[1].CreatePiece(targetCoord);
 			}
 			return null;
 		}

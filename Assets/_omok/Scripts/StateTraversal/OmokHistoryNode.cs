@@ -59,7 +59,7 @@ namespace Omok {
 			this.parentNode = parentNode;
 		}
 
-		public bool AddMove(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
+		public bool AddMoveIfNotAlreadyCalculating(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			MovePath nextPath = new MovePath(move);
 			int index = Array.BinarySearch(movePaths, nextPath, MovePath.Comparer.Instance);

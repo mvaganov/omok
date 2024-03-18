@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Omok {
-	public class OmokHistoryGraphBehaviour : MonoBehaviour {
+	public class OmokHistoryGraphBehaviour : MonoBehaviour, IBelongsToOmokGame {
 		[System.Serializable] public class UnityEvent_Move : UnityEvent<OmokMove> { }
 		public OmokGame game;
 		public OmokHistoryGraph graph = new OmokHistoryGraph();
@@ -16,7 +16,9 @@ namespace Omok {
 		public Transform predictionTokens;
 		private List<Coord> nextMovesToTry = new List<Coord>();
 		private int indexToTry = 0;
+		[SerializeField] protected bool _generatePredictionToken = true;
 		[SerializeField] protected bool _showPredictionToken = true;
+		private OmokHistoryNode _visualizedHistoryState;
 
 		public Gradient optionColors = new Gradient() {
 			colorKeys = new GradientColorKey[] {
@@ -37,14 +39,27 @@ namespace Omok {
 			}
 		}
 
+		public OmokGame omokGame => game;
+
+		public IBelongsToOmokGame reference => null;
+
 		public void Start() {
-
-		}
-
-		void Update() {
 			if (graph.currentNode == null) {
 				OmokState state = game.Board.ReadStateFromBoard();
+				_visualizedHistoryState = graph.currentNode;
 				graph.CreateNewRoot(state, this, RefreshStateVisuals);
+			}
+		}
+
+		public bool NewState = false;
+
+		void Update() {
+			 if (NewState) {
+				NewState = false;
+				Debug.Log("new state to analyze?! "+ graph.currentNode.state.ToDebugString());
+				_visualizedHistoryState = graph.currentNode;
+				// TODO find out why the visuals are not recalculating.
+				RefreshStateVisuals(OmokMove.InvalidMove);
 			}
 		}
 
@@ -136,7 +151,9 @@ namespace Omok {
 		}
 
 		public void OnMoveCalcFinish(OmokMove move) {
-			RefreshAllPredictionTokens((byte)game.WhosTurn);
+			if (_generatePredictionToken) {
+				RefreshAllPredictionTokens((byte)game.WhosTurn);
+			}
 			ContinueIndividualMoveAnalysis(3);
 			onMoveDiscoveryFinish.Invoke(move);
 		}
@@ -165,6 +182,8 @@ namespace Omok {
 				}
 			}
 		}
+
+		public void RefreshAllPredictionTokens() => RefreshAllPredictionTokens(omokGame.WhosTurn);
 
 		public void RefreshAllPredictionTokens(byte player) {
 			float[] minmax = graph.currentNode.CalculateScoreRangeForPaths(player);

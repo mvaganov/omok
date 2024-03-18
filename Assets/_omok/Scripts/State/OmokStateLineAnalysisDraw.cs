@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-	// TODO as the analysis populates, find all of the OmokGoogles,
-	// TODO populate a list of neighbor cells with net score weighting,
-	// TODO make the googles randomly look at different neightbor cells with probability based on score weight
-	public class OmokStateAnalysisDraw : MonoBehaviour, IBelongsToOmokGame {
+	public class OmokStateLineAnalysisDraw : MonoBehaviour, IBelongsToOmokGame {
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;
 		public float _lineDistance = 1f/128;
 		public OmokStateAnalysis _analysis;
 		public List<Wire> wires = new List<Wire>();
 		public List<Wire> extraWires = new List<Wire>();
+		[SerializeField] protected bool _generateLines = true;
 		[SerializeField] protected bool _showLines = true;
 
 		public bool ShowLines {
@@ -71,10 +69,9 @@ namespace Omok {
 
 		public void RenderAnalysis(OmokStateAnalysis analysis) {
 			_analysis = analysis;
-			//foreach (var kvp in analysis.lineMap) {
-			//	RenderLines(kvp.Value);
-			//}
-			RenderLines(analysis.lines);
+			if (_generateLines) {
+				RenderLines(analysis.lines);
+			}
 		}
 
 		public void RenderLines(List<OmokLine> lines) {
