@@ -54,6 +54,10 @@ namespace Omok {
 		//}
 
 		private void NotifyNextMove(OmokMove move) {
+			OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
+			graph.currentNode = nextNode;
+			Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
+
 			++WhosTurn;
 			// TODO clear old visuals?
 		}
