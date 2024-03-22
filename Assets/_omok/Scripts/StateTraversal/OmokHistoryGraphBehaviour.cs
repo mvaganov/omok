@@ -114,8 +114,9 @@ namespace Omok {
 			}
 		}
 
-		public bool DoMoveCalculation(Coord coord) {
-			return graph.DoMoveCalculation(coord, this, OnMoveCalcFinish, (byte)game.WhosTurn);
+		public NextStateMovementResult DoMoveCalculation(Coord coord) {
+			OmokMove move = new OmokMove(coord, game.WhosTurn);
+			return graph.DoMoveCalculation(move, this, OnMoveCalcFinish);
 		}
 
 		public GameObject test;
@@ -171,7 +172,7 @@ namespace Omok {
 				t.name += coordState;
 				++indexToTry;
 				if (validMove) {
-					if (DoMoveCalculation(next)) {
+					if (DoMoveCalculation(next) == NextStateMovementResult.StartedCalculating) {
 						++checks;
 						if (checks >= checksPerBatch) {
 							break;

@@ -59,12 +59,25 @@ namespace Omok {
 			this.parentNode = parentNode;
 		}
 
-		public bool AddMoveIfNotAlreadyCalculating(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
+		public bool IsDoneCalculating(OmokMove move) {
+			OmokHistoryNode alreadyExistingNode = GetMove(move);
+			if (alreadyExistingNode != null) {
+				return !alreadyExistingNode.analysis.IsDoingAnalysis && alreadyExistingNode.analysis.scoring != null;
+			}
+			return false;
+		}
+
+		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			MovePath nextPath = new MovePath(move);
 			int index = Array.BinarySearch(movePaths, nextPath, MovePath.Comparer.Instance);
 			if (index >= 0) {
-				return false;
+				nextPath = movePaths[index];
+				OmokHistoryNode alreadyExistingNode = GetMove(index);
+				if (!alreadyExistingNode.analysis.IsDoingAnalysis) {
+					return NextStateMovementResult.FinishedCalculating;
+				}
+				return NextStateMovementResult.StillCalculating;
 			}
 			/// create a new <see cref="MovePath">, start doing analysis of the move, AddCallBackOnFinish
 			OmokState nextState = new OmokState(state);
@@ -77,9 +90,9 @@ namespace Omok {
 				move, nextState, whatToDoWhenMoveCalculationFinishes));
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
-				return false;
+				return NextStateMovementResult.Error;
 			}
-			return true;
+			return NextStateMovementResult.StartedCalculating;
 		}
 
 		/// <summary>

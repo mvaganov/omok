@@ -25,5 +25,6 @@ namespace Omok {
 		public override int GetHashCode() => coord.GetHashCode() ^ player;
 		public static bool operator==(OmokMove a, OmokMove b) => a.Equals(b);
 		public static bool operator!=(OmokMove a, OmokMove b) => !a.Equals(b);
+		public override string ToString() => $"({UnitState}:{coord})";
 	}
 }

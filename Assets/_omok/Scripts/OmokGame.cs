@@ -70,7 +70,12 @@ namespace Omok {
 			if (piece == null) {
 				piece = players[WhosTurn].CreatePiece(coord);
 			}
-			graphBehaviour.graph.DoMoveCalculation(coord, this, NotifyNextMove, WhosTurn);
+			OmokMove move = new OmokMove(coord, WhosTurn);
+			if (graphBehaviour.graph.IsDoneCalculating(move)) {
+				NotifyNextMove(move);
+			} else {
+				graphBehaviour.graph.DoMoveCalculation(move, this, NotifyNextMove);
+			}
 			graphBehaviour.RefreshAllPredictionTokens();
 			graphBehaviour.NewState = true;
 			// TODO find out why the next currentState.State is not different...

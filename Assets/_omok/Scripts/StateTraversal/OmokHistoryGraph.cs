@@ -4,11 +4,11 @@ using UnityEngine;
 using System;
 
 namespace Omok {
-  public class OmokHistoryGraph {
-		public enum NextStateMovementResult {
-			Success, StillCalculating
-		}
+	public enum NextStateMovementResult {
+		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error
+	}
 
+	public class OmokHistoryGraph {
 		public List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
 
@@ -23,6 +23,7 @@ namespace Omok {
 		}
 
 		private void FinishedAnalysis(OmokMove move) {
+			//Debug.Log("FINISHED " + move);
 			if (!actionToDoWhenCalculationFinishes.TryGetValue(move, out List<Action<OmokMove>> actions)) {
 				return;
 			}
@@ -45,18 +46,18 @@ namespace Omok {
 			return true;
 		}
 
-		public bool DoMoveCalculation(Coord coord, MonoBehaviour coroutineRunner, System.Action<OmokMove> onComplete, byte currentPlayer) {
+		public bool IsDoneCalculating(OmokMove move) {
+			return currentNode.IsDoneCalculating(move);
+		}
+
+		public NextStateMovementResult DoMoveCalculation(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			bool validMove = currentNode != null && currentNode.state != null &&
-				currentNode.state.GetState(coord) == UnitState.None;
+				currentNode.state.GetState(move.coord) == UnitState.None;
 			if (!validMove) {
-				return false;
+				return NextStateMovementResult.Error;
 			}
-			OmokMove move = new OmokMove(coord, currentPlayer);
 			AddActionWhenMoveAnalysisFinishes(move, onComplete);
-			if (currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner)) {
-				return true;
-			}
-			return false;
+			return currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner);
 		}
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
@@ -82,7 +83,7 @@ namespace Omok {
 			return answer;
 		}
 
-		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete, byte player) {
+		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			OmokHistoryNode nextNode = currentNode.GetMove(move);
 			if (nextNode != null) {
 				if (!nextNode.analysis.IsDoingAnalysis) {
@@ -93,7 +94,7 @@ namespace Omok {
 				AddActionWhenMoveAnalysisFinishes(move, onComplete);
 				return NextStateMovementResult.StillCalculating;
 			}
-			DoMoveCalculation(move.coord, coroutineRunner, onComplete, player);
+			DoMoveCalculation(move, coroutineRunner, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}
 	}
