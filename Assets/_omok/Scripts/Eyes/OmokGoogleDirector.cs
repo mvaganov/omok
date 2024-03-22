@@ -93,5 +93,10 @@ namespace Omok {
 			}
 			return index;
 		}
+
+		public void ClearTargets() {
+			targets.Clear();
+			CalculateTotalTargetWeight();
+		}
 	}
 }

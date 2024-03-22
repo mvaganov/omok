@@ -56,6 +56,7 @@ namespace Omok {
 		public Vector3 Up => -transform.forward;
 		public Vector3 LookOffsetPosition => Up * mouseDistance;
 		public Vector3 MouseLookOffsetPosition => MousePosition + LookOffsetPosition;
+		public Transform GamePieces => _gamePieces;
 
 		private void Awake() {
 			if (_boardArea == null) {

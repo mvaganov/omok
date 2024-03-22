@@ -56,10 +56,10 @@ namespace Omok {
 		private void NotifyNextMove(OmokMove move) {
 			OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
 			graph.currentNode = nextNode;
-			Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
-
+			//Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
+			OmokGoogleTargetListener targetListener = GetComponent<OmokGoogleTargetListener>();
+			targetListener.ClearLookTargets();
 			++WhosTurn;
-			// TODO clear old visuals?
 		}
 
 		/// <summary>

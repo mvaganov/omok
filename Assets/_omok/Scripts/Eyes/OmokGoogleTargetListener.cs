@@ -21,5 +21,10 @@ namespace Omok {
 				}
 			});
 		}
+
+		public void ClearLookTargets() {
+			OmokGoogleDirector[] googleDirectors = board.GamePieces.GetComponentsInChildren<OmokGoogleDirector>();
+			System.Array.ForEach(googleDirectors, g => g.ClearTargets());
+		}
 	}
 }
