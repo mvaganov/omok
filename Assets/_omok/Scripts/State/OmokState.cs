@@ -169,7 +169,7 @@ namespace Omok {
 
 		public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
 
-		public static string ToString(Dictionary<Coord, OmokPiece> map, char empty = '_') {
+		public static string ToString(Dictionary<Coord, OmokPiece> map, string empty = "  ") {
 			List<OmokPiece> pieces = new List<OmokPiece>();
 			pieces.AddRange(map.Values);
 			Coord.CalculateCoordRange(pieces, GetCoordFromPiece, out Coord min, out Coord max);
@@ -187,7 +187,7 @@ namespace Omok {
 					for (int col = min.x; col <= max.x; ++col) {
 						if (row == nextPosition.y && col == nextPosition.x) {
 							OmokPiece piece = pieces[i];
-							char c = piece.Player != null ? piece.Player.gamePieces[piece.Index].Character[0] : empty;
+							string c = piece.Player != null ? piece.Player.gamePieces[piece.Index].Character : empty;
 							sb.Append(c);
 							if (i < pieces.Count - 1) {
 								nextPosition = pieces[++i].Coord;

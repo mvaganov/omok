@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Omok {
 	public class OmokStateLineAnalysisDraw : MonoBehaviour, IBelongsToOmokGame {
+		
+		[ContextMenuItem(nameof(test), nameof(test))]
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;
 		public float _lineDistance = 1f/128;
@@ -13,6 +15,15 @@ namespace Omok {
 		public List<Wire> extraWires = new List<Wire>();
 		[SerializeField] protected bool _generateLines = true;
 		[SerializeField] protected bool _showLines = true;
+
+		private void test() {
+			string test = "!@#$%^&*_+OQX0xo";
+			string output = "..|\n";
+			for (int i = 0; i < test.Length; i++) {
+				output += test[i] + "|\n";
+			}
+			Debug.Log(output);
+		}
 
 		public bool ShowLines {
 			get => _showLines;
