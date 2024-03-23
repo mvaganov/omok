@@ -55,11 +55,11 @@ namespace Omok {
 	}
 
 	public static class IOmokState_Extension {
-		public static Dictionary<UnitState, char> textOutputTable = new Dictionary<UnitState, char>() {
-			[UnitState.Player0] = 'X',
-			[UnitState.Player1] = '0',
-			[UnitState.None] = '_',
-			[UnitState.Unknown] = '?',
+		public static Dictionary<UnitState, string> textOutputTable = new Dictionary<UnitState, string>() {
+			[UnitState.Player0] = "x",
+			[UnitState.Player1] = "*",
+			[UnitState.None] = "  ",
+			[UnitState.Unknown] = "..",
 		};
 		
 		public static UnitState GetState(this IOmokState self, Coord coord) {
@@ -75,7 +75,7 @@ namespace Omok {
 				for (int col = 0; col < self.size.x; ++col) {
 					Coord coord = new Coord(col, row) + self.start;
 					UnitState state = self.GetState(coord);
-					char c = textOutputTable[state];
+					string c = textOutputTable[state];
 					lines[row].Append(c);//.Append(' ').Append(coord).Append(' ');
 					if (state != UnitState.None) {
 						++count;
@@ -175,7 +175,7 @@ namespace Omok {
 			Coord.CalculateCoordRange(pieces, GetCoordFromPiece, out Coord min, out Coord max);
 			pieces.Sort(IOmokState.SortPiecesInvertRow);
 			//SortPieces(pieces, GetCoordFromPiece);
-			Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t => t.Coord + ":" + t.name)));
+			//Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t => t.Coord + ":" + t.name)));
 			Coord size = max - min + Coord.one;
 			StringBuilder sb = new StringBuilder();
 			sb.Append(pieces.Count + "," + min + "," + size);

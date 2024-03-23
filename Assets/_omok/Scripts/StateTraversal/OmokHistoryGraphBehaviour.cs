@@ -56,7 +56,7 @@ namespace Omok {
 		void Update() {
 			 if (NewState) {
 				NewState = false;
-				Debug.Log("new state to analyze?! "+ graph.currentNode.state.ToDebugString());
+				//Debug.Log("new state to analyze?! "+ graph.currentNode.state.ToDebugString());
 				_visualizedHistoryState = graph.currentNode;
 				// TODO find out why the visuals are not recalculating.
 				RefreshStateVisuals(OmokMove.InvalidMove);
@@ -187,24 +187,25 @@ namespace Omok {
 		public void RefreshAllPredictionTokens() => RefreshAllPredictionTokens(omokGame.WhosTurn);
 
 		public void RefreshAllPredictionTokens(byte player) {
-			float[] minmax = graph.currentNode.CalculateScoreRangeForPaths(player);
 			FreeAllPredictionTokens();
 			OmokHistoryNode currentNode = graph.currentNode;
+			MinMax minmax = currentNode.CalculateScoreRangeForPaths(player);
+			//Debug.Log($"minmax {player}: {string.Join(",",minmax)}");
 			for (int i = 0; i < currentNode.movePaths.Length; ++i) {
 				CreatePredictionTokenIfDataAvailable(currentNode.movePaths[i].move, minmax);
 			}
 		}
 
-		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, float[] minmax) {
+		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, MinMax minmax) {
 			float[] nextStateScores = GetMoveScoringSummary(move, out float netScore);
 			if (nextStateScores == null) {
 				return false;
 			}
-			float denominator = (minmax[1] - minmax[0]);
-			float p = denominator == 0 ? 0.5f : (netScore-minmax[0]) / (minmax[1] - minmax[0]);
+			float delta = minmax.Delta;
+			float p = delta == 0 ? 0.5f : (netScore - minmax.min) / delta;
 			Color color = optionColors.Evaluate(p);
-			string bStart = p == 0 || p == 1 ? "<b>" : "";
-			string bEnd = p == 0 || p == 1 ? "</b>" : "";
+			string bStart = p == 0 || p == 1 ? "<b>[[" : "";
+			string bEnd = p == 0 || p == 1 ? "]]</b>" : "";
 			string text = $"<#000>{nextStateScores[0]}</color>\n" +
 				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
 				$"<#fff>{nextStateScores[1]}</color>";

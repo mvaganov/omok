@@ -11,7 +11,8 @@ namespace Omok {
 			OmokHistoryNode node = omokGame.graphBehaviour.graph.currentNode.GetMove(move);
 			//Debug.Log($"target {move.coord} {string.Join(",", node.analysis.scoring)} : " +
 			//	$"{node.analysis.scoring[0]- node.analysis.scoring[1]}");
-			Coord.ForEach(move.coord - Coord.one, move.coord + Coord.one, c => {
+			Coord radius = Coord.one * 2;
+			Coord.ForEach(move.coord - radius, move.coord + radius, c => {
 				OmokPiece piece = board.PieceAt(c);
 				if (piece != null) {
 					OmokGoogleDirector googDirector = piece.GetComponentInChildren<OmokGoogleDirector>();

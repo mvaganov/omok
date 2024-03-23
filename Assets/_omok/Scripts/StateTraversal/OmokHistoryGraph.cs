@@ -66,10 +66,15 @@ namespace Omok {
 				netScore = 0;
 				return null;
 			}
-			float[] currentScore = currentNode.analysis.scoring;
-			float[] nextStateScores = Sub(node.analysis.scoring, currentScore);
-			netScore = OmokStateAnalysis.SummarizeScore(move.player, nextStateScores);
-			return nextStateScores;
+			//float[] currentScore = currentNode.analysis.scoring;
+			float[] nextScore = node.analysis.scoring;
+			//float[] nextStateDelta = Sub(nextScore, currentScore);
+			//netScore = OmokStateAnalysis.SummarizeScore(move.player, nextStateDelta);
+			netScore = 0;
+			for (int i = 0; i < nextScore.Length; i++) {
+				netScore += nextScore[i] * (i == move.player ? 1 : -1);
+			}
+			return nextScore;// nextStateDelta;
 		}
 
 		private static float[] Sub(float[] a, float[] b) {

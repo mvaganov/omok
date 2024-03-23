@@ -176,8 +176,11 @@ namespace Omok {
 		public void RefreshDebug() {
 			_boardArea = transform;
 			RefreshMap();
+			string oldMap = _debug;
 			_debug = DebugPrint();
-			Debug.Log(_debug);
+			if (oldMap != _debug) {
+				Debug.Log(_debug);
+			}
 		}
 
 		public Vector3 GetPosition(Coord coord) {

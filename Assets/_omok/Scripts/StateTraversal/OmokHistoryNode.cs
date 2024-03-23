@@ -132,8 +132,8 @@ namespace Omok {
 			return movePaths[index].nextNode;
 		}
 
-		public float[] CalculateScoreRangeForPaths(byte player) {
-			float[] minmax = new float[] { float.MaxValue, float.MinValue };
+		public MinMax CalculateScoreRangeForPaths(byte player) {
+			MinMax minmax = MinMax.Impossible;
 			for (int i = 0; i < movePaths.Length; ++i) {
 				OmokHistoryNode.MovePath movepath = movePaths[i];
 				float[] scoring = movepath.nextNode.analysis.scoring;
@@ -143,8 +143,7 @@ namespace Omok {
 				}
 				float score = OmokStateAnalysis.SummarizeScore(player, scoring);
 				//Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
-				if (score < minmax[0]) { minmax[0] = score; }
-				if (score > minmax[1]) { minmax[1] = score; }
+				minmax.Update(score);
 			}
 			return minmax;
 		}

@@ -78,8 +78,7 @@ namespace Omok {
 			}
 			graphBehaviour.RefreshAllPredictionTokens();
 			graphBehaviour.NewState = true;
-			// TODO find out why the next currentState.State is not different...
-			Debug.Log("NEXT TURN PLZ");
+			//Debug.Log("NEXT TURN PLZ");
 			Board.State.Copy(State);
 			Board.RefreshDebug();
 		}
