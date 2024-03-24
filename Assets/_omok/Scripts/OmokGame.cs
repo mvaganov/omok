@@ -1,6 +1,14 @@
 using UnityEngine;
 
 namespace Omok {
+	// TODO identify who's turn it is
+	// TODO name each state (graph node)
+	// TODO undo/redo (graph traversal)
+	// TODO web compile
+	// TODO scoring calc should have a depth, with new scores for each depth level. if depth is greater than 1, only evaluate top X moves. make sure scores past depth alternate player, so values change plus or minus
+	// TODO scrolling, and board expansion
+	// TODO eyes should dart between moves tied for best
+	// TODO likelihood of looking at other moves is 1/(n^2) instead of 1/(n)
 	public class OmokGame : MonoBehaviour, IBelongsToOmokGame {
 		[SerializeField]
 		protected OmokBoard board;

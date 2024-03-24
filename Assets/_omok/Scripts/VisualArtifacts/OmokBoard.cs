@@ -30,6 +30,7 @@ namespace Omok {
 		protected float mouseDistance = 2.5f;
 		protected Coord currentSelectedSpot;
 		protected Vector3 mousePosition;
+		protected Coord _lastHover;
 		[SerializeField]
 		protected UnityEvent_Coord _onClick;
 		[SerializeField]
@@ -159,7 +160,10 @@ namespace Omok {
 				currentSelectedSpot = GetCoord(mousePosition);
 				_mouseMarker.position = hit.point;
 				_mouseMarker.rotation = Quaternion.LookRotation(hit.normal);
-				_onHover.Invoke(currentSelectedSpot);
+				if (_lastHover != currentSelectedSpot) {
+					_onHover.Invoke(currentSelectedSpot);
+					_lastHover = currentSelectedSpot;
+				}
 			}
 			if (Input.GetKey(click)) {
 				_onClick.Invoke(currentSelectedSpot);

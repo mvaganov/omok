@@ -62,7 +62,7 @@ namespace Omok {
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
 			OmokHistoryNode node = currentNode.GetMove(move);
-			if (node.analysis.IsDoingAnalysis) {
+			if (node == null || node.analysis.IsDoingAnalysis) {
 				netScore = 0;
 				return null;
 			}

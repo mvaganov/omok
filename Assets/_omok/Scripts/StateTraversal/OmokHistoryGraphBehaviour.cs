@@ -16,8 +16,9 @@ namespace Omok {
 		public Transform predictionTokens;
 		private List<Coord> nextMovesToTry = new List<Coord>();
 		private int indexToTry = 0;
-		[SerializeField] protected bool _generatePredictionToken = true;
-		[SerializeField] protected bool _showPredictionToken = true;
+		[SerializeField] protected bool _showAllPredictionTokens = true;
+		[SerializeField] protected bool _showSinglePredictionToken = true;
+		[SerializeField] protected GameObject _singlePredictionToken;
 		private OmokHistoryNode _visualizedHistoryState;
 
 		public Gradient optionColors = new Gradient() {
@@ -32,10 +33,13 @@ namespace Omok {
 		public OmokHistoryNode CurrentNode => graph.currentNode;
 
 		public bool ShowPredictionToken {
-			get => _showPredictionToken;
+			get => _showAllPredictionTokens;
 			set {
-				_showPredictionToken = value;
-				SetPredictionTokenVisibility(_showPredictionToken);
+				_showAllPredictionTokens = value;
+				SetPredictionTokenVisibility(_showAllPredictionTokens);
+				if (_showAllPredictionTokens) {
+					RefreshAllPredictionTokens();
+				}
 			}
 		}
 
@@ -95,9 +99,15 @@ namespace Omok {
 			debugOutput.text = graph.currentNode.analysis.DebugText();
 		}
 
-
+		/// <summary>
+		/// referenced by OnHover
+		/// </summary>
 		public void CalculateCurrentMove(Coord coord) {
 			DoMoveCalculation(coord);
+			if (_showSinglePredictionToken && _singlePredictionToken != null) {
+				OmokMove move = new OmokMove(coord, omokGame.WhosTurn);
+				SetSinglePredictionToken(_singlePredictionToken, move);
+			}
 		}
 
 		private void GenerateTestingTransformsForNextMovesToTry() {
@@ -152,7 +162,7 @@ namespace Omok {
 		}
 
 		public void OnMoveCalcFinish(OmokMove move) {
-			if (_generatePredictionToken) {
+			if (_showAllPredictionTokens) {
 				RefreshAllPredictionTokens((byte)game.WhosTurn);
 			}
 			ContinueIndividualMoveAnalysis(3);
@@ -197,6 +207,24 @@ namespace Omok {
 		}
 
 		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, MinMax minmax) {
+			OmokHistoryNode node = graph.currentNode.GetMove(move);
+			if (node == null || node.analysis.IsDoingAnalysis) {
+				return false;
+			}
+			GameObject token = GetPredictionToken();
+			return SetPredictionToken(token, move, minmax, _showAllPredictionTokens);
+		}
+
+		public bool SetSinglePredictionToken(GameObject token, OmokMove move) {
+			MinMax minmax = graph.currentNode.CalculateScoreRangeForPaths(move.player);
+			bool itWorked = SetPredictionToken(token, move, minmax, _showSinglePredictionToken);
+			if (!itWorked) {
+				SetPredictionTokenVisibility(token, false);
+			}
+			return itWorked;
+		}
+
+		private bool SetPredictionToken(GameObject token, OmokMove move, MinMax minmax, bool visible) {
 			float[] nextStateScores = GetMoveScoringSummary(move, out float netScore);
 			if (nextStateScores == null) {
 				return false;
@@ -209,11 +237,16 @@ namespace Omok {
 			string text = $"<#000>{nextStateScores[0]}</color>\n" +
 				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
 				$"<#fff>{nextStateScores[1]}</color>";
-			GameObject token = GetPredictionToken();
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);
-			SetPredictionTokenVisibility(token, _showPredictionToken);
+			SpriteRenderer sprite = token.GetComponentInChildren<SpriteRenderer>();
+			if (sprite != null) {
+				Color playerColor = omokGame.players[move.player].Color;
+				playerColor.a = sprite.color.a;
+				sprite.color = playerColor;
+			}
+			SetPredictionTokenVisibility(token, visible);
 			return true;
 		}
 
