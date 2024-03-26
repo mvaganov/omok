@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SetAlpha : MonoBehaviour {
+public class ChangeImage : MonoBehaviour {
 	public SpriteRenderer spriteRenderer;
 	public UnityEngine.UI.Image image;
 	public Color Color {
@@ -10,6 +10,20 @@ public class SetAlpha : MonoBehaviour {
 				spriteRenderer.color = value;
 			} else if (image != null) {
 				image.color = value;
+			}
+		}
+	}
+	public string ColorHex {
+		get => ColorUtility.ToHtmlStringRGBA(Color);
+		set {
+			string str = value;
+			if (!str.StartsWith("#")) {
+				str = "#" + str;
+			}
+			if (ColorUtility.TryParseHtmlString(str, out Color color)) {
+				Color = color;
+			} else {
+				Debug.LogError($"could not parse {value}");
 			}
 		}
 	}

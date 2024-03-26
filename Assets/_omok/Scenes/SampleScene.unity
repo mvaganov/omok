@@ -1754,6 +1754,37 @@ MonoBehaviour:
   whosTurn: 0
   analysisVisual: {fileID: 1466857984}
   graphBehaviour: {fileID: 1466857985}
+  _gameEvents:
+    OnTurn:
+      m_PersistentCalls:
+        m_Calls: []
+    OnTurnColorHex:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143140757}
+          m_TargetAssemblyTypeName: ChangeImage, Assembly-CSharp
+          m_MethodName: set_ColorHex
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 2143140756}
+          m_TargetAssemblyTypeName: ValueOverTime, Assembly-CSharp
+          m_MethodName: Restart
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &1466857984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3292,8 +3323,9 @@ GameObject:
   - component: {fileID: 2143140754}
   - component: {fileID: 2143140757}
   - component: {fileID: 2143140756}
+  - component: {fileID: 2143140758}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Player Indicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3372,52 +3404,85 @@ MonoBehaviour:
   _duration: 1
   _repetitions: 1
   _timerRunning: 1
-  _timerCallbackBehavior: 1
-  _timerCallback:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2143140757}
-        m_TargetAssemblyTypeName: SetAlpha, Assembly-CSharp
-        m_MethodName: set_Alpha
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  _onStartTimer:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2143140754}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-  _onFinishTimer:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2143140754}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  _valueOverTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 5.253166
+      outSlope: 5.253166
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.0266928
+    - serializedVersion: 3
+      time: 0.39422104
+      value: 0.99751294
+      inSlope: 0.04927787
+      outSlope: 0.04927787
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.13970678
+    - serializedVersion: 3
+      time: 0.9950408
+      value: -0.008510888
+      inSlope: -3.0136666
+      outSlope: -3.0136666
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.039668664
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _timerEvents:
+    TimerCallback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143140757}
+          m_TargetAssemblyTypeName: SetAlpha, Assembly-CSharp
+          m_MethodName: set_Alpha
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    OnStartTimer:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143140754}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+    OnFinishTimer:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143140754}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &2143140757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3432,6 +3497,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 0}
   image: {fileID: 2143140754}
+--- !u!114 &2143140758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2143140752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1feb3cffebff64642874123fe7d8687a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  States:
+  - name: black
+    objects: []
+    OnActivate:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143140752}
+          m_TargetAssemblyTypeName: 
+          m_MethodName: 
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    OnDeactivate:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: 
+    objects: []
+    OnActivate:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeactivate:
+      m_PersistentCalls:
+        m_Calls: []
+  _index: 0
+  changeEvents:
+    setIndexChange:
+      m_PersistentCalls:
+        m_Calls: []
+    setNameChange:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!1001 &7947517206707976949
 PrefabInstance:
   m_ObjectHideFlags: 0

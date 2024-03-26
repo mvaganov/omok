@@ -1,7 +1,7 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Omok {
-	// TODO identify who's turn it is
 	// TODO name each state (graph node)
 	// TODO undo/redo (graph traversal)
 	// TODO web compile
@@ -20,6 +20,14 @@ namespace Omok {
 		public OmokHistoryGraphBehaviour graphBehaviour;
 		private OmokHistoryGraph graph;
 
+		[System.Serializable] public class GameEvents {
+			[System.Serializable] public class UnityEvent_int : UnityEvent<int> { }
+			[System.Serializable] public class UnityEvent_string : UnityEvent<string> { }
+			public UnityEvent_int OnTurn = new UnityEvent_int();
+			public UnityEvent_string OnTurnColorHex = new UnityEvent_string();
+		}
+		[SerializeField] protected GameEvents _gameEvents = new GameEvents();
+
 		public byte WhosTurn {
 			get => (byte)whosTurn;
 			set {
@@ -31,7 +39,13 @@ namespace Omok {
 				while (whosTurn < 0) {
 					whosTurn += players.Length;
 				}
+				NotifyTurnChange();
 			}
+		}
+
+		private void NotifyTurnChange() {
+			_gameEvents.OnTurn.Invoke(whosTurn);
+			_gameEvents.OnTurnColorHex.Invoke(ColorUtility.ToHtmlStringRGBA(players[whosTurn].Color));
 		}
 
 		public OmokBoard Board => board;
@@ -49,6 +63,10 @@ namespace Omok {
 				}
 				return Graph.currentNode.state;
 			}
+		}
+
+		void Start() {
+			NotifyTurnChange();
 		}
 
 		void Update() {
