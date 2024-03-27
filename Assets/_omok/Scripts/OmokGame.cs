@@ -59,7 +59,7 @@ namespace Omok {
 		public OmokState State {
 			get {
 				if (Graph.currentNode == null) {
-					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, null);
+					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, null, null);
 				}
 				return Graph.currentNode.state;
 			}

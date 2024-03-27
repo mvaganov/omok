@@ -33,7 +33,7 @@ namespace Omok {
 		/// <summary>
 		/// score per player
 		/// </summary>
-		public float[] scoring;
+		public float[] scoring = Array.Empty<float>();
 
 		private bool _doingAnalysis = false;
 
@@ -178,5 +178,7 @@ namespace Omok {
 		public static float SummarizeScore(int player, float[] score) {
 			return score[player] - score[(player + 1) % 2];
 		}
+
+		override public string ToString() => $"({string.Join(", ", scoring)})";
 	}
 }

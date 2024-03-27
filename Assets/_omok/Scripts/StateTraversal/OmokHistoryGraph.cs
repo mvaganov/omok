@@ -16,7 +16,7 @@ namespace Omok {
 			= new Dictionary<OmokMove, List<Action<OmokMove>>>();
 
 		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
-			currentNode = new OmokHistoryNode(state, null, null);
+			currentNode = new OmokHistoryNode(state, null, null, null);
 			historyNodes.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(OmokMove.InvalidMove, onComplete);
 			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, FinishedAnalysis));

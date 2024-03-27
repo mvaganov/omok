@@ -6,57 +6,27 @@ using System;
 namespace Omok {
 	[Serializable]
 	public class OmokHistoryNode {
-		/// <summary>
-		/// the Edge structure of this graph
-		/// </summary>
-		public struct MovePath {
-			public OmokMove move;
-			public OmokHistoryNode nextNode;
-			public MovePath(OmokMove move, OmokHistoryNode nextNode) {
-				this.move = move;
-				this.nextNode = nextNode;
-			}
-			public MovePath(OmokMove move) {
-				this.move = move;
-				this.nextNode = null;
-			}
-			public bool Equals(MovePath other) {
-				return other.move == move;
-			}
-			public bool Equals(OmokMove other) {
-				return other == move;
-			}
-			public override bool Equals(object obj) {
-				switch (obj) {
-					case OmokMove omok: return Equals(omok);
-					case MovePath move: return Equals(move);
-				}
-				return false;
-			}
-			override public int GetHashCode() => move.GetHashCode();
-			public static bool operator ==(MovePath left, MovePath right) => left.Equals(right);
-			public static bool operator !=(MovePath left, MovePath right) => !left.Equals(right);
-			public class Comparer : IComparer<MovePath> {
-				public int Compare(MovePath a, MovePath b) => a.move.coord.CompareTo(b.move.coord);
-				public static Comparer Instance = new Comparer();
-			}
-		}
-
+		public int turnValue;
+		public OmokMove sourceMove = null;
 		public OmokHistoryNode parentNode;
 		/// <summary>
 		/// Managed state
 		/// </summary>
 		public OmokState state;
 		public OmokStateAnalysis analysis;
-		public MovePath[] movePaths = Array.Empty<MovePath>();
+		public OmokMovePath[] movePaths = Array.Empty<OmokMovePath>();
 
-		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, OmokStateAnalysis analysis) {
+		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, OmokStateAnalysis analysis, OmokMove sourceMove) {
 			this.state = state;
 			this.analysis = analysis;
 			if (this.analysis == null) {
 				this.analysis = new OmokStateAnalysis(state);
 			}
 			this.parentNode = parentNode;
+			this.sourceMove = sourceMove;
+			if (parentNode != null) {
+				turnValue = parentNode.turnValue + 1;
+			}
 		}
 
 		public bool IsDoneCalculating(OmokMove move) {
@@ -69,8 +39,8 @@ namespace Omok {
 
 		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
 			/// if the move is already here, AddCallBackOnFinish, return false
-			MovePath nextPath = new MovePath(move);
-			int index = Array.BinarySearch(movePaths, nextPath, MovePath.Comparer.Instance);
+			OmokMovePath nextPath = new OmokMovePath(move);
+			int index = Array.BinarySearch(movePaths, nextPath, OmokMovePath.Comparer.Instance);
 			if (index >= 0) {
 				nextPath = movePaths[index];
 				OmokHistoryNode alreadyExistingNode = GetMove(index);
@@ -79,10 +49,10 @@ namespace Omok {
 				}
 				return NextStateMovementResult.StillCalculating;
 			}
-			/// create a new <see cref="MovePath">, start doing analysis of the move, AddCallBackOnFinish
+			/// create a new <see cref="OmokMovePath">, start doing analysis of the move, AddCallBackOnFinish
 			OmokState nextState = new OmokState(state);
 			nextState.TrySetState(move);
-			OmokHistoryNode nextNode = new OmokHistoryNode(nextState, this, null);
+			OmokHistoryNode nextNode = new OmokHistoryNode(nextState, this, null, move);
 			nextPath.nextNode = nextNode;
 			nextPath.nextNode.analysis.MarkDoingAnalysis(true);
 			InsertMove(~index, nextPath);
@@ -100,8 +70,8 @@ namespace Omok {
 		/// </summary>
 		/// <param name="move"></param>
 		/// <returns></returns>
-		public bool AddMoveReplaceIfItExists(MovePath move) {
-			int index = Array.BinarySearch(movePaths, move, MovePath.Comparer.Instance);
+		public bool AddMoveReplaceIfItExists(OmokMovePath move) {
+			int index = Array.BinarySearch(movePaths, move, OmokMovePath.Comparer.Instance);
 			if (index >= 0) {
 				movePaths[index] = move;
 				return true;
@@ -110,7 +80,7 @@ namespace Omok {
 			return false;
 		}
 
-		public void InsertMove(int index, MovePath move) {
+		public void InsertMove(int index, OmokMovePath move) {
 			Array.Resize(ref movePaths, movePaths.Length + 1);
 			for (int i = movePaths.Length - 1; i > index; --i) {
 				movePaths[i] = movePaths[i - 1];
@@ -119,6 +89,8 @@ namespace Omok {
 		}
 
 		public int GetMoveIndex(OmokMove move) => Array.IndexOf(movePaths, move);
+
+		public int GetMoveIndex(OmokHistoryNode nextNode) => Array.FindIndex(movePaths, edge => edge.nextNode == nextNode);
 
 		public OmokHistoryNode GetMove(OmokMove move) {
 			int index = GetMoveIndex(move);
@@ -135,7 +107,7 @@ namespace Omok {
 		public MinMax CalculateScoreRangeForPaths(byte player) {
 			MinMax minmax = MinMax.Impossible;
 			for (int i = 0; i < movePaths.Length; ++i) {
-				OmokHistoryNode.MovePath movepath = movePaths[i];
+				 OmokMovePath movepath = movePaths[i];
 				float[] scoring = movepath.nextNode.analysis.scoring;
 				if (movepath.nextNode.analysis.IsDoingAnalysis) {
 					//Debug.Log($"skipping {movepath.move.coord}");
@@ -147,5 +119,7 @@ namespace Omok {
 			}
 			return minmax;
 		}
+
+		public override string ToString() => $"{{{sourceMove} : {analysis}}}";
 	}
 }
