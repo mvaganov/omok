@@ -17,6 +17,7 @@ namespace Omok {
 
 		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			currentNode = new OmokHistoryNode(state, null, null, null);
+			currentNode.traversed = true;
 			historyNodes.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(OmokMove.InvalidMove, onComplete);
 			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, FinishedAnalysis));
@@ -91,15 +92,19 @@ namespace Omok {
 		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			OmokHistoryNode nextNode = currentNode.GetMove(move);
 			if (nextNode != null) {
-				if (!nextNode.analysis.IsDoingAnalysis) {
-					currentNode = nextNode;
-					onComplete?.Invoke(move);
-					return NextStateMovementResult.Success;
-				}
-				AddActionWhenMoveAnalysisFinishes(move, onComplete);
-				return NextStateMovementResult.StillCalculating;
+				SetState(nextNode, coroutineRunner, onComplete);
 			}
 			DoMoveCalculation(move, coroutineRunner, onComplete);
+			return NextStateMovementResult.StillCalculating;
+		}
+
+		public NextStateMovementResult SetState(OmokHistoryNode nextNode, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+			if (!nextNode.analysis.IsDoingAnalysis) {
+				currentNode = nextNode;
+				onComplete?.Invoke(nextNode.sourceMove);
+				return NextStateMovementResult.Success;
+			}
+			AddActionWhenMoveAnalysisFinishes(nextNode.sourceMove, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}
 	}

@@ -15,6 +15,11 @@ namespace Omok {
 		public OmokState state;
 		public OmokStateAnalysis analysis;
 		public OmokMovePath[] movePaths = Array.Empty<OmokMovePath>();
+		public bool traversed;
+
+		public int Turn => turnValue;
+		public bool Traversed => traversed;
+		public int GetEdgeCount() => movePaths.Length;
 
 		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, OmokStateAnalysis analysis, OmokMove sourceMove) {
 			this.state = state;
@@ -27,6 +32,14 @@ namespace Omok {
 			if (parentNode != null) {
 				turnValue = parentNode.turnValue + 1;
 			}
+		}
+
+		public OmokHistoryNode FindRoot() {
+			OmokHistoryNode cursor = this;
+			while (cursor.parentNode != null) {
+				cursor = cursor.parentNode;
+			}
+			return cursor;
 		}
 
 		public bool IsDoneCalculating(OmokMove move) {
@@ -64,6 +77,8 @@ namespace Omok {
 			}
 			return NextStateMovementResult.StartedCalculating;
 		}
+
+		public OmokMovePath GetEdge(int i) => movePaths[i];
 
 		/// <summary>
 		/// 
@@ -120,6 +135,6 @@ namespace Omok {
 			return minmax;
 		}
 
-		public override string ToString() => $"{{{sourceMove} : {analysis}}}";
+		public override string ToString() => $"{Turn}. {{{sourceMove} : {analysis}}}";
 	}
 }

@@ -60,6 +60,7 @@ namespace Omok {
 			get {
 				if (Graph.currentNode == null) {
 					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, null, null);
+					Graph.currentNode.traversed = true;
 				}
 				return Graph.currentNode.state;
 			}
@@ -82,6 +83,7 @@ namespace Omok {
 		private void NotifyNextMove(OmokMove move) {
 			OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
 			graph.currentNode = nextNode;
+			nextNode.traversed = true;
 			//Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
 			OmokGoogleTargetListener targetListener = GetComponent<OmokGoogleTargetListener>();
 			targetListener.ClearLookTargets();

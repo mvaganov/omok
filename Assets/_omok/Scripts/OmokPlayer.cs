@@ -8,6 +8,8 @@ namespace Omok {
 		public class PieceElement {
 			public string Character;
 			public OmokPiece Piece;
+			public Sprite Icon;
+			public Color color;
 		}
 
 		[SerializeField]
