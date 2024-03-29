@@ -28,11 +28,13 @@ namespace Omok {
 
 		public OmokMove(Coord coord, byte player) : this(coord, player, 0) { }
 
-		public bool Equals(OmokMove other) => coord == other.coord && player == other.player;
+		public bool Equals(OmokMove other) => !ReferenceEquals(other, null) && coord == other.coord && player == other.player;
 		public override bool Equals(object obj) => obj is OmokMove omok && Equals(omok);
 		public override int GetHashCode() => coord.GetHashCode() ^ player;
-		public static bool operator==(OmokMove a, OmokMove b) => a.Equals(b);
-		public static bool operator!=(OmokMove a, OmokMove b) => !a.Equals(b);
+		public static bool operator==(OmokMove a, OmokMove b) => operator_equals(a, b);
+		public static bool operator!=(OmokMove a, OmokMove b) => !operator_equals(a, b);
+		private static bool operator_equals(OmokMove a, OmokMove b) => ReferenceEquals(a, b) ||
+			(ReferenceEquals(a, null) == ReferenceEquals(b, null) && a.Equals(b));
 		public override string ToString() => $"({UnitState}:{coord})";
 
 		public Sprite GetIcon(OmokGame game) => game.players[player].gamePieces[piece].Icon;

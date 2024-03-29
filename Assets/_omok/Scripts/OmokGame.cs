@@ -80,8 +80,8 @@ namespace Omok {
 		//	graphBehaviour.graph.DoMoveCalculation(coord, this, NotifyNextMove, WhosTurn);
 		//}
 
-		private void NotifyNextMove(OmokMove move) {
-			OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
+		private void NotifyNextMove(OmokHistoryNode nextNode) {
+			//OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
 			graph.SetState(nextNode, null);
 			//graph.currentNode = nextNode;
 			nextNode.traversed = true;
@@ -101,7 +101,7 @@ namespace Omok {
 			}
 			OmokMove move = new OmokMove(coord, WhosTurn);
 			if (graphBehaviour.graph.IsDoneCalculating(move)) {
-				NotifyNextMove(move);
+				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
 			} else {
 				graphBehaviour.graph.DoMoveCalculation(move, this, NotifyNextMove);
 			}

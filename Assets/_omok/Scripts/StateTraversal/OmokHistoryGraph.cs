@@ -13,40 +13,40 @@ namespace Omok {
 		public List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
 
-		private Dictionary<OmokMove, List<Action<OmokMove>>> actionToDoWhenCalculationFinishes
-			= new Dictionary<OmokMove, List<Action<OmokMove>>>();
+		private Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>> actionToDoWhenCalculationFinishes
+			= new Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>>();
 
-		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			timeline.Clear();
 			currentNode = new OmokHistoryNode(state, null, null, null);
 			currentNode.traversed = true;
 			historyNodes.Add(currentNode);
 			timeline.Add(currentNode);
-			AddActionWhenMoveAnalysisFinishes(OmokMove.InvalidMove, onComplete);
-			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, FinishedAnalysis));
+			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
+			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
 		}
 
-		private void FinishedAnalysis(OmokMove move) {
+		private void FinishedAnalysis(OmokHistoryNode node) {
 			//Debug.Log("FINISHED " + move);
-			if (!actionToDoWhenCalculationFinishes.TryGetValue(move, out List<Action<OmokMove>> actions)) {
+			if (!actionToDoWhenCalculationFinishes.TryGetValue(node, out List<Action<OmokHistoryNode>> actions)) {
 				return;
 			}
-			actionToDoWhenCalculationFinishes.Remove(move);
-			actions.ForEach(a => a.Invoke(move));
+			actionToDoWhenCalculationFinishes.Remove(node);
+			actions.ForEach(a => a.Invoke(node));
 			actions.Clear();
 		}
 
-		private bool AddActionWhenMoveAnalysisFinishes(OmokMove move, Action<OmokMove> action) {
+		private bool AddActionWhenMoveAnalysisFinishes(OmokHistoryNode node, Action<OmokHistoryNode> action) {
 			if (action == null) { return false; }
-			if (!actionToDoWhenCalculationFinishes.TryGetValue(move, out List<Action<OmokMove>> actions)) {
-				actions = new List<Action<OmokMove>>();
+			if (!actionToDoWhenCalculationFinishes.TryGetValue(node, out List<Action<OmokHistoryNode>> actions)) {
+				actions = new List<Action<OmokHistoryNode>>();
 			}
 			if (actions.IndexOf(action) < 0) {
 				actions.Add(action);
 			} else {
 				return false;
 			}
-			actionToDoWhenCalculationFinishes[move] = actions;
+			actionToDoWhenCalculationFinishes[node] = actions;
 			return true;
 		}
 
@@ -54,14 +54,23 @@ namespace Omok {
 			return currentNode.IsDoneCalculating(move);
 		}
 
-		public NextStateMovementResult DoMoveCalculation(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+		public NextStateMovementResult DoMoveCalculation(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			bool validMove = currentNode != null && currentNode.state != null &&
 				currentNode.state.GetState(move.coord) == UnitState.None;
 			if (!validMove) {
 				return NextStateMovementResult.Error;
 			}
-			AddActionWhenMoveAnalysisFinishes(move, onComplete);
-			return currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner);
+			NextStateMovementResult calcResult = currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner, out OmokHistoryNode nextNode);
+			switch (calcResult) {
+				case NextStateMovementResult.Success:
+					onComplete?.Invoke(nextNode);
+					break;
+				case NextStateMovementResult.StartedCalculating:
+				case NextStateMovementResult.StillCalculating:
+					AddActionWhenMoveAnalysisFinishes(nextNode, onComplete);
+					break;
+			}
+			return calcResult;
 		}
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
@@ -92,7 +101,7 @@ namespace Omok {
 			return answer;
 		}
 
-		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			OmokHistoryNode nextNode = currentNode.GetMove(move);
 			if (nextNode != null) {
 				SetState(nextNode, onComplete);
@@ -101,7 +110,7 @@ namespace Omok {
 			return NextStateMovementResult.StillCalculating;
 		}
 
-		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokMove> onComplete) {
+		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokHistoryNode> onComplete) {
 			if (!nextNode.analysis.IsDoingAnalysis) {
 				if (timeline[currentNode.Turn] != currentNode) {
 					int positionInPath = timeline.IndexOf(currentNode);
@@ -132,10 +141,10 @@ namespace Omok {
 				}
 				currentNode = nextNode;
 				currentNode.traversed = true;
-				onComplete?.Invoke(nextNode.sourceMove);
+				onComplete?.Invoke(nextNode);
 				return NextStateMovementResult.Success;
 			}
-			AddActionWhenMoveAnalysisFinishes(nextNode.sourceMove, onComplete);
+			AddActionWhenMoveAnalysisFinishes(nextNode, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}
 	}

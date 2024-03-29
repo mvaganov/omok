@@ -60,14 +60,19 @@ namespace Omok {
 			onForLoopComplete?.Invoke();
 		}
 
-		public IEnumerator AnalyzeCoroutine(OmokMove move, OmokState state, Action<OmokMove> onAnalysisComplete) {
-			this.state = state;
+		public IEnumerator AnalyzeCoroutine(OmokHistoryNode node, Action<OmokHistoryNode> onAnalysisComplete) {
+			//if (node.sourceMove != move || !node.state.Equals(state)) {
+			//	Debug.Log($"data is not what is expected ({node.sourceMove}) != {move}");
+			//} else {
+			//	Debug.Log("ok");
+			//}
+			state = node.state;
 			lines.Clear();
 			_doingAnalysis = true;
 			yield return this.state.ForEachPiece(PieceAnalysis, null);
 			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
-			onAnalysisComplete.Invoke(move);
+			onAnalysisComplete.Invoke(node);
 		}
 
 		public void Analyze(OmokState state) {

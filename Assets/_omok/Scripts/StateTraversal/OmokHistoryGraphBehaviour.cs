@@ -63,11 +63,11 @@ namespace Omok {
 				//Debug.Log("new state to analyze?! "+ graph.currentNode.state.ToDebugString());
 				_visualizedHistoryState = graph.currentNode;
 				// TODO find out why the visuals are not recalculating.
-				RefreshStateVisuals(OmokMove.InvalidMove);
+				RefreshStateVisuals(null);
 			}
 		}
 
-		private void RefreshStateVisuals(OmokMove move) {
+		private void RefreshStateVisuals(OmokHistoryNode move) {
 			UpdateDebugText();
 			OmokHistoryNode currentNode = graph.currentNode;
 			game.analysisVisual.RenderAnalysis(currentNode.analysis);
@@ -161,12 +161,12 @@ namespace Omok {
 			return list;
 		}
 
-		public void OnMoveCalcFinish(OmokMove move) {
+		public void OnMoveCalcFinish(OmokHistoryNode node) {
 			if (_showAllPredictionTokens) {
 				RefreshAllPredictionTokens((byte)game.WhosTurn);
 			}
 			ContinueIndividualMoveAnalysis(3);
-			onMoveDiscoveryFinish.Invoke(move);
+			onMoveDiscoveryFinish.Invoke(node.sourceMove);
 		}
 
 		private void ContinueIndividualMoveAnalysis(int checksPerBatch = 5) {

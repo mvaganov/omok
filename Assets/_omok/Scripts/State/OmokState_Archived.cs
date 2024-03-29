@@ -21,6 +21,10 @@ namespace Omok {
 		public Coord size => _size;
 		public Coord start => _start;
 
+		public bool Equals(IOmokState other) => IOmokState_Extension.Equals(this, other);
+		public override bool Equals(object obj) => obj is IOmokState omokState && IOmokState_Extension.Equals(this, omokState);
+		public override int GetHashCode() => IOmokState_Extension.HashCode(this);
+
 		public OmokState_Archived() { }
 
 		public OmokState_Archived(IOmokState source) {

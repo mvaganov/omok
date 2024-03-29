@@ -50,14 +50,15 @@ namespace Omok {
 			return false;
 		}
 
-		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, Action<OmokMove> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner) {
+		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move,
+			Action<OmokHistoryNode> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner, out OmokHistoryNode nextNode) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			OmokMovePath nextPath = new OmokMovePath(move);
 			int index = Array.BinarySearch(movePaths, nextPath, OmokMovePath.Comparer.Instance);
 			if (index >= 0) {
 				nextPath = movePaths[index];
-				OmokHistoryNode alreadyExistingNode = nextPath.nextNode;// GetMove(index);
-				if (!alreadyExistingNode.analysis.IsDoingAnalysis) {
+				nextNode = nextPath.nextNode;// GetMove(index);
+				if (!nextNode.analysis.IsDoingAnalysis) {
 					return NextStateMovementResult.FinishedCalculating;
 				}
 				return NextStateMovementResult.StillCalculating;
@@ -65,12 +66,12 @@ namespace Omok {
 			/// create a new <see cref="OmokMovePath">, start doing analysis of the move, AddCallBackOnFinish
 			OmokState nextState = new OmokState(state);
 			nextState.TrySetState(move);
-			OmokHistoryNode nextNode = new OmokHistoryNode(nextState, this, null, move);
+			nextNode = new OmokHistoryNode(nextState, this, null, move);
 			nextPath.nextNode = nextNode;
 			nextPath.nextNode.analysis.MarkDoingAnalysis(true);
 			InsertMove(~index, nextPath);
-			coroutineRunner.StartCoroutine(nextPath.nextNode.analysis.AnalyzeCoroutine(
-				move, nextState, whatToDoWhenMoveCalculationFinishes));
+			coroutineRunner.StartCoroutine(nextNode.analysis.AnalyzeCoroutine(nextNode,
+				whatToDoWhenMoveCalculationFinishes));
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
 				return NextStateMovementResult.Error;

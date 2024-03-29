@@ -68,11 +68,11 @@ namespace Omok {
 			RenderAllLines(null);
 		}
 
-		public IEnumerator ForceUpdateCoroutine() {
-			board.ReadFromBoardIntoState();
-			ClearWires();
-			yield return _analysis.AnalyzeCoroutine(OmokMove.InvalidMove, omokGame.State, RenderAllLines);
-		}
+		//public IEnumerator ForceUpdateCoroutine() {
+		//	board.ReadFromBoardIntoState();
+		//	ClearWires();
+		//	yield return _analysis.AnalyzeCoroutine(OmokMove.InvalidMove, omokGame.State, RenderAllLines);
+		//}
 
 		private void RenderAllLines(OmokMove move) {
 			RenderAnalysis(_analysis);

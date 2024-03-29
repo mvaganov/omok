@@ -29,6 +29,7 @@ namespace Omok {
 		public Coord size { get; }
 		public Coord start { get; }
 		public void Copy(IOmokState source);
+		public bool Equals(IOmokState other);
 
 		public static UnitState GetStateFrom(OmokPiece piece) {
 			int playerIndex = -1;
@@ -94,14 +95,35 @@ namespace Omok {
 		public static bool TrySetState(this IOmokState self, OmokMove move) {
 			return self.TrySetState(move.coord, move.UnitState);
 		}
+
+		public static bool Equals(this IOmokState self, IOmokState other) {
+			if (ReferenceEquals(self, other)) { return true; }
+			bool allEqual = true;
+			self.ForEachPiece((coord, state) => {
+				if (allEqual && (!other.TryGetState(coord, out UnitState otherState) || otherState != state)) {
+					allEqual = false;
+				}
+			});
+			return allEqual;
+		}
+
+		public static int HashCode(this IOmokState self) {
+			int value = 0;
+			self.ForEachPiece((coord, state) => {
+				value ^= coord.GetHashCode() | state.GetHashCode();
+			});
+			return value;
+		}
 	}
 
 	[Serializable]
 	public class OmokState : IOmokState {
 		private IOmokState dataBackstop;
-
 		public Coord start => dataBackstop.start;
 		public Coord size => dataBackstop.size;
+		public bool Equals(IOmokState other) => IOmokState_Extension.Equals(this, other);
+		public override bool Equals(object obj) => obj is IOmokState omokState && IOmokState_Extension.Equals(this, omokState);
+		public override int GetHashCode() => IOmokState_Extension.HashCode(this);
 
 		public bool TryGetState(Coord coord, out UnitState state) => dataBackstop.TryGetState(coord, out state);
 
