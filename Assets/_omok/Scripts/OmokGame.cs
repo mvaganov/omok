@@ -82,7 +82,8 @@ namespace Omok {
 
 		private void NotifyNextMove(OmokMove move) {
 			OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
-			graph.currentNode = nextNode;
+			graph.SetState(nextNode, null);
+			//graph.currentNode = nextNode;
 			nextNode.traversed = true;
 			//Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
 			OmokGoogleTargetListener targetListener = GetComponent<OmokGoogleTargetListener>();

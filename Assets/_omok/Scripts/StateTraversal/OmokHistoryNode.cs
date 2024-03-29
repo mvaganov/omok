@@ -56,7 +56,7 @@ namespace Omok {
 			int index = Array.BinarySearch(movePaths, nextPath, OmokMovePath.Comparer.Instance);
 			if (index >= 0) {
 				nextPath = movePaths[index];
-				OmokHistoryNode alreadyExistingNode = GetMove(index);
+				OmokHistoryNode alreadyExistingNode = nextPath.nextNode;// GetMove(index);
 				if (!alreadyExistingNode.analysis.IsDoingAnalysis) {
 					return NextStateMovementResult.FinishedCalculating;
 				}

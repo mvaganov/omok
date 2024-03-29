@@ -99,7 +99,7 @@ namespace Omok {
 		}
 
 		internal void SetState(OmokHistoryNode nextState) {
-			graph.SetState(nextState, this, null);
+			graph.SetState(nextState, null);
 		}
 	}
 }

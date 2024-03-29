@@ -9,6 +9,7 @@ namespace Omok {
 	}
 
 	public class OmokHistoryGraph {
+		public List<OmokHistoryNode> timeline = new List<OmokHistoryNode>();
 		public List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
 
@@ -16,9 +17,11 @@ namespace Omok {
 			= new Dictionary<OmokMove, List<Action<OmokMove>>>();
 
 		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+			timeline.Clear();
 			currentNode = new OmokHistoryNode(state, null, null, null);
 			currentNode.traversed = true;
 			historyNodes.Add(currentNode);
+			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(OmokMove.InvalidMove, onComplete);
 			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(OmokMove.InvalidMove, state, FinishedAnalysis));
 		}
@@ -92,15 +95,43 @@ namespace Omok {
 		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
 			OmokHistoryNode nextNode = currentNode.GetMove(move);
 			if (nextNode != null) {
-				SetState(nextNode, coroutineRunner, onComplete);
+				SetState(nextNode, onComplete);
 			}
 			DoMoveCalculation(move, coroutineRunner, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}
 
-		public NextStateMovementResult SetState(OmokHistoryNode nextNode, MonoBehaviour coroutineRunner, Action<OmokMove> onComplete) {
+		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokMove> onComplete) {
 			if (!nextNode.analysis.IsDoingAnalysis) {
+				if (timeline[currentNode.Turn] != currentNode) {
+					int positionInPath = timeline.IndexOf(currentNode);
+					if (positionInPath < 0) {
+						throw new Exception("current node is not in timeline... what happened?");
+					}
+					throw new Exception($"current node {positionInPath} is not where it shold be in the timeline {currentNode.Turn}... what happened?");
+				}
+				if (nextNode.Turn < timeline.Count) {
+					if (timeline[nextNode.Turn] == nextNode) {
+						Debug.Log("changing state in current timeline...");
+					} else {
+						Debug.Log($"going into new timeline @{nextNode.Turn}");
+						OmokHistoryNode beforeNode = timeline[nextNode.Turn - 1];
+						int pathIndex = beforeNode.GetMoveIndex(nextNode);
+						if (pathIndex < 0) {
+							throw new Exception("attempting to go into invalid reality?");
+						} else {
+							int forsakenFuture = timeline.Count - nextNode.Turn;
+							Debug.Log($"changing to a different timeline @{nextNode.Turn}, forsaking {forsakenFuture}");
+							timeline.RemoveRange(nextNode.Turn, forsakenFuture);
+							timeline.Add(currentNode);
+						}
+					}
+				} else if (nextNode.Turn == timeline.Count) {
+					//Debug.Log($"advancing timeline like {nextNode.Turn} never happend before");
+					timeline.Add(nextNode);
+				}
 				currentNode = nextNode;
+				currentNode.traversed = true;
 				onComplete?.Invoke(nextNode.sourceMove);
 				return NextStateMovementResult.Success;
 			}
