@@ -13,6 +13,7 @@ namespace Omok {
 		private Color _originalBackgroundColor = Color.gray;
 		private OmokHistoryNode _payload;
 		private bool _selected;
+		private bool _onPath;
 		public Image Icon => _icon;
 		public TMP_Text Text => _text;
 		public Button Button => _button;
@@ -30,6 +31,17 @@ namespace Omok {
 			set {
 				_selected = value;
 				if (_selected) { MarkSelected(); } else { UnmarkSelected(); }
+			}
+		}
+
+		public bool IsOnPath {
+			get => _onPath;
+			set {
+				_onPath = value;
+				Image backgroundImage = Icon.transform.parent.GetComponent<Image>();
+				Color color = backgroundImage.color;
+				color.a = !_onPath ? 0.5f : 1;
+				backgroundImage.color = color;
 			}
 		}
 
@@ -59,6 +71,10 @@ namespace Omok {
 		}
 
 		public Sprite GetIcon(OmokHistoryNode state, out Color color) {
+			if (state.sourceMove == null) {
+				color = _game.NeutralColor;
+				return null;
+			}
 			color = state.sourceMove.GetColor(_game);
 			return state.sourceMove.GetIcon(_game);
 		}

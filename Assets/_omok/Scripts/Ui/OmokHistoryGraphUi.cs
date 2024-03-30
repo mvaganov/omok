@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,11 +12,17 @@ namespace Omok {
 		public RectTransform _branchElementPrefab;
 		[ContextMenuItem(nameof(Refresh), nameof(Refresh))]
 		public OmokGame game;
-		public OmokHistoryGraph graph;
+		public OmokHistoryGraph Graph => game.Graph;
 
-		public List<OmokHistoryGraph> states = new List<OmokHistoryGraph>();
 		public MemoryPool<RectTransform> _branches = new MemoryPool<RectTransform>();
 		public MemoryPool<ListElement> _elements = new MemoryPool<ListElement>();
+		private OmokHistoryNode _currentlyCalculated = null;
+
+		private void Awake() {
+			_branches.SetData(transform, _branchElementPrefab, false);
+			_elements.SetData(transform, _stateElementPrefab, false);
+			_elements.onReclaim += e => e.IsSelected = false;
+		}
 
 		public void Refresh() {
 			OmokHistoryNode current = game.Graph.currentNode;
@@ -39,28 +46,41 @@ namespace Omok {
 
 		public void PopulateStates(OmokHistoryNode rootState, OmokHistoryNode currentState) {
 			ClearUi();
-			OmokHistoryNode cursor = rootState;
-			ListElement element;
-			//element = _elements.Get();
-			//element.GameState = cursor;
-			//element.transform.SetParent(_container, false);
-			while (cursor.GetEdgeCount() > 0) {
+			OmokHistoryGraph graph = Graph;
+			List<OmokHistoryNode> history = graph.timeline;
+			StringBuilder sb = new StringBuilder("!!!!!!!!!!!!!!!!\n");
+
+			RectTransform gameStart = _branches.Get();
+			AddEdgeUi(history[0], history.Count == 1, true, gameStart);
+			gameStart.name = "game start";
+			gameStart.SetParent(_container, false);
+
+			for (int n = 0; n < history.Count; ++n) {
+				OmokHistoryNode cursor = history[n];
+				sb.Append(cursor+"\n");
+				OmokHistoryNode nextOnPath = history.Count > n ? history[n] : null;
 				RectTransform possibilities = _branches.Get();
 				//cursor.AssertNoEdgeDuplicates();// DEBUG
 				for (int i = 0; i < cursor.GetEdgeCount(); ++i) {
 					OmokMovePath edge = cursor.GetEdge(i);
 					if (!edge.nextNode.Traversed) { continue; } // no UI for preview moves
-					element = _elements.Get();
-					element.Game = game;
-					element.OmokNode = edge.nextNode;
-					element.IsSelected = (edge.nextNode == currentState);
-					element.transform.SetParent(possibilities, false);
-					possibilities.name = edge.move.ToString();
+					AddEdgeUi(edge.nextNode, edge.nextNode == currentState, edge.nextNode == nextOnPath, possibilities);
 				}
+				possibilities.name = cursor.ToString();
 				possibilities.SetParent(_container, false);
-				cursor = cursor.GetEdge(0).nextNode;
 			}
+			Debug.Log(sb);
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_container.GetComponent<RectTransform>());
+		}
+
+		private void AddEdgeUi(OmokHistoryNode nextNode, bool isSelected, bool isOnPath, Transform possibilities) {
+			ListElement element = _elements.Get();
+			element.Game = game;
+			element.OmokNode = nextNode;
+			element.IsSelected = isSelected;
+			element.IsOnPath = isOnPath;
+			element.transform.SetParent(possibilities, false);
+			element.name = (isOnPath ? "*" : "") + nextNode.ToString();
 		}
 
 		private void ClearUi() {
@@ -91,15 +111,20 @@ namespace Omok {
 		}
 
 		void Start() {
-
 		}
 
 		void Update() {
-
+			if (_currentlyCalculated != Graph.currentNode) {
+				_currentlyCalculated = Graph.currentNode;
+				Debug.Log($"refreshing {_currentlyCalculated}");
+				Refresh();
+			}
 		}
 
 		internal void SetState(OmokHistoryNode nextState) {
-			graph.SetState(nextState, null);
+			Debug.Log($"TRIGGERING {nextState}");
+			Graph.SetState(nextState, null);
+			Refresh();
 		}
 	}
 }

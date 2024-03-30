@@ -35,6 +35,7 @@ namespace Omok {
 		protected UnityEvent_Coord _onClick;
 		[SerializeField]
 		protected UnityEvent_Coord _onHover;
+		protected bool _isMouseOnBoard = true;
 
 		/// <summary>
 		/// Managed state
@@ -154,6 +155,11 @@ namespace Omok {
 		}
 
 		void Update() {
+			if (UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject != null) {
+				_isMouseOnBoard = false;
+				return;
+			}
+			_isMouseOnBoard = true;
 			Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000, -1, QueryTriggerInteraction.Ignore)) {
 				mousePosition = hit.point;
@@ -165,7 +171,7 @@ namespace Omok {
 					_lastHover = currentSelectedSpot;
 				}
 			}
-			if (Input.GetKey(click)) {
+			if (Input.GetKeyDown(click)) {
 				_onClick.Invoke(currentSelectedSpot);
 			}
 		}

@@ -186,7 +186,8 @@ namespace Omok {
 
 		public string DebugSerialized() {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < serialized.Count; ++i) {
+			if (serialized == null) { sb.Append("null"); }
+			else for (int i = 0; i < serialized.Count; ++i) {
 				if (i % 2 == 0) { sb.Append(" "); }
 				sb.Append(serialized[i] ? '!' : '.');
 			}

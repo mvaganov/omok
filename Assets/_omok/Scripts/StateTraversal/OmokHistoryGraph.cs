@@ -10,8 +10,8 @@ namespace Omok {
 
 	public class OmokHistoryGraph {
 		public List<OmokHistoryNode> timeline = new List<OmokHistoryNode>();
-		public List<OmokHistoryNode> historyNodes = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
+		public event Action<OmokHistoryGraph> OnNodeChange = delegate { };
 
 		private Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>> actionToDoWhenCalculationFinishes
 			= new Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>>();
@@ -20,10 +20,14 @@ namespace Omok {
 			timeline.Clear();
 			currentNode = new OmokHistoryNode(state, null, null, null);
 			currentNode.traversed = true;
-			historyNodes.Add(currentNode);
 			timeline.Add(currentNode);
+			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
 			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
+		}
+
+		public void NotifyCurrentNodeChanged(OmokHistoryNode node) {
+			OnNodeChange.Invoke(this);
 		}
 
 		private void FinishedAnalysis(OmokHistoryNode node) {
@@ -141,9 +145,11 @@ namespace Omok {
 				}
 				currentNode = nextNode;
 				currentNode.traversed = true;
+				NotifyCurrentNodeChanged(currentNode);
 				onComplete?.Invoke(nextNode);
 				return NextStateMovementResult.Success;
 			}
+			AddActionWhenMoveAnalysisFinishes(nextNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(nextNode, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}

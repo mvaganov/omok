@@ -30,6 +30,12 @@ namespace Omok {
 
 		private bool FindFreePiece(OmokPiece op, int id) => op != null && op.gameObject.activeSelf == false && op.Index == id;
 
+		/// <summary>
+		/// Looks for a spare piece already at the given coordinate. if such a piece cannot be found, take any unused piece
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="targetCoord"></param>
+		/// <returns></returns>
 		public OmokPiece GetPiece(int index, Coord targetCoord) {
 			int freeIndex = currentPieces.FindIndex(op => FindFreePiece(op, index) && op.Coord == targetCoord);
 			if (freeIndex < 0) {

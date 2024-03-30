@@ -16,6 +16,13 @@ using UnityEngine;
 
 	public MemoryPool() {
 	}
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="unallocatedLocation"></param>
+	/// <param name="prefab"></param>
+	/// <param name="keepTrackOfActiveAllocated">if true, a separate list of allocated elements will
+	/// be kept, which can be used to reclaim all allocated units</param>
 	public void SetData(Transform unallocatedLocation, T prefab, bool keepTrackOfActiveAllocated) {
 		this.unallocatedLocation = unallocatedLocation;
 		this.prefab = prefab;

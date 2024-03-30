@@ -1,8 +1,8 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Omok {
-	// TODO name each state (graph node)
 	// TODO undo/redo (graph traversal)
 	// TODO web compile
 	// TODO scoring calc should have a depth, with new scores for each depth level. if depth is greater than 1, only evaluate top X moves. make sure scores past depth alternate player, so values change plus or minus
@@ -19,6 +19,7 @@ namespace Omok {
 		public OmokStateLineAnalysisDraw analysisVisual;
 		public OmokHistoryGraphBehaviour graphBehaviour;
 		private OmokHistoryGraph graph;
+		public Color NeutralColor = new Color(0.5f, 0.5f, 0.5f);
 
 		[System.Serializable] public class GameEvents {
 			[System.Serializable] public class UnityEvent_int : UnityEvent<int> { }
@@ -68,6 +69,18 @@ namespace Omok {
 
 		void Start() {
 			NotifyTurnChange();
+			Graph.OnNodeChange += Graph_OnNodeChange;
+		}
+
+		private void Graph_OnNodeChange(OmokHistoryGraph obj) {
+			Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
+			if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
+				StartCoroutine(RefreshMapStateNextFrame());
+				IEnumerator RefreshMapStateNextFrame() {
+					yield return null;
+					Board.LoadState(State);
+				}
+			}
 		}
 
 		void Update() {

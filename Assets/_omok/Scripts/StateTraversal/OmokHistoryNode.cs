@@ -136,6 +136,6 @@ namespace Omok {
 			return minmax;
 		}
 
-		public override string ToString() => $"{Turn}. {{{sourceMove} : {analysis}}}";
+		public override string ToString() => sourceMove != null ? $"{Turn}:{sourceMove.coord}" : "omok";
 	}
 }
