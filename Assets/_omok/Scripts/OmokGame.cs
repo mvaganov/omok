@@ -32,16 +32,25 @@ namespace Omok {
 		public byte WhosTurn {
 			get => (byte)whosTurn;
 			set {
-				whosTurn = value;
-				if (players.Length == 0) { return; }
-				while (whosTurn >= players.Length) {
-					whosTurn -= players.Length;
-				}
-				while (whosTurn < 0) {
-					whosTurn += players.Length;
-				}
+				whosTurn = SafeTurn(value, 0);
 				NotifyTurnChange();
 			}
+		}
+
+		public byte  NextTurn {
+			get => SafeTurn(WhosTurn, 1);
+		}
+
+		private byte SafeTurn(byte turnNow, int change) {
+			int nextTurn = turnNow + change;
+			if (players.Length == 0) { return 0; }
+			while (nextTurn >= players.Length) {
+				nextTurn -= players.Length;
+			}
+			while (nextTurn < 0) {
+				nextTurn += players.Length;
+			}
+			return (byte)nextTurn;
 		}
 
 		private void NotifyTurnChange() {
@@ -60,7 +69,7 @@ namespace Omok {
 		public OmokState State {
 			get {
 				if (Graph.currentNode == null) {
-					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, null, null);
+					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, null, null);
 					Graph.currentNode.traversed = true;
 				}
 				return Graph.currentNode.state;
@@ -74,13 +83,15 @@ namespace Omok {
 
 		private void Graph_OnNodeChange(OmokHistoryGraph obj) {
 			Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
-			if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
+			//if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
 				StartCoroutine(RefreshMapStateNextFrame());
 				IEnumerator RefreshMapStateNextFrame() {
 					yield return null;
 					Board.LoadState(State);
+					Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow}");
+					WhosTurn = obj.currentNode.whosTurnIsItNow;
 				}
-			}
+			//}
 		}
 
 		void Update() {
@@ -116,7 +127,7 @@ namespace Omok {
 			if (graphBehaviour.graph.IsDoneCalculating(move)) {
 				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
 			} else {
-				graphBehaviour.graph.DoMoveCalculation(move, this, NotifyNextMove);
+				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove);
 			}
 			graphBehaviour.RefreshAllPredictionTokens();
 			graphBehaviour.NewState = true;

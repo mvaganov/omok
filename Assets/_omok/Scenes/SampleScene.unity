@@ -2579,6 +2579,7 @@ MonoBehaviour:
   whosTurn: 0
   analysisVisual: {fileID: 1466857984}
   graphBehaviour: {fileID: 1466857985}
+  NeutralColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   _gameEvents:
     OnTurn:
       m_PersistentCalls:
@@ -3996,7 +3997,7 @@ GameObject:
   - component: {fileID: 1861816103}
   - component: {fileID: 1861816102}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

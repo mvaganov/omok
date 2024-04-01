@@ -16,9 +16,9 @@ namespace Omok {
 		private Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>> actionToDoWhenCalculationFinishes
 			= new Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>>();
 
-		public void CreateNewRoot(OmokState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
+		public void CreateNewRoot(byte whosTurnIsItNow, OmokState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			timeline.Clear();
-			currentNode = new OmokHistoryNode(state, null, null, null);
+			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, null, null);
 			currentNode.traversed = true;
 			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
@@ -58,13 +58,13 @@ namespace Omok {
 			return currentNode.IsDoneCalculating(move);
 		}
 
-		public NextStateMovementResult DoMoveCalculation(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
+		public NextStateMovementResult DoMoveCalculation(OmokMove move, byte whosTurnIsItNow, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			bool validMove = currentNode != null && currentNode.state != null &&
 				currentNode.state.GetState(move.coord) == UnitState.None;
 			if (!validMove) {
 				return NextStateMovementResult.Error;
 			}
-			NextStateMovementResult calcResult = currentNode.AddMoveIfNotAlreadyCalculating(move, FinishedAnalysis, coroutineRunner, out OmokHistoryNode nextNode);
+			NextStateMovementResult calcResult = currentNode.AddMoveIfNotAlreadyCalculating(move, whosTurnIsItNow, FinishedAnalysis, coroutineRunner, out OmokHistoryNode nextNode);
 			switch (calcResult) {
 				case NextStateMovementResult.Success:
 					onComplete?.Invoke(nextNode);
@@ -105,12 +105,12 @@ namespace Omok {
 			return answer;
 		}
 
-		public NextStateMovementResult AdvanceMove(OmokMove move, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
+		public NextStateMovementResult AdvanceMove(OmokMove move, byte whosTurnIsItNow, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			OmokHistoryNode nextNode = currentNode.GetMove(move);
 			if (nextNode != null) {
 				SetState(nextNode, onComplete);
 			}
-			DoMoveCalculation(move, coroutineRunner, onComplete);
+			DoMoveCalculation(move, whosTurnIsItNow, coroutineRunner, onComplete);
 			return NextStateMovementResult.StillCalculating;
 		}
 

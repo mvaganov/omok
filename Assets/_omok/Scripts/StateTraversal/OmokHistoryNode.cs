@@ -8,6 +8,7 @@ namespace Omok {
 	public class OmokHistoryNode {
 		public int turnValue;
 		public OmokMove sourceMove = null;
+		public byte whosTurnIsItNow;
 		public OmokHistoryNode parentNode;
 		/// <summary>
 		/// Managed state
@@ -21,7 +22,7 @@ namespace Omok {
 		public bool Traversed => traversed;
 		public int GetEdgeCount() => movePaths.Length;
 
-		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, OmokStateAnalysis analysis, OmokMove sourceMove) {
+		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, byte whosTurnIsItNow, OmokStateAnalysis analysis, OmokMove sourceMove) {
 			this.state = state;
 			this.analysis = analysis;
 			if (this.analysis == null) {
@@ -29,6 +30,7 @@ namespace Omok {
 			}
 			this.parentNode = parentNode;
 			this.sourceMove = sourceMove;
+			this.whosTurnIsItNow = whosTurnIsItNow;
 			if (parentNode != null) {
 				turnValue = parentNode.turnValue + 1;
 			}
@@ -50,7 +52,7 @@ namespace Omok {
 			return false;
 		}
 
-		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move,
+		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, byte whosTurnIsItNow,
 			Action<OmokHistoryNode> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner, out OmokHistoryNode nextNode) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			OmokMovePath nextPath = new OmokMovePath(move);
@@ -66,7 +68,7 @@ namespace Omok {
 			/// create a new <see cref="OmokMovePath">, start doing analysis of the move, AddCallBackOnFinish
 			OmokState nextState = new OmokState(state);
 			nextState.TrySetState(move);
-			nextNode = new OmokHistoryNode(nextState, this, null, move);
+			nextNode = new OmokHistoryNode(nextState, this, whosTurnIsItNow, null, move);
 			nextPath.nextNode = nextNode;
 			nextPath.nextNode.analysis.MarkDoingAnalysis(true);
 			InsertMove(~index, nextPath);

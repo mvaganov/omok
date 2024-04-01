@@ -51,7 +51,7 @@ namespace Omok {
 			if (graph.currentNode == null) {
 				OmokState state = game.Board.ReadStateFromBoard();
 				_visualizedHistoryState = graph.currentNode;
-				graph.CreateNewRoot(state, this, RefreshStateVisuals);
+				graph.CreateNewRoot(0, state, this, RefreshStateVisuals);
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace Omok {
 
 		public NextStateMovementResult DoMoveCalculation(Coord coord) {
 			OmokMove move = new OmokMove(coord, game.WhosTurn);
-			return graph.DoMoveCalculation(move, this, OnMoveCalcFinish);
+			return graph.DoMoveCalculation(move, game.NextTurn, this, OnMoveCalcFinish);
 		}
 
 		public GameObject test;

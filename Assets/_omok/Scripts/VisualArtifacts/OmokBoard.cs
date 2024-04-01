@@ -139,9 +139,9 @@ namespace Omok {
 			//Debug.Log($"SET {coord} : {piece.Player.name} {piece.Player.Index} {piece.Index} {piece}");
 			if (map.TryGetValue(coord, out OmokPiece found)) {
 				if (piece == found) {
-					Debug.LogWarning($"{found} already at {coord}");
+					//Debug.LogWarning($"{found} already at {coord}");
 				} else {
-					Debug.LogWarning($"multiple objects at {coord}: {found}, {piece}");
+					Debug.LogWarning($"multiple objects at {coord}? {found}, {piece}");
 				}
 				return;
 			}
