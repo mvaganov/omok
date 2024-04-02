@@ -21,20 +21,20 @@ namespace Omok {
 			}
 		}
 
-		public bool Update(OmokState state) {
+		public bool Update(OmokBoardState state) {
 			count = 0;
-			UnitState mySate;
+			OmokUnitState mySate;
 			switch (player) {
-				case 0: mySate = UnitState.Player0; break;
-				case 1: mySate = UnitState.Player1; break;
+				case 0: mySate = OmokUnitState.Player0; break;
+				case 1: mySate = OmokUnitState.Player1; break;
 				default: throw new Exception("unacceptable player");
 			}
 			int countPiecesInLine = 0;
 			Coord cursor = start;
 			for (int i = 0; i < length; i++) {
-				UnitState unitState = state.GetState(cursor);
+				OmokUnitState unitState = state.GetState(cursor);
 				cursor += direction;
-				if (unitState == UnitState.None) {
+				if (unitState == OmokUnitState.None) {
 					continue;
 				} else if (unitState != mySate) {
 					return false;

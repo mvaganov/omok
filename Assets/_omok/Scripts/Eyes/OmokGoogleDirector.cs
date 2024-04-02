@@ -55,8 +55,8 @@ namespace Omok {
 			OmokGame game = omokGame;
 			//OmokState gState = game.State;
 			//OmokState bState = game.Board.State;
-			UnitState unitState = game.State.GetState(move.coord);
-			if (unitState != UnitState.None) {
+			OmokUnitState unitState = game.State.GetState(move.coord);
+			if (unitState != OmokUnitState.None) {
 				Debug.LogWarning($"non-empty look target given: {move.coord}");
 				return;
 			}

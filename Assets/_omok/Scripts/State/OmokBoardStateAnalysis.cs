@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Omok {
 	[System.Serializable]
-	public class OmokStateAnalysis {
+	public class OmokBoardStateAnalysis {
 		public const byte LineLength = 5;
 		public static readonly float[] DefaultScorePerLineFill = { 0, 1, 2, 4, 8, 16 };
 		private static Coord[] directions = new Coord[] {
@@ -23,7 +23,7 @@ namespace Omok {
 		/// <summary>
 		/// Reference to a state
 		/// </summary>
-		private OmokState state;
+		private OmokBoardState boardState;
 
 		/// <summary>
 		/// using sorted list instead of dictionary for tighter memory footprint
@@ -39,8 +39,8 @@ namespace Omok {
 
 		public bool IsDoingAnalysis => _doingAnalysis;
 
-		public OmokStateAnalysis(OmokState state) {
-			this.state = state;
+		public OmokBoardStateAnalysis(OmokBoardState state) {
+			this.boardState = state;
 			lines = new List<OmokLine> ();
 		}
 
@@ -66,28 +66,28 @@ namespace Omok {
 			//} else {
 			//	Debug.Log("ok");
 			//}
-			state = node.state;
+			boardState = node.boardState;
 			lines.Clear();
 			_doingAnalysis = true;
-			yield return this.state.ForEachPiece(PieceAnalysis, null);
+			yield return this.boardState.ForEachPiece(PieceAnalysis, null);
 			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
 			onAnalysisComplete.Invoke(node);
 		}
 
-		public void Analyze(OmokState state) {
-			this.state = state;
+		public void Analyze(OmokBoardState state) {
+			this.boardState = state;
 			lines.Clear();
-			this.state.ForEachPiece(PieceAnalysis);
+			this.boardState.ForEachPiece(PieceAnalysis);
 			scoring = GetPlayerScoresFromLines();
 		}
 
-		public void PieceAnalysis(Coord coord, UnitState unitState) {
+		public void PieceAnalysis(Coord coord, OmokUnitState unitState) {
 			bool isPlayerPiece = false;
 			byte player = 0;
 			switch (unitState) {
-				case UnitState.Player0: player = 0; isPlayerPiece = true; break;
-				case UnitState.Player1: player = 1; isPlayerPiece = true; break;
+				case OmokUnitState.Player0: player = 0; isPlayerPiece = true; break;
+				case OmokUnitState.Player1: player = 1; isPlayerPiece = true; break;
 			}
 			if (!isPlayerPiece) {
 				return;
@@ -99,7 +99,7 @@ namespace Omok {
 					if (IsKnown(line)) {
 						continue;
 					}
-					if (line.Update(state)) {
+					if (line.Update(boardState)) {
 						AddLine(line);
 					}
 				}

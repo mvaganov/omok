@@ -14,10 +14,10 @@ namespace Omok {
 		public byte player;
 		public byte piece;
 
-		public UnitState UnitState => player switch {
-			0 => UnitState.Player0,
-			1 => UnitState.Player1,
-			_ => UnitState.Unknown
+		public OmokUnitState UnitState => player switch {
+			0 => OmokUnitState.Player0,
+			1 => OmokUnitState.Player1,
+			_ => OmokUnitState.Unknown
 		};
 
 		public static readonly OmokMove InvalidMove = new OmokMove(Coord.MIN, 255);

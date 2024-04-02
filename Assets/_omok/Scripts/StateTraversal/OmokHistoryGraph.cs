@@ -16,14 +16,14 @@ namespace Omok {
 		private Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>> actionToDoWhenCalculationFinishes
 			= new Dictionary<OmokHistoryNode, List<Action<OmokHistoryNode>>>();
 
-		public void CreateNewRoot(byte whosTurnIsItNow, OmokState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
+		public void CreateNewRoot(byte whosTurnIsItNow, OmokBoardState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			timeline.Clear();
 			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, null, null);
 			currentNode.traversed = true;
 			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
-			coroutineRunner.StartCoroutine(currentNode.analysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
+			coroutineRunner.StartCoroutine(currentNode.boardAnalysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
 		}
 
 		public void NotifyCurrentNodeChanged(OmokHistoryNode node) {
@@ -59,8 +59,8 @@ namespace Omok {
 		}
 
 		public NextStateMovementResult DoMoveCalculation(OmokMove move, byte whosTurnIsItNow, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
-			bool validMove = currentNode != null && currentNode.state != null &&
-				currentNode.state.GetState(move.coord) == UnitState.None;
+			bool validMove = currentNode != null && currentNode.boardState != null &&
+				currentNode.boardState.GetState(move.coord) == OmokUnitState.None;
 			if (!validMove) {
 				return NextStateMovementResult.Error;
 			}
@@ -79,12 +79,12 @@ namespace Omok {
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
 			OmokHistoryNode node = currentNode.GetMove(move);
-			if (node == null || node.analysis.IsDoingAnalysis) {
+			if (node == null || node.boardAnalysis.IsDoingAnalysis) {
 				netScore = 0;
 				return null;
 			}
 			//float[] currentScore = currentNode.analysis.scoring;
-			float[] nextScore = node.analysis.scoring;
+			float[] nextScore = node.boardAnalysis.scoring;
 			//float[] nextStateDelta = Sub(nextScore, currentScore);
 			//netScore = OmokStateAnalysis.SummarizeScore(move.player, nextStateDelta);
 			netScore = 0;
@@ -115,7 +115,7 @@ namespace Omok {
 		}
 
 		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokHistoryNode> onComplete) {
-			if (!nextNode.analysis.IsDoingAnalysis) {
+			if (!nextNode.boardAnalysis.IsDoingAnalysis) {
 				if (timeline[currentNode.Turn] != currentNode) {
 					int positionInPath = timeline.IndexOf(currentNode);
 					if (positionInPath < 0) {

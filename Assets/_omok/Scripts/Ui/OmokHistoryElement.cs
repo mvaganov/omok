@@ -5,13 +5,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Omok {
-	public class ListElement : MonoBehaviour {
+	public class OmokHistoryElement : MonoBehaviour {
 		[SerializeField] private Image _icon;
 		[SerializeField] private TMP_Text _text;
 		[SerializeField] private Button _button;
 		[SerializeField] private OmokGame _game;
 		private Color _originalBackgroundColor = Color.gray;
-		private OmokHistoryNode _payload;
+		private OmokHistoryNode _node;
 		private bool _selected;
 		private bool _onPath;
 		public Image Icon => _icon;
@@ -46,9 +46,9 @@ namespace Omok {
 		}
 
 		public OmokHistoryNode OmokNode {
-			get => _payload;
+			get => _node;
 			set {
-				_payload = value;
+				_node = value;
 				string toString = GetText(value);
 				Text.text = toString;
 				Icon.sprite = GetIcon(value, out Color color);
@@ -58,7 +58,7 @@ namespace Omok {
 		}
 
 		public OmokMove Move {
-			get => _payload.sourceMove;
+			get => _node.sourceMove;
 		}
 
 		private void Start() {
@@ -81,57 +81,54 @@ namespace Omok {
 
 		public void TriggerThisState() {
 			OmokHistoryGraphUi stateUi = GetComponentInParent<OmokHistoryGraphUi>();
-			stateUi.SetState(_payload);
+			stateUi.SetState(_node);
 		}
-
-		//public void TriggerThisChoice() {
-		//	SelectChoice parent = GetComponentInParent<SelectChoice>();
-		//	parent.UserWants(_payload);
-		//}
 
 		public void MarkSelected() {
 			_selected = true;
 			Image backgroundImage = Icon.transform.parent.GetComponent<Image>();
 			if (backgroundImage == null) { return; }
+			StartCoroutine(AnimateSelection());
+		}
+
+		private IEnumerator AnimateSelection() {
+			int start = System.Environment.TickCount, now;
 			Color darkest = Color.Lerp(_originalBackgroundColor, Color.black, 0.125f);
 			Color lighest = Color.Lerp(_originalBackgroundColor, Color.white, 0.125f);
 			Color dark, light;
-			int start = System.Environment.TickCount, now;
 			const int FullPulseDuration = 1024;
 			const int HalfPulseDuration = FullPulseDuration / 2;
 			const int QuarterPulseDuration = HalfPulseDuration / 2;
-			StartCoroutine(Animate());
-			IEnumerator Animate() {
-				// stop this animation if the element is no longer selected
-				while (_selected && _payload == _game.Graph.currentNode) {
-					now = System.Environment.TickCount;
-					now -= start;
-					now %= FullPulseDuration; // how far through the big pulse
-					if (now > HalfPulseDuration) { // normalize back half
-						now = FullPulseDuration - now;
-					}
-					// make sure original color is reached
-					if (now < QuarterPulseDuration) {
-						dark = darkest;
-						light = _originalBackgroundColor;
-					} else {
-						dark = _originalBackgroundColor;
-						light = lighest;
-						now -= QuarterPulseDuration;
-					}
-					float percentage = (float)now / QuarterPulseDuration;
-					if (backgroundImage == null || !backgroundImage.enabled) {
-						if (backgroundImage != null) {
-							backgroundImage.enabled = true;
-							backgroundImage.color = _originalBackgroundColor;
-						}
-						break;
-					}
-					backgroundImage.color = Color.Lerp(dark, light, percentage);
-					yield return null;
+			Image backgroundImage = Icon.transform.parent.GetComponent<Image>();
+			// stop this animation if the element is no longer selected
+			while (_selected && _node == _game.Graph.currentNode) {
+				now = System.Environment.TickCount;
+				now -= start;
+				now %= FullPulseDuration; // how far through the big pulse
+				if (now > HalfPulseDuration) { // normalize back half
+					now = FullPulseDuration - now;
 				}
-				UnmarkSelected();
+				// make sure original color is reached
+				if (now < QuarterPulseDuration) {
+					dark = darkest;
+					light = _originalBackgroundColor;
+				} else {
+					dark = _originalBackgroundColor;
+					light = lighest;
+					now -= QuarterPulseDuration;
+				}
+				float percentage = (float)now / QuarterPulseDuration;
+				if (backgroundImage == null || !backgroundImage.enabled) {
+					if (backgroundImage != null) {
+						backgroundImage.enabled = true;
+						backgroundImage.color = _originalBackgroundColor;
+					}
+					break;
+				}
+				backgroundImage.color = Color.Lerp(dark, light, percentage);
+				yield return null;
 			}
+			UnmarkSelected();
 		}
 
 		public void UnmarkSelected() {

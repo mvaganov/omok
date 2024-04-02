@@ -41,7 +41,7 @@ namespace Omok {
 		/// Managed state
 		/// </summary>
 		[SerializeField]
-		protected OmokState _state = new OmokState();
+		protected OmokBoardState _state = new OmokBoardState();
 
 		private Dictionary<Coord, OmokPiece> map = new Dictionary<Coord, OmokPiece>();
 
@@ -54,7 +54,7 @@ namespace Omok {
 
 		public Coord CurrentSelectedSpot => currentSelectedSpot;
 		public Vector3 MousePosition => mousePosition;
-		public OmokState State => _state;
+		public OmokBoardState State => _state;
 		public Vector3 Up => -transform.forward;
 		public Vector3 LookOffsetPosition => Up * mouseDistance;
 		public Vector3 MouseLookOffsetPosition => MousePosition + LookOffsetPosition;
@@ -74,9 +74,9 @@ namespace Omok {
 			_state = ReadStateFromBoard();
 		}
 
-		public OmokState ReadStateFromBoard() {
+		public OmokBoardState ReadStateFromBoard() {
 			RefreshMap();
-			OmokState state = new OmokState();
+			OmokBoardState state = new OmokBoardState();
 			state.SetState(map);
 			return state;
 		}
@@ -85,7 +85,7 @@ namespace Omok {
 			LoadState(_state);
 		}
 
-		public void LoadState(OmokState state) {
+		public void LoadState(OmokBoardState state) {
 			FreeCurrentPieces();
 			map.Clear();
 			Debug.Log(state.DebugSerialized());
@@ -93,7 +93,7 @@ namespace Omok {
 			state.ForEachPiece(CreatePiece);
 		}
 
-		public void CreatePiece(Coord coord, UnitState pieceType) {
+		public void CreatePiece(Coord coord, OmokUnitState pieceType) {
 			OmokPiece piece = GetPiece(pieceType, coord);
 			if (piece != null) {
 				//Debug.Log($"SETPIECE {pieceType} {coord}    {piece.Player.name} {piece.Player.Index}");
@@ -101,11 +101,11 @@ namespace Omok {
 			}
 		}
 
-		public OmokPiece GetPiece(UnitState unitState, Coord targetCoord) {
+		public OmokPiece GetPiece(OmokUnitState unitState, Coord targetCoord) {
 			switch (unitState) {
-				case UnitState.Player0:
+				case OmokUnitState.Player0:
 					return game.players[0].CreatePiece(targetCoord);
-				case UnitState.Player1:
+				case OmokUnitState.Player1:
 					return game.players[1].CreatePiece(targetCoord);
 			}
 			return null;
@@ -180,7 +180,7 @@ namespace Omok {
 		public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
 
 		public string DebugPrint() {
-			return OmokState.ToString(map);
+			return OmokBoardState.ToString(map);
 		}
 
 		public void RefreshDebug() {

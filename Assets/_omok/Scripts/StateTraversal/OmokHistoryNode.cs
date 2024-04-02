@@ -4,29 +4,61 @@ using UnityEngine;
 using System;
 
 namespace Omok {
+	// TODO rename OmokTurnState?
 	[Serializable]
 	public class OmokHistoryNode {
+		/// <summary>
+		/// Which turn this is in the history of the game
+		/// </summary>
 		public int turnValue;
-		public OmokMove sourceMove = null;
+		/// <summary>
+		/// Which player's turn it is: who is allowed to place a piece right now?
+		/// </summary>
 		public byte whosTurnIsItNow;
+		/// <summary>
+		/// Whic game state this came from
+		/// </summary>
 		public OmokHistoryNode parentNode;
 		/// <summary>
-		/// Managed state
+		/// What move caused this state to happen from the parent game state
 		/// </summary>
-		public OmokState state;
-		public OmokStateAnalysis analysis;
+		public OmokMove sourceMove = null;
+		/// <summary>
+		/// State of board, managed by this class and referenced by other classes.
+		/// </summary>
+		public OmokBoardState boardState;
+		/// <summary>
+		/// Analysis of the board state.
+		/// TODO clear this after a turn changes, and recalculate it if values are needed
+		/// </summary>
+		public OmokBoardStateAnalysis boardAnalysis;
+		/// <summary>
+		/// Next states of the game that can come from this state
+		/// TODO rename nextStateEdges?
+		/// </summary>
 		public OmokMovePath[] movePaths = Array.Empty<OmokMovePath>();
+		/// <summary>
+		/// Whether or not this state has been traversed by the UI. If so, this should be shown as a potential state in the graph
+		/// </summary>
 		public bool traversed;
 
 		public int Turn => turnValue;
 		public bool Traversed => traversed;
 		public int GetEdgeCount() => movePaths.Length;
 
-		public OmokHistoryNode(OmokState state, OmokHistoryNode parentNode, byte whosTurnIsItNow, OmokStateAnalysis analysis, OmokMove sourceMove) {
-			this.state = state;
-			this.analysis = analysis;
-			if (this.analysis == null) {
-				this.analysis = new OmokStateAnalysis(state);
+		/// <summary>
+		/// TODO remove analysis as an argument, this should be dynamically calculated when needed, and queued to be cleared when the turn ends, to save memory
+		/// </summary>
+		/// <param name="state"></param>
+		/// <param name="parentNode"></param>
+		/// <param name="whosTurnIsItNow"></param>
+		/// <param name="analysis"></param>
+		/// <param name="sourceMove"></param>
+		public OmokHistoryNode(OmokBoardState state, OmokHistoryNode parentNode, byte whosTurnIsItNow, OmokBoardStateAnalysis analysis, OmokMove sourceMove) {
+			this.boardState = state;
+			this.boardAnalysis = analysis;
+			if (this.boardAnalysis == null) {
+				this.boardAnalysis = new OmokBoardStateAnalysis(state);
 			}
 			this.parentNode = parentNode;
 			this.sourceMove = sourceMove;
@@ -47,7 +79,7 @@ namespace Omok {
 		public bool IsDoneCalculating(OmokMove move) {
 			OmokHistoryNode alreadyExistingNode = GetMove(move);
 			if (alreadyExistingNode != null) {
-				return !alreadyExistingNode.analysis.IsDoingAnalysis && alreadyExistingNode.analysis.scoring != null;
+				return !alreadyExistingNode.boardAnalysis.IsDoingAnalysis && alreadyExistingNode.boardAnalysis.scoring != null;
 			}
 			return false;
 		}
@@ -60,19 +92,19 @@ namespace Omok {
 			if (index >= 0) {
 				nextPath = movePaths[index];
 				nextNode = nextPath.nextNode;// GetMove(index);
-				if (!nextNode.analysis.IsDoingAnalysis) {
+				if (!nextNode.boardAnalysis.IsDoingAnalysis) {
 					return NextStateMovementResult.FinishedCalculating;
 				}
 				return NextStateMovementResult.StillCalculating;
 			}
 			/// create a new <see cref="OmokMovePath">, start doing analysis of the move, AddCallBackOnFinish
-			OmokState nextState = new OmokState(state);
+			OmokBoardState nextState = new OmokBoardState(boardState);
 			nextState.TrySetState(move);
 			nextNode = new OmokHistoryNode(nextState, this, whosTurnIsItNow, null, move);
 			nextPath.nextNode = nextNode;
-			nextPath.nextNode.analysis.MarkDoingAnalysis(true);
+			nextPath.nextNode.boardAnalysis.MarkDoingAnalysis(true);
 			InsertMove(~index, nextPath);
-			coroutineRunner.StartCoroutine(nextNode.analysis.AnalyzeCoroutine(nextNode,
+			coroutineRunner.StartCoroutine(nextNode.boardAnalysis.AnalyzeCoroutine(nextNode,
 				whatToDoWhenMoveCalculationFinishes));
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
@@ -126,12 +158,12 @@ namespace Omok {
 			MinMax minmax = MinMax.Impossible;
 			for (int i = 0; i < movePaths.Length; ++i) {
 				 OmokMovePath movepath = movePaths[i];
-				float[] scoring = movepath.nextNode.analysis.scoring;
-				if (movepath.nextNode.analysis.IsDoingAnalysis) {
+				float[] scoring = movepath.nextNode.boardAnalysis.scoring;
+				if (movepath.nextNode.boardAnalysis.IsDoingAnalysis) {
 					//Debug.Log($"skipping {movepath.move.coord}");
 					continue;
 				}
-				float score = OmokStateAnalysis.SummarizeScore(player, scoring);
+				float score = OmokBoardStateAnalysis.SummarizeScore(player, scoring);
 				//Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
 				minmax.Update(score);
 			}

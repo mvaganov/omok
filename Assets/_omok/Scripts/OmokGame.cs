@@ -37,7 +37,7 @@ namespace Omok {
 			}
 		}
 
-		public byte  NextTurn {
+		public byte NextTurn {
 			get => SafeTurn(WhosTurn, 1);
 		}
 
@@ -66,13 +66,13 @@ namespace Omok {
 
 		public OmokHistoryGraph Graph => graph != null ? graph : graph = graphBehaviour.graph;
 
-		public OmokState State {
+		public OmokBoardState State {
 			get {
 				if (Graph.currentNode == null) {
 					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, null, null);
 					Graph.currentNode.traversed = true;
 				}
-				return Graph.currentNode.state;
+				return Graph.currentNode.boardState;
 			}
 		}
 

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Omok {
 	/// <summary>
 	/// the Edge structure of this graph
+	/// TODO rename NextEdgeState?
 	/// </summary>
 	public struct OmokMovePath {
 		public OmokMove move;

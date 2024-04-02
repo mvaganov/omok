@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 
 namespace Omok {
-	public class OmokState_Archived : IOmokState {
+	public class OmokBoardState_Archived : IOmokBoardState {
 		private const int ElementPlayer = 0;
 		private const int ElementPiece = 1;
 		private const int ElementBitCount = 2;
@@ -14,24 +14,24 @@ namespace Omok {
 		protected Coord _start, _size;
 		[SerializeField]
 		protected BitArray serialized;
-		protected Dictionary<Coord, UnitState> stateMap = null;
+		protected Dictionary<Coord, OmokUnitState> stateMap = null;
 
 		protected Coord Max => _start + _size - Coord.one;
 
 		public Coord size => _size;
 		public Coord start => _start;
 
-		public bool Equals(IOmokState other) => IOmokState_Extension.Equals(this, other);
-		public override bool Equals(object obj) => obj is IOmokState omokState && IOmokState_Extension.Equals(this, omokState);
-		public override int GetHashCode() => IOmokState_Extension.HashCode(this);
+		public bool Equals(IOmokBoardState other) => IBoardOmokState_Extension.Equals(this, other);
+		public override bool Equals(object obj) => obj is IOmokBoardState omokState && IBoardOmokState_Extension.Equals(this, omokState);
+		public override int GetHashCode() => IBoardOmokState_Extension.HashCode(this);
 
-		public OmokState_Archived() { }
+		public OmokBoardState_Archived() { }
 
-		public OmokState_Archived(IOmokState source) {
+		public OmokBoardState_Archived(IOmokBoardState source) {
 			Copy(source);
 		}
 
-		public void Copy(IOmokState source) {
+		public void Copy(IOmokBoardState source) {
 			_start = source.start;
 			_size = source.size;
 			serialized = new BitArray(size.x * size.y * ElementBitCount);
@@ -41,13 +41,13 @@ namespace Omok {
 				for (int col = _start.x; col < max.x; ++col) {
 					Coord coord = new Coord(col, row);
 					//Debug.Log($"{coord}");
-					source.TryGetState(coord, out UnitState state);
+					source.TryGetState(coord, out OmokUnitState state);
 					TrySetState(coord, state);
 				}
 			}
 		}
 
-		public void ForEachPiece(Action<Coord, UnitState> action) {
+		public void ForEachPiece(Action<Coord, OmokUnitState> action) {
 			Coord cursor = start;
 			int horizontalLimit = start.x + size.x;
 			int boardSize = serialized.Count / ElementBitCount;
@@ -56,10 +56,10 @@ namespace Omok {
 			}
 		}
 
-		private void ForEachPieceSerializedIterate(int i, ref Coord cursor, int horizontalLimit, Action<Coord, UnitState> action) {
-			UnitState state = GetLocalSerializedState(i);
+		private void ForEachPieceSerializedIterate(int i, ref Coord cursor, int horizontalLimit, Action<Coord, OmokUnitState> action) {
+			OmokUnitState state = GetLocalSerializedState(i);
 			//Debug.Log($"foreach: {i} {cursor}{state}");
-			if (state != UnitState.None) {
+			if (state != OmokUnitState.None) {
 				action.Invoke(cursor, state);
 			}
 			cursor.x++;
@@ -69,18 +69,18 @@ namespace Omok {
 			}
 		}
 
-		private UnitState GetLocalSerializedState(int index) {
+		private OmokUnitState GetLocalSerializedState(int index) {
 			int i = index * ElementBitCount;
 			bool isPiece = serialized[i + ElementPiece];
 			bool isPlayer = serialized[i + ElementPlayer];
-			UnitState state = (UnitState)(byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
+			OmokUnitState state = (OmokUnitState)(byte)((isPiece ? 1 << ElementPiece : 0) | (isPlayer ? 1 << ElementPlayer : 0));
 			//if (state == UnitState.Player0 || state == UnitState.Player1) {
 			//	Debug.Log("index: " + i + "/" + serialized.Count + "   " + state);
 			//}
 			return state;
 		}
 
-		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) {
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
 			Coord cursor = start;
 			int horizontalLimit = start.x + size.x;
 			int boardSize = serialized.Count / ElementBitCount;
@@ -93,7 +93,7 @@ namespace Omok {
 			}
 		}
 
-		public bool TrySetState(Coord coord, UnitState unitState) {
+		public bool TrySetState(Coord coord, OmokUnitState unitState) {
 			Coord local = coord - start;
 			if (local.x < 0 || local.y < 0 || local.x >= size.x || local.y >= size.y) {
 				return false;
@@ -103,11 +103,11 @@ namespace Omok {
 			return true;
 		}
 
-		public bool TryGetState(Coord coord, out UnitState state) {
+		public bool TryGetState(Coord coord, out OmokUnitState state) {
 			//Debug.Log("get: " + coord + " start:" + start + "   local:" + (coord - start));
 			Coord local = coord - start;
 			if (local.x < 0 || local.y < 0 || local.x >= size.x || local.y >= size.y) {
-				state = UnitState.None;
+				state = OmokUnitState.None;
 				//Debug.Log($"{coord} ({local}) is bad");
 				return false;
 			}
@@ -115,29 +115,29 @@ namespace Omok {
 			return true;
 		}
 
-		private UnitState GetLocalStateSerialized(Coord localCoord) {
+		private OmokUnitState GetLocalStateSerialized(Coord localCoord) {
 			int index = localCoord.y * size.x + localCoord.x;
 			return GetLocalSerializedState(index);
 		}
 
-		public UnitState GetState(Coord coord) => IOmokState_Extension.GetState(this, coord);
+		public OmokUnitState GetState(Coord coord) => IBoardOmokState_Extension.GetState(this, coord);
 
-		public OmokState_Archived(Dictionary<Coord, OmokPiece> map) {
+		public OmokBoardState_Archived(Dictionary<Coord, OmokPiece> map) {
 			SetState(map);
 		}
 
 		public void SetState(Dictionary<Coord, OmokPiece> map) {
 			List<OmokPiece> pieces = new List<OmokPiece>();
 			pieces.AddRange(map.Values);
-			Coord.CalculateCoordRange(pieces, OmokState.GetCoordFromPiece, out Coord min, out Coord max);
-			pieces.Sort(IOmokState.SortPiecesInvertRow);
+			Coord.CalculateCoordRange(pieces, OmokBoardState.GetCoordFromPiece, out Coord min, out Coord max);
+			pieces.Sort(IOmokBoardState.SortPiecesInvertRow);
 			//OmokState.SortPieces(pieces, GetCoordFromPiece);
 			//Debug.Log(pieces.Count+" "+string.Join("\n", pieces));
-			SetStateSerialized(pieces, min, max, OmokState.GetCoordFromPiece, IOmokState.GetStateFrom);
+			SetStateSerialized(pieces, min, max, OmokBoardState.GetCoordFromPiece, IOmokBoardState.GetStateFrom);
 		}
 
 		private void SetStateSerialized<T>(List<T> pieces, Coord min, Coord max,
-		Func<T, Coord> getCoord, Func<T, UnitState> getState) {
+		Func<T, Coord> getCoord, Func<T, OmokUnitState> getState) {
 			serialized = new BitArray(_size.x * _size.y * ElementBitCount);
 			_start = min;
 			_size = max - min + Coord.one;
@@ -149,7 +149,7 @@ namespace Omok {
 					for (int col = min.x; col <= max.x; ++col) {
 						Coord coord = new Coord(col, row);
 						if (row == nextPosition.y && col == nextPosition.x) {
-							UnitState state = getState(pieces[i]);
+							OmokUnitState state = getState(pieces[i]);
 							if (!TrySetState(coord, state)) {
 								Debug.LogWarning($"unable to set state {coord} {state}");
 							}
@@ -160,8 +160,8 @@ namespace Omok {
 								}
 							}
 						} else {
-							if (!TrySetState(coord, UnitState.None)) {
-								Debug.LogWarning($"unable to set state {coord} {UnitState.None}");
+							if (!TrySetState(coord, OmokUnitState.None)) {
+								Debug.LogWarning($"unable to set state {coord} {OmokUnitState.None}");
 							}
 						}
 					}
@@ -171,7 +171,7 @@ namespace Omok {
 			}
 		}
 
-		private void SetLocalStateSerialized(Coord localCoord, UnitState state) {
+		private void SetLocalStateSerialized(Coord localCoord, OmokUnitState state) {
 			int index = localCoord.y * size.x + localCoord.x;
 			int i = index * ElementBitCount;
 			//if (state == UnitState.Player0 || state == UnitState.Player1) {

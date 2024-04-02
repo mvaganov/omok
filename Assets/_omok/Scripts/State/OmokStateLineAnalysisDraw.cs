@@ -10,7 +10,7 @@ namespace Omok {
 		[ContextMenuItem(nameof(ForceUpdate), nameof(ForceUpdate))]
 		public OmokBoard board;
 		public float _lineDistance = 1f/128;
-		public OmokStateAnalysis _analysis;
+		public OmokBoardStateAnalysis _analysis;
 		public List<Wire> wires = new List<Wire>();
 		public List<Wire> extraWires = new List<Wire>();
 		[SerializeField] protected bool _generateLines = true;
@@ -78,7 +78,7 @@ namespace Omok {
 			RenderAnalysis(_analysis);
 		}
 
-		public void RenderAnalysis(OmokStateAnalysis analysis) {
+		public void RenderAnalysis(OmokBoardStateAnalysis analysis) {
 			_analysis = analysis;
 			if (_generateLines) {
 				RenderLines(analysis.lines);

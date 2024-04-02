@@ -8,14 +8,14 @@ using UnityEngine.UI;
 namespace Omok {
 	public class OmokHistoryGraphUi : MonoBehaviour {
 		public RectTransform _container;
-		public ListElement _stateElementPrefab;
+		public OmokHistoryElement _stateElementPrefab;
 		public RectTransform _branchElementPrefab;
 		[ContextMenuItem(nameof(Refresh), nameof(Refresh))]
 		public OmokGame game;
 		public OmokHistoryGraph Graph => game.Graph;
 
-		public MemoryPool<RectTransform> _branches = new MemoryPool<RectTransform>();
-		public MemoryPool<ListElement> _elements = new MemoryPool<ListElement>();
+		private MemoryPool<RectTransform> _branches = new MemoryPool<RectTransform>();
+		private MemoryPool<OmokHistoryElement> _elements = new MemoryPool<OmokHistoryElement>();
 		private OmokHistoryNode _currentlyCalculated = null;
 
 		private void Awake() {
@@ -74,7 +74,7 @@ namespace Omok {
 		}
 
 		private void AddEdgeUi(OmokHistoryNode nextNode, bool isSelected, bool isOnPath, Transform possibilities) {
-			ListElement element = _elements.Get();
+			OmokHistoryElement element = _elements.Get();
 			element.Game = game;
 			element.OmokNode = nextNode;
 			element.IsSelected = isSelected;
@@ -96,7 +96,7 @@ namespace Omok {
 		}
 
 		private bool ReclaimElement(Transform child) {
-			ListElement element = child.GetComponent<ListElement>();
+			OmokHistoryElement element = child.GetComponent<OmokHistoryElement>();
 			if (element == null) { return false; }
 			child.SetParent(null);
 			_elements.Reclaim(element);

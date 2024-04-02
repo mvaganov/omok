@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Omok {
-	public class OmokState_Dictionary : IOmokState {
+	public class OmokBoardState_Dictionary : IOmokBoardState {
 		[SerializeField]
 		protected Coord _min, _max;
-		protected Dictionary<Coord, UnitState> stateMap = new Dictionary<Coord, UnitState>();
+		protected Dictionary<Coord, OmokUnitState> stateMap = new Dictionary<Coord, OmokUnitState>();
 
 		public Coord size {
 			get {
@@ -18,15 +18,15 @@ namespace Omok {
 		}
 
 		public Coord start => _min;
-		public bool Equals(IOmokState other) => IOmokState_Extension.Equals(this, other);
-		public override bool Equals(object obj) => obj is IOmokState omokState && IOmokState_Extension.Equals(this, omokState);
-		public override int GetHashCode() => IOmokState_Extension.HashCode(this);
+		public bool Equals(IOmokBoardState other) => IBoardOmokState_Extension.Equals(this, other);
+		public override bool Equals(object obj) => obj is IOmokBoardState omokState && IBoardOmokState_Extension.Equals(this, omokState);
+		public override int GetHashCode() => IBoardOmokState_Extension.HashCode(this);
 
-		public OmokState_Dictionary(IOmokState source) {
+		public OmokBoardState_Dictionary(IOmokBoardState source) {
 			Copy(source);
 		}
 
-		public void Copy(IOmokState source) {
+		public void Copy(IOmokBoardState source) {
 			_min = Coord.MAX; _max = Coord.MIN;
 			stateMap.Clear();
 			if (source != null) {
@@ -34,13 +34,13 @@ namespace Omok {
 			}
 		}
 
-		public void ForEachPiece(Action<Coord, UnitState> action) {
-			foreach (KeyValuePair<Coord, UnitState> kvp in stateMap) {
+		public void ForEachPiece(Action<Coord, OmokUnitState> action) {
+			foreach (KeyValuePair<Coord, OmokUnitState> kvp in stateMap) {
 				action(kvp.Key, kvp.Value);
 			}
 		}
 
-		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) {
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
 			List<Coord> keys = new List<Coord>(stateMap.Keys);
 			for (int i = 0; i < keys.Count; ++i) {
 				action(keys[i], stateMap[keys[i]]);
@@ -49,9 +49,9 @@ namespace Omok {
 			onForLoopComplete?.Invoke();
 		}
 
-		public bool TryGetState(Coord coord, out UnitState state) => stateMap.TryGetValue(coord, out state);
+		public bool TryGetState(Coord coord, out OmokUnitState state) => stateMap.TryGetValue(coord, out state);
 
-		public bool TrySetState(Coord coord, UnitState unitState) {
+		public bool TrySetState(Coord coord, OmokUnitState unitState) {
 			stateMap[coord] = unitState;
 			if (coord.x < _min.x) { _min.x = coord.x; }
 			if (coord.y < _min.y) { _min.y = coord.y; }

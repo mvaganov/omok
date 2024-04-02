@@ -5,42 +5,42 @@ using UnityEngine;
 using System;
 
 namespace Omok {
-	public enum UnitState {
+	public enum OmokUnitState {
 		None,    // 00
 		Unknown, // 01
 		Player0, // 10
 		Player1, // 11
 	}
 
-	public struct Unit {
-		public UnitState unitState;
+	public struct OmokUnit {
+		public OmokUnitState unitState;
 		public Coord coord;
-		public Unit(UnitState unitState, Coord coord) {
+		public OmokUnit(OmokUnitState unitState, Coord coord) {
 			this.unitState = unitState;
 			this.coord = coord;
 		}
 	}
 
-	public interface IOmokState {
-		public bool TryGetState(Coord coord, out UnitState state);
-		public bool TrySetState(Coord coord, UnitState unitState);
-		public void ForEachPiece(Action<Coord, UnitState> action);
-		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete);
+	public interface IOmokBoardState {
+		public bool TryGetState(Coord coord, out OmokUnitState state);
+		public bool TrySetState(Coord coord, OmokUnitState unitState);
+		public void ForEachPiece(Action<Coord, OmokUnitState> action);
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete);
 		public Coord size { get; }
 		public Coord start { get; }
-		public void Copy(IOmokState source);
-		public bool Equals(IOmokState other);
+		public void Copy(IOmokBoardState source);
+		public bool Equals(IOmokBoardState other);
 
-		public static UnitState GetStateFrom(OmokPiece piece) {
+		public static OmokUnitState GetStateFrom(OmokPiece piece) {
 			int playerIndex = -1;
-			UnitState state = UnitState.None;
+			OmokUnitState state = OmokUnitState.None;
 			OmokGame game = piece.Player.omokGame;
 			if (game == null || (playerIndex = game.GetPlayerIndex(piece.Player)) < 0) {
-				state = UnitState.Unknown;
+				state = OmokUnitState.Unknown;
 			}
 			switch (playerIndex) {
-				case 0: state = UnitState.Player0; break;
-				case 1: state = UnitState.Player1; break;
+				case 0: state = OmokUnitState.Player0; break;
+				case 1: state = OmokUnitState.Player1; break;
 			}
 			return state;
 		}
@@ -48,37 +48,37 @@ namespace Omok {
 		public static int SortPiecesInvertRow(OmokPiece a, OmokPiece b) => 
 			Coord.ComparerInverseY.compare(GetCoordFromPiece(a), GetCoordFromPiece(b));
 
-		public static int SortUnitsInvertRow(Unit a, Unit b) =>
+		public static int SortUnitsInvertRow(OmokUnit a, OmokUnit b) =>
 			Coord.ComparerInverseY.compare(GetCoordFromUnit(a), GetCoordFromUnit(b));
 
 		public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
-		public static Coord GetCoordFromUnit(Unit unit) => unit.coord;
+		public static Coord GetCoordFromUnit(OmokUnit unit) => unit.coord;
 	}
 
-	public static class IOmokState_Extension {
-		public static Dictionary<UnitState, string> textOutputTable = new Dictionary<UnitState, string>() {
-			[UnitState.Player0] = "x",
-			[UnitState.Player1] = "*",
-			[UnitState.None] = "  ",
-			[UnitState.Unknown] = "..",
+	public static class IBoardOmokState_Extension {
+		public static Dictionary<OmokUnitState, string> textOutputTable = new Dictionary<OmokUnitState, string>() {
+			[OmokUnitState.Player0] = "x",
+			[OmokUnitState.Player1] = "*",
+			[OmokUnitState.None] = "  ",
+			[OmokUnitState.Unknown] = "..",
 		};
 		
-		public static UnitState GetState(this IOmokState self, Coord coord) {
-			self.TryGetState(coord, out UnitState state);
+		public static OmokUnitState GetState(this IOmokBoardState self, Coord coord) {
+			self.TryGetState(coord, out OmokUnitState state);
 			return state;
 		}
 
-		public static string ToDebugString(this IOmokState self) {
+		public static string ToDebugString(this IOmokBoardState self) {
 			List<StringBuilder> lines = new List<StringBuilder>();
 			int count = 0;
 			for (int row = 0; row < self.size.y; ++row) {
 				lines.Add(new StringBuilder());
 				for (int col = 0; col < self.size.x; ++col) {
 					Coord coord = new Coord(col, row) + self.start;
-					UnitState state = self.GetState(coord);
+					OmokUnitState state = self.GetState(coord);
 					string c = textOutputTable[state];
 					lines[row].Append(c);//.Append(' ').Append(coord).Append(' ');
-					if (state != UnitState.None) {
+					if (state != OmokUnitState.None) {
 						++count;
 					}
 				}
@@ -92,22 +92,22 @@ namespace Omok {
 			return sb.ToString();
 		}
 
-		public static bool TrySetState(this IOmokState self, OmokMove move) {
+		public static bool TrySetState(this IOmokBoardState self, OmokMove move) {
 			return self.TrySetState(move.coord, move.UnitState);
 		}
 
-		public static bool Equals(this IOmokState self, IOmokState other) {
+		public static bool Equals(this IOmokBoardState self, IOmokBoardState other) {
 			if (ReferenceEquals(self, other)) { return true; }
 			bool allEqual = true;
 			self.ForEachPiece((coord, state) => {
-				if (allEqual && (!other.TryGetState(coord, out UnitState otherState) || otherState != state)) {
+				if (allEqual && (!other.TryGetState(coord, out OmokUnitState otherState) || otherState != state)) {
 					allEqual = false;
 				}
 			});
 			return allEqual;
 		}
 
-		public static int HashCode(this IOmokState self) {
+		public static int HashCode(this IOmokBoardState self) {
 			int value = 0;
 			self.ForEachPiece((coord, state) => {
 				value ^= coord.GetHashCode() | state.GetHashCode();
@@ -117,17 +117,17 @@ namespace Omok {
 	}
 
 	[Serializable]
-	public class OmokState : IOmokState {
-		private IOmokState dataBackstop;
+	public class OmokBoardState : IOmokBoardState {
+		private IOmokBoardState dataBackstop;
 		public Coord start => dataBackstop.start;
 		public Coord size => dataBackstop.size;
-		public bool Equals(IOmokState other) => IOmokState_Extension.Equals(this, other);
-		public override bool Equals(object obj) => obj is IOmokState omokState && IOmokState_Extension.Equals(this, omokState);
-		public override int GetHashCode() => IOmokState_Extension.HashCode(this);
+		public bool Equals(IOmokBoardState other) => IBoardOmokState_Extension.Equals(this, other);
+		public override bool Equals(object obj) => obj is IOmokBoardState omokState && IBoardOmokState_Extension.Equals(this, omokState);
+		public override int GetHashCode() => IBoardOmokState_Extension.HashCode(this);
 
-		public bool TryGetState(Coord coord, out UnitState state) => dataBackstop.TryGetState(coord, out state);
+		public bool TryGetState(Coord coord, out OmokUnitState state) => dataBackstop.TryGetState(coord, out state);
 
-		public bool TrySetState(Coord coord, UnitState unitState) {
+		public bool TrySetState(Coord coord, OmokUnitState unitState) {
 			if (dataBackstop.TrySetState(coord, unitState)) {
 				return true;
 			}
@@ -135,20 +135,20 @@ namespace Omok {
 			return TrySetState(coord, unitState);
 		}
 
-		public void ForEachPiece(Action<Coord, UnitState> action) => dataBackstop.ForEachPiece(action);
+		public void ForEachPiece(Action<Coord, OmokUnitState> action) => dataBackstop.ForEachPiece(action);
 
-		public IEnumerator ForEachPiece(Action<Coord, UnitState> action, Action onForLoopComplete) {
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
 			yield return dataBackstop.ForEachPiece(action, onForLoopComplete);
 		}
 
-		public OmokState() {
-			dataBackstop = new OmokState_Archived();
+		public OmokBoardState() {
+			dataBackstop = new OmokBoardState_Archived();
 		}
 
-		public OmokState(IOmokState source) => Copy(source);
+		public OmokBoardState(IOmokBoardState source) => Copy(source);
 
-		public void Copy(IOmokState source) {
-			dataBackstop = new OmokState_Archived(source);
+		public void Copy(IOmokBoardState source) {
+			dataBackstop = new OmokBoardState_Archived(source);
 		}
 
 		/// <summary>
@@ -156,7 +156,7 @@ namespace Omok {
 		/// </summary>
 		public void Archive() {
 			switch (dataBackstop) {
-				case OmokState_Dictionary:
+				case OmokBoardState_Dictionary:
 					ConvertDictionaryToSerializedState();
 					break;
 			}
@@ -164,29 +164,29 @@ namespace Omok {
 
 		public void SetState(Dictionary<Coord, OmokPiece> map) {
 			switch (dataBackstop) {
-				case OmokState_Archived archive:
+				case OmokBoardState_Archived archive:
 					archive.SetState(map);
 					break;
 				default:
-					dataBackstop = new OmokState_Archived(map);
+					dataBackstop = new OmokBoardState_Archived(map);
 					break;
 			}
 		}
 
 		public string DebugSerialized() {
 			switch (dataBackstop) {
-				case OmokState_Archived archive:
+				case OmokBoardState_Archived archive:
 					return archive.DebugSerialized();
 			}
 			return "non-serialized databackstop";
 		}
 
 		protected void ConvertToDynamicState() {
-			dataBackstop = new OmokState_Dictionary(dataBackstop);
+			dataBackstop = new OmokBoardState_Dictionary(dataBackstop);
 		}
 
 		protected void ConvertDictionaryToSerializedState() {
-			dataBackstop = new OmokState_Archived(dataBackstop);
+			dataBackstop = new OmokBoardState_Archived(dataBackstop);
 		}
 
 		public static Coord GetCoordFromPiece(OmokPiece piece) => piece.Coord;
@@ -195,7 +195,7 @@ namespace Omok {
 			List<OmokPiece> pieces = new List<OmokPiece>();
 			pieces.AddRange(map.Values);
 			Coord.CalculateCoordRange(pieces, GetCoordFromPiece, out Coord min, out Coord max);
-			pieces.Sort(IOmokState.SortPiecesInvertRow);
+			pieces.Sort(IOmokBoardState.SortPiecesInvertRow);
 			//SortPieces(pieces, GetCoordFromPiece);
 			//Debug.Log(pieces.Count + "\n" + string.Join("\n", pieces.ConvertAll(t => t.Coord + ":" + t.name)));
 			Coord size = max - min + Coord.one;

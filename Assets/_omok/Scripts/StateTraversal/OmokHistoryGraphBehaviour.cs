@@ -49,7 +49,7 @@ namespace Omok {
 
 		public void Start() {
 			if (graph.currentNode == null) {
-				OmokState state = game.Board.ReadStateFromBoard();
+				OmokBoardState state = game.Board.ReadStateFromBoard();
 				_visualizedHistoryState = graph.currentNode;
 				graph.CreateNewRoot(0, state, this, RefreshStateVisuals);
 			}
@@ -70,9 +70,9 @@ namespace Omok {
 		private void RefreshStateVisuals(OmokHistoryNode move) {
 			UpdateDebugText();
 			OmokHistoryNode currentNode = graph.currentNode;
-			game.analysisVisual.RenderAnalysis(currentNode.analysis);
+			game.analysisVisual.RenderAnalysis(currentNode.boardAnalysis);
 			List<OmokLine> allLines = new List<OmokLine>();
-			currentNode.analysis.ForEachLine(coordLine => {
+			currentNode.boardAnalysis.ForEachLine(coordLine => {
 				allLines.Add(coordLine);
 			});
 			allLines.Sort();
@@ -96,7 +96,7 @@ namespace Omok {
 		}
 
 		private void UpdateDebugText() {
-			debugOutput.text = graph.currentNode.analysis.DebugText();
+			debugOutput.text = graph.currentNode.boardAnalysis.DebugText();
 		}
 
 		/// <summary>
@@ -175,8 +175,8 @@ namespace Omok {
 			while (indexToTry < nextMovesToTry.Count) {
 				Coord next = nextMovesToTry[indexToTry];
 				//Debug.Log($"... {indexToTry}/{nextMovesToTry.Count}   {next}");
-				currentNode.state.TryGetState(next, out UnitState coordState);
-				bool validMove = coordState == UnitState.None &&
+				currentNode.boardState.TryGetState(next, out OmokUnitState coordState);
+				bool validMove = coordState == OmokUnitState.None &&
 					currentNode.GetMove(new OmokMove(next, (byte)game.WhosTurn)) == null;
 				Transform t = test.transform.GetChild(indexToTry);
 				t.name += coordState;
@@ -208,7 +208,7 @@ namespace Omok {
 
 		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, MinMax minmax) {
 			OmokHistoryNode node = graph.currentNode.GetMove(move);
-			if (node == null || node.analysis.IsDoingAnalysis) {
+			if (node == null || node.boardAnalysis.IsDoingAnalysis) {
 				return false;
 			}
 			GameObject token = GetPredictionToken();
