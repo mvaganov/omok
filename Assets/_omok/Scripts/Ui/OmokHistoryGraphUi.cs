@@ -25,15 +25,15 @@ namespace Omok {
 		}
 
 		public void Refresh() {
-			OmokHistoryNode current = game.Graph.currentNode;
-			OmokHistoryNode root = current.FindRoot();
-			PopulateStates(root, current);
+			_currentlyCalculated = Graph.currentNode;
+			PopulateStates(_currentlyCalculated);
 			ForceScrollDown();
 		}
 
 		public void ForceScrollDown() {
 			StartCoroutine(ForceScrollDownCoroutine());
 		}
+
 		IEnumerator ForceScrollDownCoroutine() {
 			ScrollRect sr = GetComponent<ScrollRect>();
 			if (sr == null) { yield break; }
@@ -44,30 +44,35 @@ namespace Omok {
 			Canvas.ForceUpdateCanvases();
 		}
 
-		public void PopulateStates(OmokHistoryNode rootState, OmokHistoryNode currentState) {
+		public void PopulateStates(OmokHistoryNode currentState) {
 			ClearUi();
 			OmokHistoryGraph graph = Graph;
 			List<OmokHistoryNode> history = graph.timeline;
 			StringBuilder sb = new StringBuilder("!!!!!!!!!!!!!!!!\n");
 
 			RectTransform gameStart = _branches.Get();
-			AddEdgeUi(history[0], history.Count == 1, true, gameStart);
+			AddEdgeUi(history[0], history[0] == currentState, true, gameStart);
 			gameStart.name = "game start";
 			gameStart.SetParent(_container, false);
+			int turnNow = currentState.turnValue;
 
 			for (int n = 0; n < history.Count; ++n) {
 				OmokHistoryNode cursor = history[n];
-				sb.Append(cursor+"\n");
-				OmokHistoryNode nextOnPath = history.Count > n ? history[n] : null;
+				string extra = cursor == currentState ? "<" : "";
+				sb.Append($"{cursor}{extra}\n");
+				OmokHistoryNode nextOnPath = history.Count > n+1 && n < turnNow ? history[n+1] : null;
 				RectTransform possibilities = _branches.Get();
-				//cursor.AssertNoEdgeDuplicates();// DEBUG
 				for (int i = 0; i < cursor.GetEdgeCount(); ++i) {
 					OmokMovePath edge = cursor.GetEdge(i);
 					if (!edge.nextNode.Traversed) { continue; } // no UI for preview moves
 					AddEdgeUi(edge.nextNode, edge.nextNode == currentState, edge.nextNode == nextOnPath, possibilities);
 				}
-				possibilities.name = cursor.ToString();
-				possibilities.SetParent(_container, false);
+				if (possibilities.childCount == 0) {
+					_branches.Reclaim(possibilities);
+				} else {
+					possibilities.name = cursor.ToString();
+					possibilities.SetParent(_container, false);
+				}
 			}
 			Debug.Log(sb);
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_container.GetComponent<RectTransform>());
@@ -81,6 +86,10 @@ namespace Omok {
 			element.IsOnPath = isOnPath;
 			element.transform.SetParent(possibilities, false);
 			element.name = (isOnPath ? "*" : "") + nextNode.ToString();
+			//element.Text.text += (isOnPath ? "P" : "") + (isSelected ? "S" : "");
+			Color textColor = element.Text.color;
+			textColor.a = isOnPath ? 1 : 0.5f;
+			element.Text.color = textColor;
 		}
 
 		private void ClearUi() {
@@ -115,7 +124,6 @@ namespace Omok {
 
 		void Update() {
 			if (_currentlyCalculated != Graph.currentNode) {
-				_currentlyCalculated = Graph.currentNode;
 				Debug.Log($"refreshing {_currentlyCalculated}");
 				Refresh();
 			}

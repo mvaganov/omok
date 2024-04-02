@@ -79,6 +79,9 @@ namespace Omok {
 		}
 
 		public void RenderAnalysis(OmokBoardStateAnalysis analysis) {
+			if (analysis.lines.Count == 0) {
+				Debug.LogError("missing lines?");
+			}
 			_analysis = analysis;
 			if (_generateLines) {
 				RenderLines(analysis.lines);

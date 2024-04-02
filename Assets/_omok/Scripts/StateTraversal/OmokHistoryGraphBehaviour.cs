@@ -8,7 +8,7 @@ namespace Omok {
 	public class OmokHistoryGraphBehaviour : MonoBehaviour, IBelongsToOmokGame {
 		[System.Serializable] public class UnityEvent_Move : UnityEvent<OmokMove> { }
 		public OmokGame game;
-		public OmokHistoryGraph graph = new OmokHistoryGraph();
+		public OmokHistoryGraph graph;
 
 		public TMPro.TMP_Text debugOutput;
 		public GameObject predictionPrefab;
@@ -47,12 +47,29 @@ namespace Omok {
 
 		public IBelongsToOmokGame reference => null;
 
+		private void Awake() {
+		}
+
 		public void Start() {
-			if (graph.currentNode == null) {
-				OmokBoardState state = game.Board.ReadStateFromBoard();
-				_visualizedHistoryState = graph.currentNode;
-				graph.CreateNewRoot(0, state, this, RefreshStateVisuals);
+			Debug.Log("creating graph structure");
+			graph = new OmokHistoryGraph();
+			OmokBoardState state = game.Board.ReadStateFromBoard();
+			graph.CreateNewRoot(0, state, this, RefreshStateVisuals);
+			_visualizedHistoryState = graph.currentNode;
+			graph.OnNodeChange += Graph_OnNodeChange;
+		}
+
+		private void Graph_OnNodeChange(OmokHistoryGraph obj) {
+			Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
+			//if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
+			StartCoroutine(RefreshMapStateNextFrame());
+			IEnumerator RefreshMapStateNextFrame() {
+				yield return null;
+				omokGame.Board.LoadState(omokGame.State);
+				Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow}");
+				omokGame.WhosTurn = obj.currentNode.whosTurnIsItNow;
 			}
+			//}
 		}
 
 		public bool NewState = false;
@@ -70,9 +87,9 @@ namespace Omok {
 		private void RefreshStateVisuals(OmokHistoryNode move) {
 			UpdateDebugText();
 			OmokHistoryNode currentNode = graph.currentNode;
-			game.analysisVisual.RenderAnalysis(currentNode.boardAnalysis);
+			game.analysisVisual.RenderAnalysis(currentNode.BoardAnalysis);
 			List<OmokLine> allLines = new List<OmokLine>();
-			currentNode.boardAnalysis.ForEachLine(coordLine => {
+			currentNode.BoardAnalysis.ForEachLine(coordLine => {
 				allLines.Add(coordLine);
 			});
 			allLines.Sort();
@@ -96,7 +113,7 @@ namespace Omok {
 		}
 
 		private void UpdateDebugText() {
-			debugOutput.text = graph.currentNode.boardAnalysis.DebugText();
+			debugOutput.text = graph.currentNode.BoardAnalysis.DebugText();
 		}
 
 		/// <summary>
@@ -208,7 +225,7 @@ namespace Omok {
 
 		private bool CreatePredictionTokenIfDataAvailable(OmokMove move, MinMax minmax) {
 			OmokHistoryNode node = graph.currentNode.GetMove(move);
-			if (node == null || node.boardAnalysis.IsDoingAnalysis) {
+			if (node == null || node.BoardAnalysis.IsDoingAnalysis) {
 				return false;
 			}
 			GameObject token = GetPredictionToken();

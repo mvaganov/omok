@@ -18,7 +18,6 @@ namespace Omok {
 		protected int whosTurn = 0;
 		public OmokStateLineAnalysisDraw analysisVisual;
 		public OmokHistoryGraphBehaviour graphBehaviour;
-		private OmokHistoryGraph graph;
 		public Color NeutralColor = new Color(0.5f, 0.5f, 0.5f);
 
 		[System.Serializable] public class GameEvents {
@@ -64,12 +63,12 @@ namespace Omok {
 
 		public IBelongsToOmokGame reference => null;
 
-		public OmokHistoryGraph Graph => graph != null ? graph : graph = graphBehaviour.graph;
+		public OmokHistoryGraph Graph => graphBehaviour.graph;
 
 		public OmokBoardState State {
 			get {
 				if (Graph.currentNode == null) {
-					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, null, null);
+					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, null);
 					Graph.currentNode.traversed = true;
 				}
 				return Graph.currentNode.boardState;
@@ -78,20 +77,7 @@ namespace Omok {
 
 		void Start() {
 			NotifyTurnChange();
-			Graph.OnNodeChange += Graph_OnNodeChange;
-		}
-
-		private void Graph_OnNodeChange(OmokHistoryGraph obj) {
-			Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
-			//if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
-				StartCoroutine(RefreshMapStateNextFrame());
-				IEnumerator RefreshMapStateNextFrame() {
-					yield return null;
-					Board.LoadState(State);
-					Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow}");
-					WhosTurn = obj.currentNode.whosTurnIsItNow;
-				}
-			//}
+			Debug.Log("ADDING CHANGE LISTENER");
 		}
 
 		void Update() {
@@ -106,7 +92,7 @@ namespace Omok {
 
 		private void NotifyNextMove(OmokHistoryNode nextNode) {
 			//OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
-			graph.SetState(nextNode, null);
+			Graph.SetState(nextNode, null);
 			//graph.currentNode = nextNode;
 			nextNode.traversed = true;
 			//Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());

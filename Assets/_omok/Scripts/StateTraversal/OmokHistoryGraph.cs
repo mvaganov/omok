@@ -8,6 +8,7 @@ namespace Omok {
 		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error
 	}
 
+	[System.Serializable]
 	public class OmokHistoryGraph {
 		public List<OmokHistoryNode> timeline = new List<OmokHistoryNode>();
 		public OmokHistoryNode currentNode;
@@ -18,15 +19,16 @@ namespace Omok {
 
 		public void CreateNewRoot(byte whosTurnIsItNow, OmokBoardState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			timeline.Clear();
-			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, null, null);
+			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, null);
 			currentNode.traversed = true;
 			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
-			coroutineRunner.StartCoroutine(currentNode.boardAnalysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
+			coroutineRunner.StartCoroutine(currentNode.BoardAnalysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
 		}
 
 		public void NotifyCurrentNodeChanged(OmokHistoryNode node) {
+			Debug.Log("state changed "+node);
 			OnNodeChange.Invoke(this);
 		}
 
@@ -79,12 +81,12 @@ namespace Omok {
 
 		public float[] GetMoveScoringSummary(OmokMove move, out float netScore) {
 			OmokHistoryNode node = currentNode.GetMove(move);
-			if (node == null || node.boardAnalysis.IsDoingAnalysis) {
+			if (node == null || node.BoardAnalysis.IsDoingAnalysis) {
 				netScore = 0;
 				return null;
 			}
 			//float[] currentScore = currentNode.analysis.scoring;
-			float[] nextScore = node.boardAnalysis.scoring;
+			float[] nextScore = node.BoardAnalysis.scoring;
 			//float[] nextStateDelta = Sub(nextScore, currentScore);
 			//netScore = OmokStateAnalysis.SummarizeScore(move.player, nextStateDelta);
 			netScore = 0;
@@ -115,13 +117,14 @@ namespace Omok {
 		}
 
 		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokHistoryNode> onComplete) {
-			if (!nextNode.boardAnalysis.IsDoingAnalysis) {
+			if (!nextNode.BoardAnalysis.IsDoingAnalysis) {
 				if (timeline[currentNode.Turn] != currentNode) {
 					int positionInPath = timeline.IndexOf(currentNode);
 					if (positionInPath < 0) {
-						throw new Exception("current node is not in timeline... what happened?");
+						throw new Exception("branching into an alternate timeline...");
+
 					}
-					throw new Exception($"current node {positionInPath} is not where it shold be in the timeline {currentNode.Turn}... what happened?");
+					throw new Exception($"current node {positionInPath} is not where it should be in the timeline {currentNode.Turn}... what happened?");
 				}
 				if (nextNode.Turn < timeline.Count) {
 					if (timeline[nextNode.Turn] == nextNode) {
