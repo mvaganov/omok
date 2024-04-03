@@ -73,9 +73,12 @@ namespace Omok {
 					OmokMovePath edge = cursor.GetEdge(i);
 					if (edge.nextNode.Traversed == 0) { continue; } // no UI for preview moves
 					AddEdgeUi(edge.nextNode, edge.nextNode == currentState, edge.nextNode == nextOnPath, possibilities);
-					if (atEndOfHistory && historyExtension == null || edge.nextNode.Traversed > historyExtension.traversed) {
+					if (atEndOfHistory && (historyExtension == null || edge.nextNode.Traversed > historyExtension.traversed)) {
 						historyExtension = edge.nextNode;
 					}
+				}
+				if (historyExtension != null) {
+					history.Add(historyExtension);
 				}
 				if (possibilities.childCount == 0) {
 					_branches.Reclaim(possibilities);
