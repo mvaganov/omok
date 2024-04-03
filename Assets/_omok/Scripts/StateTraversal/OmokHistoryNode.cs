@@ -22,7 +22,7 @@ namespace Omok {
 		/// <summary>
 		/// What move caused this state to happen from the parent game state
 		/// </summary>
-		public OmokMove sourceMove = null;
+		public OmokMove sourceMove = OmokMove.InvalidMove;
 		/// <summary>
 		/// State of board, managed by this class and referenced by other classes.
 		/// </summary>
@@ -40,10 +40,10 @@ namespace Omok {
 		/// <summary>
 		/// Whether or not this state has been traversed by the UI. If so, this should be shown as a potential state in the graph
 		/// </summary>
-		public bool traversed;
+		public int traversed;
 
 		public int Turn => turnValue;
-		public bool Traversed => traversed;
+		public int Traversed => traversed;
 		public int GetEdgeCount() => movePaths.Length;
 		public OmokBoardStateAnalysis BoardAnalysis => _boardAnalysis != null ? _boardAnalysis
 			: _boardAnalysis = new OmokBoardStateAnalysis(boardState);
@@ -169,6 +169,6 @@ namespace Omok {
 			return minmax;
 		}
 
-		public override string ToString() => sourceMove != null ? $"{Turn}:{sourceMove.coord}" : "omok";
+		public override string ToString() => sourceMove != OmokMove.InvalidMove ? $"{Turn}:{sourceMove.coord}" : "(omok)";
 	}
 }

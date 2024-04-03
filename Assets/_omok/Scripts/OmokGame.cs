@@ -68,8 +68,8 @@ namespace Omok {
 		public OmokBoardState State {
 			get {
 				if (Graph.currentNode == null) {
-					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, null);
-					Graph.currentNode.traversed = true;
+					Graph.currentNode = new OmokHistoryNode(board.ReadStateFromBoard(), null, WhosTurn, OmokMove.InvalidMove);
+					Graph.currentNode.traversed = 1;
 				}
 				return Graph.currentNode.boardState;
 			}
@@ -77,7 +77,7 @@ namespace Omok {
 
 		void Start() {
 			NotifyTurnChange();
-			Debug.Log("ADDING CHANGE LISTENER");
+			//Debug.Log("ADDING CHANGE LISTENER");
 		}
 
 		void Update() {
@@ -94,7 +94,9 @@ namespace Omok {
 			//OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
 			Graph.SetState(nextNode, null);
 			//graph.currentNode = nextNode;
-			nextNode.traversed = true;
+			if (nextNode.traversed == 0) {
+				nextNode.traversed = nextNode.parentNode.traversed;
+			}
 			//Debug.Log("~~~~~~new state to analyze?! " + graph.currentNode.state.ToDebugString());
 			OmokGoogleTargetListener targetListener = GetComponent<OmokGoogleTargetListener>();
 			targetListener.ClearLookTargets();
@@ -119,7 +121,7 @@ namespace Omok {
 			graphBehaviour.NewState = true;
 			//Debug.Log("NEXT TURN PLZ");
 			Board.State.Copy(State);
-			Board.RefreshDebug();
+			//Board.RefreshDebug();
 		}
 
 		public int GetPlayerIndex(OmokPlayer player) => System.Array.IndexOf(players, player);

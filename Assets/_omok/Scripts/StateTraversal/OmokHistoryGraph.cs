@@ -19,8 +19,8 @@ namespace Omok {
 
 		public void CreateNewRoot(byte whosTurnIsItNow, OmokBoardState state, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
 			timeline.Clear();
-			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, null);
-			currentNode.traversed = true;
+			currentNode = new OmokHistoryNode(state, null, whosTurnIsItNow, OmokMove.InvalidMove);
+			currentNode.traversed = 1;
 			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
@@ -118,7 +118,7 @@ namespace Omok {
 
 		public NextStateMovementResult SetState(OmokHistoryNode nextNode, Action<OmokHistoryNode> onComplete) {
 			if (!nextNode.BoardAnalysis.IsDoingAnalysis) {
-				if (timeline[currentNode.Turn] != currentNode) {
+				if (currentNode.Turn < timeline.Count && timeline[currentNode.Turn] != currentNode) {
 					int positionInPath = timeline.IndexOf(currentNode);
 					if (positionInPath < 0) {
 						throw new Exception("branching into an alternate timeline...");
@@ -136,18 +136,22 @@ namespace Omok {
 						if (pathIndex < 0) {
 							throw new Exception("attempting to go into invalid reality?");
 						} else {
-							int forsakenFuture = timeline.Count - nextNode.Turn;
-							Debug.Log($"changing to a different timeline @{nextNode.Turn}, forsaking {forsakenFuture}");
-							timeline.RemoveRange(nextNode.Turn, forsakenFuture);
-							timeline.Add(currentNode);
+							int turnWhereTheChangeHappens = nextNode.Turn;
+							int forsakenFuture = timeline.Count - turnWhereTheChangeHappens;
+							Debug.Log($"changing to a different timeline @{turnWhereTheChangeHappens}, forsaking {forsakenFuture}");
+							timeline.RemoveRange(turnWhereTheChangeHappens, forsakenFuture);
+							timeline.Add(nextNode);
+							Debug.Log($"--- {string.Join(",", timeline)}");
 						}
 					}
 				} else if (nextNode.Turn == timeline.Count) {
-					//Debug.Log($"advancing timeline like {nextNode.Turn} never happend before");
+					Debug.Log($"advancing timeline like {nextNode.Turn} never happend before");
 					timeline.Add(nextNode);
 				}
 				currentNode = nextNode;
-				currentNode.traversed = true;
+				if (currentNode.Traversed == 0) {
+					currentNode.traversed = currentNode.parentNode.traversed;
+				}
 				NotifyCurrentNodeChanged(currentNode);
 				onComplete?.Invoke(nextNode);
 				return NextStateMovementResult.Success;

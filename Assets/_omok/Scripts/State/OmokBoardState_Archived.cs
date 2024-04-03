@@ -166,8 +166,8 @@ namespace Omok {
 						}
 					}
 				}
-				Debug.Log(DebugSerialized());
-				Debug.Log(this.ToDebugString());
+				//Debug.Log(DebugSerialized());
+				//Debug.Log(this.ToDebugString());
 			}
 		}
 

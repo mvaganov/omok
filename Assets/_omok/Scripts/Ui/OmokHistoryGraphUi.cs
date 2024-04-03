@@ -48,13 +48,18 @@ namespace Omok {
 			ClearUi();
 			OmokHistoryGraph graph = Graph;
 			List<OmokHistoryNode> history = graph.timeline;
+			if (history == null) {
+				Debug.Log("no history?");
+				return;
+			}
 			StringBuilder sb = new StringBuilder("!!!!!!!!!!!!!!!!\n");
 
 			RectTransform gameStart = _branches.Get();
-			AddEdgeUi(history[0], history[0] == currentState, true, gameStart);
+			OmokHistoryElement rootElement = AddEdgeUi(history[0], history[0] == currentState, true, gameStart);
 			gameStart.name = "game start";
 			gameStart.SetParent(_container, false);
 			int turnNow = currentState.turnValue;
+			//Debug.Log($"######## root: {rootElement.OmokNode} ({rootElement.OmokNode.sourceMove})");
 
 			for (int n = 0; n < history.Count; ++n) {
 				OmokHistoryNode cursor = history[n];
@@ -62,10 +67,15 @@ namespace Omok {
 				sb.Append($"{cursor}{extra}\n");
 				OmokHistoryNode nextOnPath = history.Count > n+1 && n < turnNow ? history[n+1] : null;
 				RectTransform possibilities = _branches.Get();
+				bool atEndOfHistory = history.Count == n - 1;
+				OmokHistoryNode historyExtension = null;
 				for (int i = 0; i < cursor.GetEdgeCount(); ++i) {
 					OmokMovePath edge = cursor.GetEdge(i);
-					if (!edge.nextNode.Traversed) { continue; } // no UI for preview moves
+					if (edge.nextNode.Traversed == 0) { continue; } // no UI for preview moves
 					AddEdgeUi(edge.nextNode, edge.nextNode == currentState, edge.nextNode == nextOnPath, possibilities);
+					if (atEndOfHistory && historyExtension == null || edge.nextNode.Traversed > historyExtension.traversed) {
+						historyExtension = edge.nextNode;
+					}
 				}
 				if (possibilities.childCount == 0) {
 					_branches.Reclaim(possibilities);
@@ -78,7 +88,7 @@ namespace Omok {
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_container.GetComponent<RectTransform>());
 		}
 
-		private void AddEdgeUi(OmokHistoryNode nextNode, bool isSelected, bool isOnPath, Transform possibilities) {
+		private OmokHistoryElement AddEdgeUi(OmokHistoryNode nextNode, bool isSelected, bool isOnPath, Transform possibilities) {
 			OmokHistoryElement element = _elements.Get();
 			element.Game = game;
 			element.OmokNode = nextNode;
@@ -90,6 +100,7 @@ namespace Omok {
 			Color textColor = element.Text.color;
 			textColor.a = isOnPath ? 1 : 0.5f;
 			element.Text.color = textColor;
+			return element;
 		}
 
 		private void ClearUi() {
@@ -124,7 +135,7 @@ namespace Omok {
 
 		void Update() {
 			if (_currentlyCalculated != Graph.currentNode) {
-				Debug.Log($"refreshing {_currentlyCalculated}");
+				//Debug.Log($"refreshing {_currentlyCalculated}");
 				Refresh();
 			}
 		}

@@ -38,6 +38,6 @@ namespace Omok {
 			public int Compare(OmokMovePath a, OmokMovePath b) => a.move.coord.CompareTo(b.move.coord);
 			public static Comparer Instance = new Comparer();
 		}
-		public static OmokMovePath None = new OmokMovePath(null, null);
+		public static readonly OmokMovePath None = new OmokMovePath(OmokMove.InvalidMove, null);
 	}
 }

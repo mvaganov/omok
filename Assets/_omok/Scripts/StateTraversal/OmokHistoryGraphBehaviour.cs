@@ -51,7 +51,7 @@ namespace Omok {
 		}
 
 		public void Start() {
-			Debug.Log("creating graph structure");
+			//Debug.Log("creating graph structure");
 			graph = new OmokHistoryGraph();
 			OmokBoardState state = game.Board.ReadStateFromBoard();
 			graph.CreateNewRoot(0, state, this, RefreshStateVisuals);
@@ -66,7 +66,7 @@ namespace Omok {
 			IEnumerator RefreshMapStateNextFrame() {
 				yield return null;
 				omokGame.Board.LoadState(omokGame.State);
-				Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow}");
+				Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow} after {obj.currentNode}");
 				omokGame.WhosTurn = obj.currentNode.whosTurnIsItNow;
 			}
 			//}

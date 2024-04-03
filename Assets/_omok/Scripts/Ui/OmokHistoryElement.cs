@@ -71,7 +71,7 @@ namespace Omok {
 		}
 
 		public Sprite GetIcon(OmokHistoryNode state, out Color color) {
-			if (state.sourceMove == null) {
+			if (state.sourceMove == null || state.sourceMove == OmokMove.InvalidMove) {
 				color = _game.NeutralColor;
 				return null;
 			}

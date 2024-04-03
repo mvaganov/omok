@@ -88,7 +88,7 @@ namespace Omok {
 		public void LoadState(OmokBoardState state) {
 			FreeCurrentPieces();
 			map.Clear();
-			Debug.Log(state.DebugSerialized());
+			//Debug.Log(state.DebugSerialized());
 			Debug.Log(state.ToDebugString());
 			state.ForEachPiece(CreatePiece);
 		}

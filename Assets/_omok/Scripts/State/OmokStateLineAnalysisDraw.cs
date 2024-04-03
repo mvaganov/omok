@@ -65,7 +65,7 @@ namespace Omok {
 			string printed = omokGame.State.ToDebugString();
 			Debug.Log(printed);
 			_analysis.Analyze(omokGame.State);
-			RenderAllLines(null);
+			RenderAllLines(OmokMove.InvalidMove);
 		}
 
 		//public IEnumerator ForceUpdateCoroutine() {

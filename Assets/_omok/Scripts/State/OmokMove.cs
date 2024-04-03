@@ -9,7 +9,7 @@ namespace Omok {
 	}
 
 	[System.Serializable]
-	public class OmokMove : IOmokMove {
+	public struct OmokMove : IOmokMove {
 		public Coord coord;
 		public byte player;
 		public byte piece;
