@@ -49,10 +49,20 @@ namespace Omok {
 			get => _node;
 			set {
 				_node = value;
-				string toString = GetText(value);
+				string toString = MoveLabel(value);
 				Text.text = toString;
 				Icon.sprite = GetIcon(value, out Color color);
 				Icon.color = color;
+				int playerIndex = _node.sourceMove.player;
+				if (playerIndex >= 0 && playerIndex < _game.players.Length) {
+					OmokPlayer player = _game.players[playerIndex];
+					Color c = player.Color;
+					Text.color = new Color(1-c.r, 1-c.g, 1-c.b);
+					TMP_FontAsset f = player.fontAsset;
+					if (f != null) {
+						Text.font = f;
+					}
+				}
 				name = toString;
 			}
 		}
@@ -66,8 +76,12 @@ namespace Omok {
 			if (backgroundImage != null) { _originalBackgroundColor = backgroundImage.color; }
 		}
 
-		public static string GetText(OmokHistoryNode node) {
-			return $"{node}";
+		public static string MoveLabel(OmokHistoryNode node) {
+			if (node.sourceMove == OmokMove.InvalidMove) {
+				return "omok";
+			}
+			Coord c = node.sourceMove.coord;
+			return $"{c.x} {c.y}";
 		}
 
 		public Sprite GetIcon(OmokHistoryNode state, out Color color) {

@@ -15,6 +15,7 @@ namespace Omok {
 		[SerializeField]
 		protected OmokGame game;
 		public Material material;
+		public TMPro.TMP_FontAsset fontAsset;
 		public List<PieceElement> gamePieces = new List<PieceElement>();
 		public List<OmokPiece> currentPieces = new List<OmokPiece>();
 

@@ -666,6 +666,7 @@ MonoBehaviour:
   - {fileID: 1433592616}
   - {fileID: 1415242678}
   - {fileID: 908450860}
+  fontAsset: {fileID: 11400000, guid: 07df9516f8d45554487aaa4d47c88dea, type: 2}
 --- !u!1 &333432207
 GameObject:
   m_ObjectHideFlags: 0
@@ -1766,6 +1767,7 @@ MonoBehaviour:
     Icon: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
   currentPieces: []
+  fontAsset: {fileID: 0}
 --- !u!1001 &1043190645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1811,7 +1813,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3825053399653333937, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3825053399653333937, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1865,58 +1867,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3825053399653333942, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: _game
-      value: 
-      objectReference: {fileID: 1466857983}
     - target: {fileID: 3825053400310008575, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3825053400310008575, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3825053400759490771, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400759490771, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400759490771, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400759490771, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 57.77
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400759490771, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400986691340, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400986691340, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: -6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400986691340, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400986691340, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3825053400986691341, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 648e2fad5b178fb44a474026c71b069e, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e8e0136162ce06d43b38261519ce271a, type: 3}
 --- !u!224 &1043190646 stripped
@@ -3964,6 +3922,7 @@ MonoBehaviour:
   - {fileID: 477202148}
   - {fileID: 28423498}
   - {fileID: 2010046584}
+  fontAsset: {fileID: 11400000, guid: 003cd865f3515ce4db133d1ab292c509, type: 2}
 --- !u!1 &1714202127
 GameObject:
   m_ObjectHideFlags: 0

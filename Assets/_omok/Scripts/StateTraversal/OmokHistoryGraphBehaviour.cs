@@ -60,13 +60,13 @@ namespace Omok {
 		}
 
 		private void Graph_OnNodeChange(OmokHistoryGraph obj) {
-			Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
+			//Debug.Log($"NEW STATE! {obj.currentNode.Turn}");
 			//if (obj.currentNode.Turn > 0 || Graph.timeline.Count > 1) {
 			StartCoroutine(RefreshMapStateNextFrame());
 			IEnumerator RefreshMapStateNextFrame() {
 				yield return null;
 				omokGame.Board.LoadState(omokGame.State);
-				Debug.Log($"next person's turn: {obj.currentNode.whosTurnIsItNow} after {obj.currentNode}");
+				Debug.Log($"({obj.currentNode.Turn}) next person's turn: {obj.currentNode.whosTurnIsItNow} after {obj.currentNode}");
 				omokGame.WhosTurn = obj.currentNode.whosTurnIsItNow;
 			}
 			//}

@@ -169,6 +169,6 @@ namespace Omok {
 			return minmax;
 		}
 
-		public override string ToString() => sourceMove != OmokMove.InvalidMove ? $"{Turn}:{sourceMove.coord}" : "(omok)";
+		public override string ToString() => sourceMove != OmokMove.InvalidMove ? $"{Turn}:{sourceMove.coord}" : "omok";
 	}
 }

@@ -67,7 +67,7 @@ namespace Omok {
 				sb.Append($"{cursor}{extra}\n");
 				OmokHistoryNode nextOnPath = history.Count > n+1 && n < turnNow ? history[n+1] : null;
 				RectTransform possibilities = _branches.Get();
-				bool atEndOfHistory = history.Count == n - 1;
+				bool atEndOfHistory = history.Count == n + 1;
 				OmokHistoryNode historyExtension = null;
 				for (int i = 0; i < cursor.GetEdgeCount(); ++i) {
 					OmokMovePath edge = cursor.GetEdge(i);
@@ -87,7 +87,7 @@ namespace Omok {
 					possibilities.SetParent(_container, false);
 				}
 			}
-			Debug.Log(sb);
+			//Debug.Log(sb);
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_container.GetComponent<RectTransform>());
 		}
 
@@ -144,7 +144,7 @@ namespace Omok {
 		}
 
 		internal void SetState(OmokHistoryNode nextState) {
-			Debug.Log($"TRIGGERING {nextState}");
+			//Debug.Log($"TRIGGERING {nextState}");
 			Graph.SetState(nextState, null);
 			Refresh();
 		}

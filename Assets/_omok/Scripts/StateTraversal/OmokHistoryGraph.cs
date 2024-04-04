@@ -128,9 +128,9 @@ namespace Omok {
 				}
 				if (nextNode.Turn < timeline.Count) {
 					if (timeline[nextNode.Turn] == nextNode) {
-						Debug.Log("changing state in current timeline...");
+						//Debug.Log("changing state in current timeline...");
 					} else {
-						Debug.Log($"going into new timeline @{nextNode.Turn}");
+						//Debug.Log($"going into new timeline @{nextNode.Turn}");
 						OmokHistoryNode beforeNode = timeline[nextNode.Turn - 1];
 						int pathIndex = beforeNode.GetMoveIndex(nextNode);
 						if (pathIndex < 0) {
@@ -138,14 +138,14 @@ namespace Omok {
 						} else {
 							int turnWhereTheChangeHappens = nextNode.Turn;
 							int forsakenFuture = timeline.Count - turnWhereTheChangeHappens;
-							Debug.Log($"changing to a different timeline @{turnWhereTheChangeHappens}, forsaking {forsakenFuture}");
+							//Debug.Log($"changing to a different timeline @{turnWhereTheChangeHappens}, forsaking {forsakenFuture}");
 							timeline.RemoveRange(turnWhereTheChangeHappens, forsakenFuture);
 							timeline.Add(nextNode);
-							Debug.Log($"--- {string.Join(",", timeline)}");
+							//Debug.Log($"--- {string.Join(",", timeline)}");
 						}
 					}
 				} else if (nextNode.Turn == timeline.Count) {
-					Debug.Log($"advancing timeline like {nextNode.Turn} never happend before");
+					//Debug.Log($"advancing timeline like {nextNode.Turn} never happend before");
 					timeline.Add(nextNode);
 				}
 				currentNode = nextNode;
