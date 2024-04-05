@@ -1,13 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Eye : MonoBehaviour {
 	[ContextMenuItem(nameof(CalculateDirection),nameof(CalculateDirection))]
 	public Transform _pupil;
 	public Transform _focus;
-	//public Vector3 _pupilOffset;
-	//public Vector3 _currentPupilDirection;
 
 	public float PupilDialation {
 		get => _pupil.localScale.x;
@@ -15,8 +11,6 @@ public class Eye : MonoBehaviour {
 	}
 
 	public void CalculateDirection() {
-		//_currentPupilDirection = _pupil.rotation * Vector3.forward;
-		//_pupilOffset = _pupil.localPosition;
 	}
 
 	void Start() {
