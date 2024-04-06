@@ -147,6 +147,8 @@ namespace Omok {
 
 		public void UnmarkSelected() {
 			_selected = false;
+			Image backgroundImage = Icon.transform.parent.GetComponent<Image>();
+			backgroundImage.color = _originalBackgroundColor;
 		}
 
 		public void ToggleIcon() {
