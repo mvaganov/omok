@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Omok {
-	// TODO undo/redo (graph traversal)
 	// TODO web compile
 	// TODO scoring calc should have a depth, with new scores for each depth level. if depth is greater than 1, only evaluate top X moves. make sure scores past depth alternate player, so values change plus or minus
 	// TODO scrolling, and board expansion
@@ -83,12 +82,6 @@ namespace Omok {
 		void Update() {
 
 		}
-
-		//public void PlacePieceForCurrentPlayer() {
-		//	Coord coord = board.CurrentSelectedSpot;
-		//	PlacePieceForCurrentPlayerAt(coord);
-		//	graphBehaviour.graph.DoMoveCalculation(coord, this, NotifyNextMove, WhosTurn);
-		//}
 
 		private void NotifyNextMove(OmokHistoryNode nextNode) {
 			//OmokHistoryNode nextNode = graph.currentNode.GetMove(move);
