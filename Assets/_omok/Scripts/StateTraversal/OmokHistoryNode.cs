@@ -162,6 +162,9 @@ namespace Omok {
 					//Debug.Log($"skipping {movepath.move.coord}");
 					continue;
 				}
+				if (scoring == null || scoring.Length <= 1) {
+					continue;
+				}
 				float score = OmokBoardStateAnalysis.SummarizeScore(player, scoring);
 				//Debug.Log($"{movepath.move.coord} {score}     {scoring[0]} v {scoring[1]}");
 				minmax.Update(score);

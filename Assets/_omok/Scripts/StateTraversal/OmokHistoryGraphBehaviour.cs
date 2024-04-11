@@ -251,9 +251,14 @@ namespace Omok {
 			Color color = optionColors.Evaluate(p);
 			string bStart = p == 0 || p == 1 ? "<b>[[" : "";
 			string bEnd = p == 0 || p == 1 ? "]]</b>" : "";
-			string text = $"<#000>{nextStateScores[0]}</color>\n" +
-				$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
-				$"<#fff>{nextStateScores[1]}</color>";
+			string text;
+			if (nextStateScores != null && nextStateScores.Length == 2) {
+				text = $"<#000>{nextStateScores[0]}</color>\n" +
+					$"<#{ColorUtility.ToHtmlStringRGBA(color)}>{bStart}{netScore}{bEnd}</color>\n" +
+					$"<#fff>{nextStateScores[1]}</color>";
+			} else {
+				text = "";
+			}
 			TMPro.TMP_Text tmpText = token.GetComponentInChildren<TMPro.TMP_Text>();
 			tmpText.text = text;
 			token.transform.position = game.Board.GetPosition(move.coord);

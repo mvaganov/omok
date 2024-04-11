@@ -181,6 +181,8 @@ namespace Omok {
 		}
 
 		public static float SummarizeScore(int player, float[] score) {
+			if (score == null || score.Length <= player) { return 0; }
+			//Debug.Log($"{score.Length} {player}");
 			return score[player] - score[(player + 1) % 2];
 		}
 
