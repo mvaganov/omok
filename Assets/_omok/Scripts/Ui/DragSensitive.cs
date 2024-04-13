@@ -17,6 +17,10 @@ namespace MyGame {
 		private bool dragJustStarted;
 		private RectTransform rectTransform;
 
+		[System.Serializable]
+		public class DragEvents {
+		}
+
 		[System.Serializable] public class UnityEvent_Vector2 : UnityEvent<Vector2> { }
 
 		private void OnValidate() {
