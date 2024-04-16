@@ -5,15 +5,17 @@ using UnityEngine;
 public class GeneratingBoard : MonoBehaviour
 {
 	public GeneratedTile tile10x10;
-	MemoryPool<GeneratedTile> tiles = new MemoryPool<GeneratedTile>();
+	public MemoryPool<GeneratedTile> _tilePool = new MemoryPool<GeneratedTile>();
 	public BoxCollider cursor;
-	public List<GeneratedTile> edges = new List<GeneratedTile>();
-	public Color _normalTileColor = Color.white;
-	public Color _edgeTileColor = Color.red;
+	public Color NormalTileColor = Color.white;
+	public Color EdgeTileColor = Color.red;
+	public Vector3 TileSize = new Vector3(10, 10, 0);
 
 	void Start()
 	{
-		tiles.SetData(transform, tile10x10, false);
+		_tilePool.SetData(transform, tile10x10, false);
+		//_tilePool.onReclaim += e => e.gameObject.SetActive(false);
+		//_tilePool.onInitialize += e => e.gameObject.SetActive(true);
 		GeneratedTile newTile = CreateBoard(transform.position);
 		newTile.transform.localRotation = Quaternion.identity;
 		newTile.InitializeNeighbors(this);
@@ -25,7 +27,7 @@ public class GeneratingBoard : MonoBehaviour
 	}
 
 	public bool IsEdge(GeneratedTile tile) {
-		return edges.IndexOf(tile) != -1;
+		return tile.IsMapEdge;
 	}
 
 	public void TriggerObserver(GeneratedTile tile) {
@@ -36,19 +38,46 @@ public class GeneratingBoard : MonoBehaviour
 		List<int> missingNeighbors = new List<int>();
 		List<GeneratedTile> newTiles = new List<GeneratedTile> ();
 		tile.GetNeighborIndexTo(null, missingNeighbors);
-		edges.Remove(tile);
-		tile.GetComponent<Renderer>().material.color = _normalTileColor;
+		tile.IsMapEdge = false;
 		//Debug.Log($"{tile} missing neighbors: {missingNeighbors.Count}");
 		for (int i = 0; i < missingNeighbors.Count; i++) {
-			Ray edgeToFill = tile.GetEdge(missingNeighbors[i]);
-			Vector3 nextTileCenter = edgeToFill.origin + edgeToFill.direction * 5;
+			int edgeIndex = missingNeighbors[i];
+			Ray edgeToFill = tile.GetEdge(edgeIndex);
+			Vector3 offsetOfnextTile = edgeToFill.direction;
+			offsetOfnextTile.Scale(transform.rotation * TileSize / 2);
+			Vector3 nextTileCenter = edgeToFill.origin + offsetOfnextTile;
 			//GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			//cube.transform.position = nextTileCenter;
 			GeneratedTile newTile = CreateBoard(nextTileCenter);
 			if (newTile == null) {
-				Debug.Log("woah buddy... {}");
+				Debug.Log($"tried to make tile at {tile.name}.{tile._boundaries.edges[edgeIndex]}, but its there already?");
 			}
 			newTiles.Add(newTile);
+		}
+	}
+
+	public void UntriggerObserver(GeneratedTile tile) {
+		tile.IsMapEdge = true;
+		HashSet<GeneratedTile> deepEdges = new HashSet<GeneratedTile>();
+		tile.FindDeepMapEdges(deepEdges);
+		foreach (GeneratedTile oldTile in deepEdges) {
+			DisconnectTileNeighbors(oldTile);
+			_tilePool.Reclaim(oldTile);
+		}
+	}
+
+	public void DisconnectTileNeighbors(GeneratedTile tile) {
+		List<int> indexes = new List<int>();
+		for (int i = 0; i < tile._neighbors.Length; ++i) {
+			GeneratedTile neighbor = tile._neighbors[i];
+			if (neighbor == null) {
+				continue;
+			}
+			neighbor.GetNeighborIndexTo(tile, indexes);
+			for (int n = 0; n < indexes.Count; ++n) {
+				neighbor._neighbors[indexes[n]] = null;
+			}
+			tile._neighbors[i] = null;
 		}
 	}
 
@@ -65,6 +94,11 @@ public class GeneratingBoard : MonoBehaviour
 			}
 			gotOne = true;
 		}
+		if (out_tiles != null && out_tiles.Count != 0) {
+			GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			sphere.transform.position = position;
+			sphere.name = string.Join(",", out_tiles);
+		}
 		return gotOne;
 	}
 
@@ -74,12 +108,16 @@ public class GeneratingBoard : MonoBehaviour
 			return null;
 		}
 		Transform self = transform;
-		GeneratedTile newTile = Instantiate(tile10x10.gameObject, nextTileCenter, self.rotation).GetComponent<GeneratedTile>();
-		newTile.name = "tile "+nextTileCenter;
+		//GeneratedTile newTile = Instantiate(tile10x10.gameObject, nextTileCenter, self.rotation).GetComponent<GeneratedTile>();
+		GeneratedTile newTile = _tilePool.Get();
+		Transform tileTransform = newTile.transform;
+		tileTransform.position = nextTileCenter;
+		tileTransform.rotation = self.rotation;
+
+		newTile.name = "tile "+(int)nextTileCenter.x/TileSize.x+" "+(int)nextTileCenter.z / TileSize.y;
 		newTile.transform.SetParent(self, true);
-		newTile.GetComponent<Renderer>().material.color = _edgeTileColor;
-		edges.Add(newTile);
 		newTile.InitializeNeighbors(this);
+		newTile.IsMapEdge = true;
 		return newTile;
 	}
 }

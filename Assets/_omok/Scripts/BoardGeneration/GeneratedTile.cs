@@ -7,16 +7,58 @@ public class GeneratedTile : MonoBehaviour {
 	public GeneratedTile[] _neighbors = null;
 	public BoxCollider _box;
 	public GeneratingBoard _board;
+	public bool _isMapEdge;
 
-	void Start() {
+	public bool IsMapEdge {
+		get => _isMapEdge;
+		set {
+			_isMapEdge = value;
+			Renderer r = GetComponent<Renderer>();
+			if (r == null) {
+				Debug.LogError($"missing renderer for {name}");
+			} else {
+				r.material.color = _isMapEdge ? _board.EdgeTileColor : _board.NormalTileColor;
+			}
+		}
 	}
 
+	public void FindDeepMapEdges(HashSet<GeneratedTile> out_found) {
+		for (int i = 0; i < _neighbors.Length; i++) {
+			GeneratedTile n = _neighbors[i];
+			if (n == null || !n.IsMapEdge) {
+				continue;
+			}
+			if (n.IsEveryNeighborMapEdge()) {
+				out_found.Add(n);
+			}
+		}
+		if (this.IsEveryNeighborMapEdge()) {
+			out_found.Add(this);
+		}
+	}
+
+	private bool IsEveryNeighborMapEdge() {
+		for (int i = 0; i < _neighbors.Length; i++) {
+			GeneratedTile n = _neighbors[i];
+			if (n != null && !n.IsMapEdge) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// TODO have the board do this in a batch.
 	public void InitializeNeighbors(GeneratingBoard board) {
 		_board = board;
 		if (_neighbors == null || _neighbors.Length != _boundaries.edges.Length) {
 			_neighbors = new GeneratedTile[_boundaries.edges.Length];
 		}
 		FindNeighbors();
+		//StartCoroutine(DoThisSoon());
+		//IEnumerator DoThisSoon() {
+		//	yield return null;
+		//	FindNeighbors();
+		//}
 	}
 
 	public Ray GetEdgeLocal(int i) {
@@ -39,14 +81,15 @@ public class GeneratedTile : MonoBehaviour {
 	public void FindNeighbors() {
 		List<GeneratedTile> candidates = new List<GeneratedTile>();
 		for (int neighborIndex = 0; neighborIndex < _neighbors.Length; neighborIndex++) {
+			candidates.Clear();
 			if (GetNeighborCandidates(neighborIndex, candidates)) {
 				if (candidates.Count > 1) {
-					throw new System.Exception($"multiple {_boundaries.edges[neighborIndex].name} neighbors!");
+					throw new System.Exception($"multiple {_boundaries.edges[neighborIndex].name} neighbors for {name}!\n" +
+						$"{string.Join(", ",candidates)}");
 				}
 				GeneratedTile otherTile = candidates[0];
 				_neighbors[neighborIndex] = otherTile;
 				otherTile.SetNeighbor(this, GetEdge(neighborIndex));
-				candidates.Clear();
 			}
 		}
 	}
@@ -114,10 +157,18 @@ public class GeneratedTile : MonoBehaviour {
 
 	}
 
-	private void OnTriggerEnter(Collider other) {
-		GeneratorCursor cursor = other.GetComponent<GeneratorCursor>();
-		if (cursor != null && cursor.IsObserving(_board)) {
-			_board.TriggerObserver(this);
-		}
-	}
+	//private void OnTriggerEnter(Collider other) {
+	//	GeneratorCursor cursor = other.GetComponent<GeneratorCursor>();
+	//	if (cursor != null && cursor.IsObserving(_board)) {
+	//		_board.TriggerObserver(this);
+	//	}
+	//}
+
+	//private void OnTriggerExit(Collider other) {
+	//	Debug.Log($"exit! {name}");
+	//	GeneratorCursor cursor = other.GetComponent<GeneratorCursor>();
+	//	if (cursor != null && cursor.IsObserving(_board)) {
+	//		_board.UntriggerObserver(this);
+	//	}
+	//}
 }

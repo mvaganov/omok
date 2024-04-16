@@ -102,6 +102,7 @@ MonoBehaviour:
   _neighbors: []
   _box: {fileID: 5130271277730610091}
   _board: {fileID: 0}
+  _isMapEdge: 0
 --- !u!65 &5130271277730610091
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -113,5 +114,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1.0000002, z: 0}
+  m_Size: {x: 1, y: 1.0000002, z: 0.0009765625}
   m_Center: {x: 0, y: 0, z: 0}
