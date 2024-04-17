@@ -47,18 +47,13 @@ public class GeneratedTile : MonoBehaviour {
 		return true;
 	}
 
-	// TODO have the board do this in a batch.
 	public void InitializeNeighbors(GeneratingBoard board) {
 		_board = board;
 		if (_neighbors == null || _neighbors.Length != _boundaries.edges.Length) {
 			_neighbors = new GeneratedTile[_boundaries.edges.Length];
 		}
 		FindNeighbors();
-		//StartCoroutine(DoThisSoon());
-		//IEnumerator DoThisSoon() {
-		//	yield return null;
-		//	FindNeighbors();
-		//}
+		//_board.NeedsNeighbors(this);
 	}
 
 	public Ray GetEdgeLocal(int i) {
@@ -96,7 +91,7 @@ public class GeneratedTile : MonoBehaviour {
 
 	public bool GetNeighborCandidates(int neighborIndex, List<GeneratedTile> out_tiles) {
 		Ray edge = GetEdge(neighborIndex);
-		bool gotOne = _board.GetTileAt(edge.origin, out_tiles);
+		bool gotOne = _board.GetTileAt(edge.origin, out_tiles) != null;
 		int selfIndex = out_tiles.IndexOf(this);
 		if (selfIndex >= 0) {
 			out_tiles.RemoveAt(selfIndex);

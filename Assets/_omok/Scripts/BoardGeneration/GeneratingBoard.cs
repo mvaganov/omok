@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,20 +11,62 @@ public class GeneratingBoard : MonoBehaviour
 	public Color NormalTileColor = Color.white;
 	public Color EdgeTileColor = Color.red;
 	public Vector3 TileSize = new Vector3(10, 10, 0);
+	public List<GeneratedTile> _needNeighborCalculation = new List<GeneratedTile>();
+
+	public List<Vector3> tileToCreate = new List<Vector3>();
+
+	public void EnqueueTileCreation(Vector3 position) {
+		if (tileToCreate.IndexOf(position) >= 0) {
+			Debug.LogWarning("ignoring duplicate");
+			return;
+		}
+		GeneratedTile tileHere = GetTileAt(position);
+		if (tileHere != null) {
+			Debug.Log($"already a tile at {position}: {tileHere}");
+		}
+		tileToCreate.Add(position);
+	}
+
+	public void CreateQueuedTiles() {
+		if (tileToCreate.Count == 0) {
+			return;
+		}
+		List<Vector3> queueToExecute = new List<Vector3> ();
+		queueToExecute.AddRange(tileToCreate);
+		tileToCreate.Clear();
+		List<GeneratedTile> createdTiles = new List<GeneratedTile>();
+		for (int i = 0; i < queueToExecute.Count; ++i) {
+			Vector3 position = queueToExecute[i];
+			GeneratedTile newTile = CreateTile(position);
+			createdTiles.Add(newTile);
+		}
+		for(int i = 0; i < createdTiles.Count; ++i) {
+			GeneratedTile newTile = createdTiles[i];
+			newTile.InitializeNeighbors(this);
+		}
+	}
 
 	void Start()
 	{
 		_tilePool.SetData(transform, tile10x10, false);
 		//_tilePool.onReclaim += e => e.gameObject.SetActive(false);
 		//_tilePool.onInitialize += e => e.gameObject.SetActive(true);
-		GeneratedTile newTile = CreateBoard(transform.position);
-		newTile.transform.localRotation = Quaternion.identity;
-		newTile.InitializeNeighbors(this);
-		TriggerObserver(newTile);
+		EnqueueTileCreation(transform.position);
 	}
 
 	void Update()
 	{
+		CreateQueuedTiles();
+		//if (_needNeighborCalculation.Count > 0) {
+		//	for(int i = 0; i < _needNeighborCalculation.Count; i++) {
+		//		GeneratedTile tile = _needNeighborCalculation[i];
+		//		if (tile == null) {
+		//			continue;
+		//		}
+		//		tile.FindNeighbors();
+		//	}
+		//	_needNeighborCalculation.Clear();
+		//}
 	}
 
 	public bool IsEdge(GeneratedTile tile) {
@@ -36,7 +79,7 @@ public class GeneratingBoard : MonoBehaviour
 			return;
 		}
 		List<int> missingNeighbors = new List<int>();
-		List<GeneratedTile> newTiles = new List<GeneratedTile> ();
+		//List<GeneratedTile> newTiles = new List<GeneratedTile> ();
 		tile.GetNeighborIndexTo(null, missingNeighbors);
 		tile.IsMapEdge = false;
 		//Debug.Log($"{tile} missing neighbors: {missingNeighbors.Count}");
@@ -48,13 +91,19 @@ public class GeneratingBoard : MonoBehaviour
 			Vector3 nextTileCenter = edgeToFill.origin + offsetOfnextTile;
 			//GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			//cube.transform.position = nextTileCenter;
-			GeneratedTile newTile = CreateBoard(nextTileCenter);
-			if (newTile == null) {
-				Debug.Log($"tried to make tile at {tile.name}.{tile._boundaries.edges[edgeIndex]}, but its there already?");
-			}
-			newTiles.Add(newTile);
+
+			EnqueueTileCreation(nextTileCenter);
+			//GeneratedTile newTile = CreateTile(nextTileCenter);
+			//if (newTile == null) {
+			//	Debug.Log($"tried to make tile at {tile.name}.{tile._boundaries.edges[edgeIndex]}, but its there already?");
+			//}
+			//newTiles.Add(newTile);
 		}
 	}
+
+	//internal void NeedsNeighbors(GeneratedTile generatedTile) {
+	//	_needNeighborCalculation.Add(generatedTile);
+	//}
 
 	public void UntriggerObserver(GeneratedTile tile) {
 		tile.IsMapEdge = true;
@@ -81,9 +130,11 @@ public class GeneratingBoard : MonoBehaviour
 		}
 	}
 
-	public bool GetTileAt(Vector3 position, List<GeneratedTile> out_tiles) {
+	public GeneratedTile GetTileAt(Vector3 position) => GetTileAt(position, null);
+
+	public GeneratedTile GetTileAt(Vector3 position, List<GeneratedTile> out_tiles) {
 		Collider[] colliders = Physics.OverlapSphere(position, 0.5f);
-		bool gotOne = false;
+		GeneratedTile gotOne = null;
 		for (int c = 0; c < colliders.Length; c++) {
 			GeneratedTile tile = colliders[c].GetComponent<GeneratedTile>();
 			if (tile == null || tile == this || tile._board != this) {
@@ -91,8 +142,8 @@ public class GeneratingBoard : MonoBehaviour
 			}
 			if (out_tiles != null) {
 				out_tiles.Add(tile);
+				gotOne = tile;
 			}
-			gotOne = true;
 		}
 		if (out_tiles != null && out_tiles.Count != 0) {
 			GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -102,8 +153,8 @@ public class GeneratingBoard : MonoBehaviour
 		return gotOne;
 	}
 
-	public GeneratedTile CreateBoard(Vector3 nextTileCenter) {
-		if (GetTileAt(nextTileCenter, null)) {
+	public GeneratedTile CreateTile(Vector3 nextTileCenter) {
+		if (GetTileAt(nextTileCenter) != null) {
 			Debug.Log("DUPLICATE! ");
 			return null;
 		}
