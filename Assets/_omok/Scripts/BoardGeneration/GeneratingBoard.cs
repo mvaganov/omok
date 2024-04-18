@@ -15,7 +15,19 @@ public class GeneratingBoard : MonoBehaviour
 
 	public List<Vector3> tileToCreate = new List<Vector3>();
 
+	//int created = 0;
 	public void EnqueueTileCreation(Vector3 position) {
+
+		GeneratedTile foundTile = GetTileAt(position);
+		if (foundTile != null) {
+			Debug.Log($"skipping another {position}");
+			return;
+		}
+
+		//if (++created > 20) {
+		//	Debug.Log("limit reached");
+		//	return;
+		//}
 		if (tileToCreate.IndexOf(position) >= 0) {
 			Debug.LogWarning("ignoring duplicate");
 			return;
@@ -24,6 +36,7 @@ public class GeneratingBoard : MonoBehaviour
 		if (tileHere != null) {
 			Debug.Log($"already a tile at {position}: {tileHere}");
 		}
+		//Debug.Log($"Create plz {position}");
 		tileToCreate.Add(position);
 	}
 
@@ -32,17 +45,23 @@ public class GeneratingBoard : MonoBehaviour
 			return;
 		}
 		List<Vector3> queueToExecute = new List<Vector3> ();
-		queueToExecute.AddRange(tileToCreate);
-		tileToCreate.Clear();
+		//queueToExecute.AddRange(tileToCreate);
+		//tileToCreate.Clear();
+		queueToExecute.Add(tileToCreate[0]);
+		tileToCreate.RemoveAt(0);
+
 		List<GeneratedTile> createdTiles = new List<GeneratedTile>();
 		for (int i = 0; i < queueToExecute.Count; ++i) {
 			Vector3 position = queueToExecute[i];
 			GeneratedTile newTile = CreateTile(position);
-			createdTiles.Add(newTile);
+			if (newTile != null) {
+				createdTiles.Add(newTile);
+			}
 		}
+		//Debug.Log($"setting neighbors for {createdTiles.Count} tiles");
 		for(int i = 0; i < createdTiles.Count; ++i) {
 			GeneratedTile newTile = createdTiles[i];
-			newTile.InitializeNeighbors(this);
+			newTile.FindNeighbors();
 		}
 	}
 
@@ -92,6 +111,7 @@ public class GeneratingBoard : MonoBehaviour
 			//GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			//cube.transform.position = nextTileCenter;
 
+
 			EnqueueTileCreation(nextTileCenter);
 			//GeneratedTile newTile = CreateTile(nextTileCenter);
 			//if (newTile == null) {
@@ -137,19 +157,19 @@ public class GeneratingBoard : MonoBehaviour
 		GeneratedTile gotOne = null;
 		for (int c = 0; c < colliders.Length; c++) {
 			GeneratedTile tile = colliders[c].GetComponent<GeneratedTile>();
-			if (tile == null || tile == this || tile._board != this) {
+			if (tile == null || tile == this) { // || tile._board != this) {
 				continue;
 			}
 			if (out_tiles != null) {
 				out_tiles.Add(tile);
-				gotOne = tile;
 			}
+			gotOne = tile;
 		}
-		if (out_tiles != null && out_tiles.Count != 0) {
-			GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			sphere.transform.position = position;
-			sphere.name = string.Join(",", out_tiles);
-		}
+		//if (out_tiles != null && out_tiles.Count != 0) {
+		//	GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		//	sphere.transform.position = position;
+		//	sphere.name = string.Join(",", out_tiles);
+		//}
 		return gotOne;
 	}
 
@@ -167,7 +187,7 @@ public class GeneratingBoard : MonoBehaviour
 
 		newTile.name = "tile "+(int)nextTileCenter.x/TileSize.x+" "+(int)nextTileCenter.z / TileSize.y;
 		newTile.transform.SetParent(self, true);
-		newTile.InitializeNeighbors(this);
+		newTile.Initialize(this);
 		newTile.IsMapEdge = true;
 		return newTile;
 	}

@@ -13,7 +13,7 @@ public class GeneratedTile : MonoBehaviour {
 		get => _isMapEdge;
 		set {
 			_isMapEdge = value;
-			Renderer r = GetComponent<Renderer>();
+			Renderer r = GetComponentInChildren<Renderer>();
 			if (r == null) {
 				Debug.LogError($"missing renderer for {name}");
 			} else {
@@ -47,12 +47,12 @@ public class GeneratedTile : MonoBehaviour {
 		return true;
 	}
 
-	public void InitializeNeighbors(GeneratingBoard board) {
+	public void Initialize(GeneratingBoard board) {
 		_board = board;
 		if (_neighbors == null || _neighbors.Length != _boundaries.edges.Length) {
 			_neighbors = new GeneratedTile[_boundaries.edges.Length];
 		}
-		FindNeighbors();
+		//FindNeighbors();
 		//_board.NeedsNeighbors(this);
 	}
 
@@ -79,12 +79,16 @@ public class GeneratedTile : MonoBehaviour {
 			candidates.Clear();
 			if (GetNeighborCandidates(neighborIndex, candidates)) {
 				if (candidates.Count > 1) {
+					string debugInfo = "";
+					candidates.ForEach(c => debugInfo += c.name+"@"+c.transform.position);
 					throw new System.Exception($"multiple {_boundaries.edges[neighborIndex].name} neighbors for {name}!\n" +
-						$"{string.Join(", ",candidates)}");
+						$"{debugInfo}");
 				}
 				GeneratedTile otherTile = candidates[0];
 				_neighbors[neighborIndex] = otherTile;
-				otherTile.SetNeighbor(this, GetEdge(neighborIndex));
+				//Debug.Log($"{name}[{neighborIndex}] = {otherTile.name}");
+				Ray edgeRay = GetEdge(neighborIndex);
+				otherTile.SetNeighbor(this, edgeRay);
 			}
 		}
 	}
@@ -106,7 +110,7 @@ public class GeneratedTile : MonoBehaviour {
 		if (neighborIndex != -1) {
 			Ray myEdge = GetEdge(neighborIndex);
 			dist = Vector3.Distance(hisEdge.origin, myEdge.origin);
-			if (dist > _boundaries.edges[neighborIndex].Size) {
+			if (dist > _boundaries.edges[neighborIndex].Size * 3) {
 				throw new System.Exception($"portal {neighborIndex} dos not seem to connect with {hisEdge}...");
 			}
 			return;
