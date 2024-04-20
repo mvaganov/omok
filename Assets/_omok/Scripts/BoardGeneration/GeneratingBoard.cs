@@ -15,19 +15,13 @@ public class GeneratingBoard : MonoBehaviour
 
 	public List<Vector3> tileToCreate = new List<Vector3>();
 
-	//int created = 0;
 	public void EnqueueTileCreation(Vector3 position) {
 
 		GeneratedTile foundTile = GetTileAt(position);
 		if (foundTile != null) {
-			Debug.Log($"skipping another {position}");
+			//Debug.Log($"skipping another {position}");
 			return;
 		}
-
-		//if (++created > 20) {
-		//	Debug.Log("limit reached");
-		//	return;
-		//}
 		if (tileToCreate.IndexOf(position) >= 0) {
 			Debug.LogWarning("ignoring duplicate");
 			return;
@@ -45,8 +39,6 @@ public class GeneratingBoard : MonoBehaviour
 			return;
 		}
 		List<Vector3> queueToExecute = new List<Vector3> ();
-		//queueToExecute.AddRange(tileToCreate);
-		//tileToCreate.Clear();
 		queueToExecute.Add(tileToCreate[0]);
 		tileToCreate.RemoveAt(0);
 
@@ -68,24 +60,12 @@ public class GeneratingBoard : MonoBehaviour
 	void Start()
 	{
 		_tilePool.SetData(transform, tile10x10, false);
-		//_tilePool.onReclaim += e => e.gameObject.SetActive(false);
-		//_tilePool.onInitialize += e => e.gameObject.SetActive(true);
 		EnqueueTileCreation(transform.position);
 	}
 
 	void Update()
 	{
 		CreateQueuedTiles();
-		//if (_needNeighborCalculation.Count > 0) {
-		//	for(int i = 0; i < _needNeighborCalculation.Count; i++) {
-		//		GeneratedTile tile = _needNeighborCalculation[i];
-		//		if (tile == null) {
-		//			continue;
-		//		}
-		//		tile.FindNeighbors();
-		//	}
-		//	_needNeighborCalculation.Clear();
-		//}
 	}
 
 	public bool IsEdge(GeneratedTile tile) {
@@ -108,22 +88,10 @@ public class GeneratingBoard : MonoBehaviour
 			Vector3 offsetOfnextTile = edgeToFill.direction;
 			offsetOfnextTile.Scale(transform.rotation * TileSize / 2);
 			Vector3 nextTileCenter = edgeToFill.origin + offsetOfnextTile;
-			//GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			//cube.transform.position = nextTileCenter;
-
 
 			EnqueueTileCreation(nextTileCenter);
-			//GeneratedTile newTile = CreateTile(nextTileCenter);
-			//if (newTile == null) {
-			//	Debug.Log($"tried to make tile at {tile.name}.{tile._boundaries.edges[edgeIndex]}, but its there already?");
-			//}
-			//newTiles.Add(newTile);
 		}
 	}
-
-	//internal void NeedsNeighbors(GeneratedTile generatedTile) {
-	//	_needNeighborCalculation.Add(generatedTile);
-	//}
 
 	public void UntriggerObserver(GeneratedTile tile) {
 		tile.IsMapEdge = true;
@@ -165,17 +133,13 @@ public class GeneratingBoard : MonoBehaviour
 			}
 			gotOne = tile;
 		}
-		//if (out_tiles != null && out_tiles.Count != 0) {
-		//	GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-		//	sphere.transform.position = position;
-		//	sphere.name = string.Join(",", out_tiles);
-		//}
 		return gotOne;
 	}
 
 	public GeneratedTile CreateTile(Vector3 nextTileCenter) {
+		// needed because a nextTileCenter can be enqueued in *almost* the same spot
 		if (GetTileAt(nextTileCenter) != null) {
-			Debug.Log("DUPLICATE! ");
+			//Debug.Log("DUPLICATE! ");
 			return null;
 		}
 		Transform self = transform;

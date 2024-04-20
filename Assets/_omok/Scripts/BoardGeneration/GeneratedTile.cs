@@ -52,8 +52,6 @@ public class GeneratedTile : MonoBehaviour {
 		if (_neighbors == null || _neighbors.Length != _boundaries.edges.Length) {
 			_neighbors = new GeneratedTile[_boundaries.edges.Length];
 		}
-		//FindNeighbors();
-		//_board.NeedsNeighbors(this);
 	}
 
 	public Ray GetEdgeLocal(int i) {
@@ -155,19 +153,4 @@ public class GeneratedTile : MonoBehaviour {
 	void Update() {
 
 	}
-
-	//private void OnTriggerEnter(Collider other) {
-	//	GeneratorCursor cursor = other.GetComponent<GeneratorCursor>();
-	//	if (cursor != null && cursor.IsObserving(_board)) {
-	//		_board.TriggerObserver(this);
-	//	}
-	//}
-
-	//private void OnTriggerExit(Collider other) {
-	//	Debug.Log($"exit! {name}");
-	//	GeneratorCursor cursor = other.GetComponent<GeneratorCursor>();
-	//	if (cursor != null && cursor.IsObserving(_board)) {
-	//		_board.UntriggerObserver(this);
-	//	}
-	//}
 }
