@@ -3,9 +3,10 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Omok {
-	// after changing the turn with the graph, unselect the buttons so the light shows up when the mouse moves again
-	// buttons to move (scroll/rotate) the camera
-	// TODO scoring calc should have a depth, with new scores for each depth level. if depth is greater than 1, only evaluate top X moves. make sure scores past depth alternate player, so values change plus or minus
+	// game should gracefully wait if a move is selected before it is fully calculated... or just continue with the move without the calc
+	// TODO scoring calc should have a depth, with new scores for each depth level.
+	//		if depth is greater than 1, only evaluate top X moves.
+	//		make sure scores past depth alternate player, so values change plus or minus
 	// TODO scrolling, and board expansion
 	// TODO eyes should dart between moves tied for best
 	// TODO likelihood of looking at other moves is 1/(n^2) instead of 1/(n)
