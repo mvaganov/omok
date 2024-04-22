@@ -25,7 +25,7 @@ namespace Omok {
 		public bool TryGetState(Coord coord, out OmokUnitState state);
 		public bool TrySetState(Coord coord, OmokUnitState unitState);
 		public void ForEachPiece(Action<Coord, OmokUnitState> action);
-		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete);
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete, Func<bool> keepCalculating);
 		public Coord size { get; }
 		public Coord start { get; }
 		public void Copy(IOmokBoardState source);
@@ -137,8 +137,12 @@ namespace Omok {
 
 		public void ForEachPiece(Action<Coord, OmokUnitState> action) => dataBackstop.ForEachPiece(action);
 
-		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
-			yield return dataBackstop.ForEachPiece(action, onForLoopComplete);
+		/// <param name="action">what to doto each pieace (given its Coord and state)</param>
+		/// <param name="onForLoopComplete">what to do when everything is finished</param>
+		/// <param name="keepCalculating">how to determine if it should keep working</param>
+		/// <returns></returns>
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete, Func<bool> keepCalculating) {
+			yield return dataBackstop.ForEachPiece(action, onForLoopComplete, keepCalculating);
 		}
 
 		public OmokBoardState() {

@@ -40,9 +40,12 @@ namespace Omok {
 			}
 		}
 
-		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete, Func<bool> keepCalculating) {
 			List<Coord> keys = new List<Coord>(stateMap.Keys);
 			for (int i = 0; i < keys.Count; ++i) {
+				if (keepCalculating != null && !keepCalculating.Invoke()) {
+					yield break;
+				}
 				action(keys[i], stateMap[keys[i]]);
 				yield return null;
 			}

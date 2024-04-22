@@ -80,11 +80,14 @@ namespace Omok {
 			return state;
 		}
 
-		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete) {
+		public IEnumerator ForEachPiece(Action<Coord, OmokUnitState> action, Action onForLoopComplete, Func<bool> keepCalculating) {
 			Coord cursor = start;
 			int horizontalLimit = start.x + size.x;
 			int boardSize = serialized.Count / ElementBitCount;
 			for (int i = 0; i < boardSize; ++i) {
+				if (keepCalculating != null && !keepCalculating.Invoke()) {
+					yield break;
+				}
 				ForEachPieceSerializedIterate(i, ref cursor, horizontalLimit, action);
 				yield return null;
 			}
