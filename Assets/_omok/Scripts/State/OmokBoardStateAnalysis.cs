@@ -69,16 +69,23 @@ namespace Omok {
 			boardState = node.boardState;
 			lines.Clear();
 			_doingAnalysis = true;
-			yield return this.boardState.ForEachPiece(PieceAnalysis, null);
+			yield return this.boardState.ForEachPiece(PieceAnalysis, null, GameCaresAboutThisBoard);
 			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
 			onAnalysisComplete.Invoke(node);
+			bool GameCaresAboutThisBoard() {
+				if (node.boardState != boardState) {
+					Debug.Log("board state changed while calculating...");
+					return false;
+				}
+				return true;
+			}
 		}
 
 		public void Analyze(OmokBoardState state) {
-			this.boardState = state;
+			boardState = state;
 			lines.Clear();
-			this.boardState.ForEachPiece(PieceAnalysis);
+			boardState.ForEachPiece(PieceAnalysis);
 			scoring = GetPlayerScoresFromLines();
 		}
 
