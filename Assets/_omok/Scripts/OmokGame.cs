@@ -110,6 +110,7 @@ namespace Omok {
 			if (graphBehaviour.graph.IsDoneCalculating(move)) {
 				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
 			} else {
+				return;
 				Debug.LogWarning($"still calculating... ok. need to stop calculating, and set state to {move}");
 				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove);
 			}
