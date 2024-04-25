@@ -96,6 +96,13 @@ namespace Omok {
 			OmokGoogleTargetListener targetListener = GetComponent<OmokGoogleTargetListener>();
 			targetListener.ClearLookTargets();
 			++WhosTurn;
+
+			graphBehaviour.RefreshAllPredictionTokens();
+			graphBehaviour.NewState = true;
+			//Debug.Log("NEXT TURN PLZ");
+
+			Board.State.Copy(State);
+			//Board.RefreshDebug();
 		}
 
 		/// <summary>
@@ -110,15 +117,10 @@ namespace Omok {
 			if (graphBehaviour.graph.IsDoneCalculating(move)) {
 				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
 			} else {
-				return;
+				//return;
 				Debug.LogWarning($"still calculating... ok. need to stop calculating, and set state to {move}");
 				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove);
 			}
-			graphBehaviour.RefreshAllPredictionTokens();
-			graphBehaviour.NewState = true;
-			//Debug.Log("NEXT TURN PLZ");
-			Board.State.Copy(State);
-			//Board.RefreshDebug();
 		}
 
 		public int GetPlayerIndex(OmokPlayer player) => System.Array.IndexOf(players, player);
