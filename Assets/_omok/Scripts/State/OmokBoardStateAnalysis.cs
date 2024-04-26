@@ -60,7 +60,7 @@ namespace Omok {
 			onForLoopComplete?.Invoke();
 		}
 
-		public IEnumerator AnalyzeCoroutine(OmokHistoryNode node, Action<OmokHistoryNode> onAnalysisComplete) {
+		public IEnumerator AnalyzeCoroutine(OmokHistoryNode node, Action<OmokHistoryNode> onAnalysisComplete, Func<bool> keepCalculating) {
 			//if (node.sourceMove != move || !node.state.Equals(state)) {
 			//	Debug.Log($"data is not what is expected ({node.sourceMove}) != {move}");
 			//} else {
@@ -69,7 +69,10 @@ namespace Omok {
 			boardState = node.boardState;
 			lines.Clear();
 			_doingAnalysis = true;
-			yield return this.boardState.ForEachPiece(PieceAnalysis, null, GameCaresAboutThisBoard);
+			if (keepCalculating == null) {
+				keepCalculating = GameCaresAboutThisBoard;
+			}
+			yield return this.boardState.ForEachPiece(PieceAnalysis, null, keepCalculating);
 			scoring = GetPlayerScoresFromLines();
 			_doingAnalysis = false;
 			onAnalysisComplete.Invoke(node);

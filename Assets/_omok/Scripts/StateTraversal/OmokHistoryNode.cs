@@ -83,7 +83,8 @@ namespace Omok {
 		}
 
 		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, byte whosTurnIsItNow,
-			Action<OmokHistoryNode> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner, out OmokHistoryNode nextNode) {
+			Action<OmokHistoryNode> whatToDoWhenMoveCalculationFinishes, MonoBehaviour coroutineRunner,
+			out OmokHistoryNode nextNode, Func<bool> keepCalculating) {
 			/// if the move is already here, AddCallBackOnFinish, return false
 			OmokMovePath nextPath = new OmokMovePath(move);
 			int index = Array.BinarySearch(movePaths, nextPath, OmokMovePath.Comparer.Instance);
@@ -103,7 +104,7 @@ namespace Omok {
 			nextPath.nextNode.BoardAnalysis.MarkDoingAnalysis(true);
 			InsertMove(~index, nextPath);
 			coroutineRunner.StartCoroutine(nextNode.BoardAnalysis.AnalyzeCoroutine(nextNode,
-				whatToDoWhenMoveCalculationFinishes));
+				whatToDoWhenMoveCalculationFinishes, keepCalculating));
 			if (index >= 0) {
 				Debug.LogError($"{nextPath.move.coord} already in list? {index}");
 				return NextStateMovementResult.Error;

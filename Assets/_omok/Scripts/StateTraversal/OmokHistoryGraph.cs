@@ -5,7 +5,7 @@ using System;
 
 namespace Omok {
 	public enum NextStateMovementResult {
-		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error
+		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error, Cancelled
 	}
 
 	[System.Serializable]
@@ -24,7 +24,7 @@ namespace Omok {
 			timeline.Add(currentNode);
 			AddActionWhenMoveAnalysisFinishes(currentNode, NotifyCurrentNodeChanged);
 			AddActionWhenMoveAnalysisFinishes(currentNode, onComplete);
-			coroutineRunner.StartCoroutine(currentNode.BoardAnalysis.AnalyzeCoroutine(currentNode, FinishedAnalysis));
+			coroutineRunner.StartCoroutine(currentNode.BoardAnalysis.AnalyzeCoroutine(currentNode, FinishedAnalysis, null));
 		}
 
 		public void NotifyCurrentNodeChanged(OmokHistoryNode node) {
@@ -60,13 +60,13 @@ namespace Omok {
 			return currentNode.IsDoneCalculating(move);
 		}
 
-		public NextStateMovementResult DoMoveCalculation(OmokMove move, byte whosTurnIsItNow, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete) {
+		public NextStateMovementResult DoMoveCalculation(OmokMove move, byte whosTurnIsItNow, MonoBehaviour coroutineRunner, Action<OmokHistoryNode> onComplete, Func<bool> checkIfCalculationSholdContinue) {
 			bool validMove = currentNode != null && currentNode.boardState != null &&
 				currentNode.boardState.GetState(move.coord) == OmokUnitState.None;
 			if (!validMove) {
 				return NextStateMovementResult.Error;
 			}
-			NextStateMovementResult calcResult = currentNode.AddMoveIfNotAlreadyCalculating(move, whosTurnIsItNow, FinishedAnalysis, coroutineRunner, out OmokHistoryNode nextNode);
+			NextStateMovementResult calcResult = currentNode.AddMoveIfNotAlreadyCalculating(move, whosTurnIsItNow, FinishedAnalysis, coroutineRunner, out OmokHistoryNode nextNode, checkIfCalculationSholdContinue);
 			switch (calcResult) {
 				case NextStateMovementResult.Success:
 					onComplete?.Invoke(nextNode);
@@ -112,7 +112,7 @@ namespace Omok {
 			if (nextNode != null) {
 				SetState(nextNode, onComplete);
 			}
-			DoMoveCalculation(move, whosTurnIsItNow, coroutineRunner, onComplete);
+			DoMoveCalculation(move, whosTurnIsItNow, coroutineRunner, onComplete, null);
 			return NextStateMovementResult.StillCalculating;
 		}
 

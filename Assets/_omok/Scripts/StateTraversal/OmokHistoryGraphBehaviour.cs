@@ -143,7 +143,9 @@ namespace Omok {
 
 		public NextStateMovementResult DoMoveCalculation(Coord coord) {
 			OmokMove move = new OmokMove(coord, game.WhosTurn);
-			return graph.DoMoveCalculation(move, game.NextTurn, this, OnMoveCalcFinish);
+			OmokHistoryNode currentNode = graph.currentNode;
+			bool StillSameNode() => graph.currentNode == currentNode;
+			return graph.DoMoveCalculation(move, game.NextTurn, this, OnMoveCalcFinish, StillSameNode);
 		}
 
 		public GameObject test;
