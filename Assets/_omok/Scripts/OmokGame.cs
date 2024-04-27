@@ -121,8 +121,8 @@ namespace Omok {
 				Debug.LogWarning($"still calculating... ok. need to stop calculating, and set state to {move}");
 				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
 				OmokHistoryNode currentNode = graphBehaviour.graph.currentNode;
-				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove, StillSameNode);
 				bool StillSameNode() => graphBehaviour.graph.currentNode == currentNode;
+				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove, StillSameNode);
 			}
 		}
 
