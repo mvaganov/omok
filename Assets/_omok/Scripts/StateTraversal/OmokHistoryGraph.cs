@@ -5,7 +5,7 @@ using System;
 
 namespace Omok {
 	public enum NextStateMovementResult {
-		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error, Cancelled
+		Success, StartedCalculating, StillCalculating, FinishedCalculating, Error, Cancelled, NoCalculation
 	}
 
 	[System.Serializable]
@@ -56,7 +56,7 @@ namespace Omok {
 			return true;
 		}
 
-		public bool IsDoneCalculating(OmokMove move) {
+		public NextStateMovementResult IsDoneCalculating(OmokMove move) {
 			return currentNode.IsDoneCalculating(move);
 		}
 

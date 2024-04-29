@@ -54,8 +54,8 @@ namespace Omok {
 		}
 
 		private void NotifyTurnChange() {
-			_gameEvents.OnTurn.Invoke(whosTurn);
 			_gameEvents.OnTurnColorHex.Invoke(ColorUtility.ToHtmlStringRGBA(players[whosTurn].Color));
+			_gameEvents.OnTurn.Invoke(whosTurn);
 		}
 
 		public OmokBoard Board => board;
@@ -110,20 +110,39 @@ namespace Omok {
 		/// </summary>
 		public void PlacePieceForCurrentPlayerAt(Coord coord) {
 			OmokPiece piece = board.PieceAt(coord);
+			OmokPlayer player = players[WhosTurn];
 			if (piece == null) {
-				piece = players[WhosTurn].CreatePiece(coord);
+				piece = player.CreatePiece(coord);
 			}
 			OmokMove move = new OmokMove(coord, WhosTurn);
-			if (graphBehaviour.graph.IsDoneCalculating(move)) {
-				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
-			} else {
-				//return;
-				Debug.LogWarning($"still calculating... ok. need to stop calculating, and set state to {move}");
-				NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
-				OmokHistoryNode currentNode = graphBehaviour.graph.currentNode;
-				bool StillSameNode() => graphBehaviour.graph.currentNode == currentNode;
-				graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove, StillSameNode);
+			NextStateMovementResult isMoveDone = graphBehaviour.graph.IsDoneCalculating(move);
+			switch (isMoveDone) {
+				case NextStateMovementResult.Success:
+					NotifyNextMove(graphBehaviour.graph.currentNode.GetMove(move));
+					return;
+				case NextStateMovementResult.NoCalculation:
+					Debug.LogWarning("-----you're clicking WAAAAYYY too fast!");
+					return;
+				case NextStateMovementResult.StillCalculating:
+					Debug.LogWarning("--you're clicking too fast!");
+					player.FreePiece(piece);
+					return;
+				default:
+					Debug.LogError($"unexpected {isMoveDone}");
+					break;
 			}
+				////return;
+				//Debug.LogWarning($"still calculating... ok. need to stop calculating, and set state to {move}");
+				//OmokHistoryNode nextNode = graphBehaviour.graph.currentNode.GetMove(move);
+				//if (nextNode == null) {
+				//	//Debug.LogWarning($"node for {coord} does not exist...");
+				//	//return;
+				//	throw new System.Exception("BAD!");
+				//}
+				//NotifyNextMove(nextNode);
+				//OmokHistoryNode currentNode = graphBehaviour.graph.currentNode;
+				//bool StillSameNode() => graphBehaviour.graph.currentNode == currentNode;
+				//graphBehaviour.graph.DoMoveCalculation(move, NextTurn, this, NotifyNextMove, StillSameNode);
 		}
 
 		public int GetPlayerIndex(OmokPlayer player) => System.Array.IndexOf(players, player);

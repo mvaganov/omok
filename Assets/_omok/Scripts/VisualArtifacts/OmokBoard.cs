@@ -32,7 +32,7 @@ namespace Omok {
 		protected Vector3 mousePosition;
 		protected Coord _lastHover;
 		[SerializeField]
-		protected UnityEvent_Coord _onClick;
+		protected UnityEvent_Coord _onClick = new UnityEvent_Coord();
 		[SerializeField]
 		protected UnityEvent_Coord _onHover;
 		protected bool _isMouseOnBoard = true;
@@ -171,7 +171,7 @@ namespace Omok {
 					_lastHover = currentSelectedSpot;
 				}
 			}
-			if (Input.GetKeyDown(click)) {
+			if (Input.GetKeyDown(click) && _onClick != null) {
 				_onClick.Invoke(currentSelectedSpot);
 			}
 		}

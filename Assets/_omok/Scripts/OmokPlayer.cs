@@ -57,6 +57,12 @@ namespace Omok {
 			CleanUpEmptyPieceSlots();
 			return piece;
 		}
+		public void FreePiece(OmokPiece piece) {
+			if (currentPieces.IndexOf(piece) < 0) {
+				throw new System.Exception("piece cannot be released... it isn't known?");
+			}
+			piece.gameObject.SetActive(false);
+		}
 		private void CleanUpEmptyPieceSlots() {
 			for (int i = currentPieces.Count - 1; i >= 0; i--) {
 				OmokPiece piece = currentPieces[i];

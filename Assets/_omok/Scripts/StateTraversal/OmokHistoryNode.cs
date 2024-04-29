@@ -74,12 +74,19 @@ namespace Omok {
 			return cursor;
 		}
 
-		public bool IsDoneCalculating(OmokMove move) {
+		public NextStateMovementResult IsDoneCalculating(OmokMove move) {
 			OmokHistoryNode alreadyExistingNode = GetMove(move);
 			if (alreadyExistingNode != null) {
-				return !alreadyExistingNode.BoardAnalysis.IsDoingAnalysis && alreadyExistingNode.BoardAnalysis.scoring != null;
+				OmokBoardStateAnalysis analysis = alreadyExistingNode.BoardAnalysis;
+				if (!analysis.IsDoingAnalysis) {
+					if (analysis.scoring != null) {
+						return NextStateMovementResult.Success;
+					}
+					return NextStateMovementResult.Error;
+				}
+				return NextStateMovementResult.StillCalculating;
 			}
-			return false;
+			return NextStateMovementResult.NoCalculation;
 		}
 
 		public NextStateMovementResult AddMoveIfNotAlreadyCalculating(OmokMove move, byte whosTurnIsItNow,
