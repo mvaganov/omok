@@ -66,7 +66,7 @@ namespace Omok {
 			IEnumerator RefreshMapStateNextFrame() {
 				yield return null;
 				omokGame.Board.LoadState(omokGame.State);
-				Debug.Log($"({obj.currentNode.Turn}) next person's turn: {obj.currentNode.whosTurnIsItNow} after {obj.currentNode}");
+				//Debug.Log($"({obj.currentNode.Turn}) next person's turn: {obj.currentNode.whosTurnIsItNow} after {obj.currentNode}");
 				omokGame.WhosTurn = obj.currentNode.whosTurnIsItNow;
 			}
 			//}

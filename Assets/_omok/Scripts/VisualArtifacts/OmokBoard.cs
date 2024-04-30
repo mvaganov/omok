@@ -89,7 +89,7 @@ namespace Omok {
 			FreeCurrentPieces();
 			map.Clear();
 			//Debug.Log(state.DebugSerialized());
-			Debug.Log(state.ToDebugString());
+			//Debug.Log(state.ToDebugString());
 			state.ForEachPiece(CreatePiece);
 		}
 
