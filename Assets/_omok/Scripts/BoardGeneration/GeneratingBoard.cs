@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO really? a dynamic board? maybe make it static, and focus on the gameplay.
 public class GeneratingBoard : MonoBehaviour
 {
 	public GeneratedTile tile10x10;
